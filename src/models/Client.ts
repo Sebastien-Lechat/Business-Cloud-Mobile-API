@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 
-const userSchema = new mongoose.Schema({
+const clientSchema = new mongoose.Schema({
     name: {
         type: String,
         required: [true],
@@ -65,6 +65,36 @@ const userSchema = new mongoose.Schema({
             type: Boolean
         }
     },
+    address: {
+        type: String,
+    },
+    zip: {
+        type: String,
+    },
+    city: {
+        type: String,
+    },
+    country: {
+        type: String,
+    },
+    activity: {
+        type: String,
+    },
+    numTVA: {
+        type: String,
+    },
+    numRCS: {
+        type: String,
+    },
+    numSIRET: {
+        type: String,
+    },
+    note: {
+        type: String,
+    },
+    userId: {
+        type: mongoose.Schema.Types.ObjectId,
+    },
     currency: {
         type: String,
     },
@@ -74,6 +104,6 @@ const userSchema = new mongoose.Schema({
     },
 }, { timestamps: true });
 
-const User = mongoose.model('user', userSchema);
+const Client = mongoose.model('client', clientSchema);
 
-export { User };
+export { Client };
