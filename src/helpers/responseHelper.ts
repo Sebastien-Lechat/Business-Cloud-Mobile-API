@@ -1,13 +1,13 @@
-import { Response } from "express";
+import { Response } from 'express';
 
 /**
  * Fontion d'envoi de réponse préfaite
- * @param res 
- * @param code 
- * @param body 
+ * @param res Réponse express
+ * @param code Code à envoyer
+ * @param body Body de la réponse
  */
-const sendResponse = (res: Response, code: number, body: Object) => {
+const sendResponse = (res: Response, code: number, body: object) => {
     res.status(code).send(body);
-}
+};
 
-export { sendResponse }
+export { sendResponse };

@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { config } from "dotenv";
+import { config } from 'dotenv';
 
 config();
 
@@ -10,4 +10,4 @@ mongoose.connect(MongoURL, {
     useCreateIndex: true,
     useFindAndModify: false,
     useUnifiedTopology: true
-})
+});
