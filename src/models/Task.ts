@@ -3,7 +3,7 @@ import mongoose from 'mongoose';
 const taskSchema = new mongoose.Schema({
     name: {
         type: String,
-        required: [true],
+        required: true,
     },
     progression: {
         type: Number,
@@ -14,7 +14,7 @@ const taskSchema = new mongoose.Schema({
     },
     projectId: {
         type: mongoose.Schema.Types.ObjectId,
-        required: [true],
+        required: true,
     },
     employees: [{
         type: mongoose.Schema.Types.ObjectId,
@@ -26,7 +26,7 @@ const taskSchema = new mongoose.Schema({
     },
     deadline: {
         type: Date,
-        required: [true],
+        required: true,
     },
     estimateHour: {
         type: Number,

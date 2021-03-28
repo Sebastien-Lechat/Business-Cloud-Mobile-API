@@ -14,6 +14,7 @@ app.use(cors());
 
 // let http = require('http').createServer(app);
 
+app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 app.use((error: any, request: Request, response: Response, next: NextFunction) => {

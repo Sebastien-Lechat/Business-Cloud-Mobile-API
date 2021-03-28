@@ -1,13 +1,16 @@
 import mongoose from 'mongoose';
+import { hashPassword } from '../helpers/passwordHelper';
+import { CreateClientI } from '../interfaces/clientInterface';
 
 const userSchema = new mongoose.Schema({
     name: {
         type: String,
-        required: [true],
+        required: true,
     },
     email: {
         type: String,
-        required: [true],
+        required: true,
+        unique: true,
     },
     phone: {
         type: String,
@@ -16,11 +19,11 @@ const userSchema = new mongoose.Schema({
         type: String,
     },
     birthdayDate: {
-        type: Date,
+        type: String,
     },
     password: {
         type: String,
-        required: [true],
+        required: true,
     },
     token: {
         type: String,

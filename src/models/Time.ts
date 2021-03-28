@@ -3,11 +3,11 @@ import mongoose from 'mongoose';
 const timeSchema = new mongoose.Schema({
     userId: {
         type: mongoose.Schema.Types.ObjectId,
-        required: [true],
+        required: true,
     },
     projectId: {
         type: mongoose.Schema.Types.ObjectId,
-        required: [true],
+        required: true,
     },
     taskId: {
         type: mongoose.Schema.Types.ObjectId,
@@ -18,7 +18,7 @@ const timeSchema = new mongoose.Schema({
     },
     duration: {
         type: Number,
-        required: [true],
+        required: true,
     },
 }, { timestamps: true });
 

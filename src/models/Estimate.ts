@@ -3,19 +3,19 @@ import mongoose from 'mongoose';
 const estimateSchema = new mongoose.Schema({
     estimateNum: {
         type: String,
-        required: [true],
+        required: true,
     },
     status: {
         type: String,
-        required: [true],
+        required: true,
     },
     clientId: {
         type: mongoose.Schema.Types.ObjectId,
-        required: [true],
+        required: true,
     },
     enterpriseId: {
         type: mongoose.Schema.Types.ObjectId,
-        required: [true],
+        required: true,
     },
     articles: [{
         articleId: {
@@ -39,7 +39,7 @@ const estimateSchema = new mongoose.Schema({
     },
     deadline: {
         type: Date,
-        required: [true],
+        required: true,
     },
 }, { timestamps: true });
 

@@ -3,27 +3,27 @@ import mongoose from 'mongoose';
 const expenseSchema = new mongoose.Schema({
     expenseNum: {
         type: String,
-        required: [true],
+        required: true,
     },
     price: {
         type: Number,
-        required: [true],
+        required: true,
     },
     category: {
         type: String,
-        required: [true],
+        required: true,
     },
     accountNumber: {
         type: Number,
-        required: [true],
+        required: true,
     },
     userId: {
         type: mongoose.Schema.Types.ObjectId,
-        required: [true],
+        required: true,
     },
     projectId: {
         type: mongoose.Schema.Types.ObjectId,
-        required: [true],
+        required: true,
     },
     file: {
         type: String,

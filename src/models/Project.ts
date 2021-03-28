@@ -3,19 +3,19 @@ import mongoose from 'mongoose';
 const projectSchema = new mongoose.Schema({
     projectNum: {
         type: String,
-        required: [true],
+        required: true,
     },
     title: {
         type: String,
-        required: [true],
+        required: true,
     },
     status: {
         type: String,
-        required: [true],
+        required: true,
     },
     clientId: {
         type: String,
-        required: [true],
+        required: true,
     },
     progression: {
         type: Number,
@@ -27,7 +27,7 @@ const projectSchema = new mongoose.Schema({
     },
     deadline: {
         type: Date,
-        required: [true],
+        required: true,
     },
     description: {
         type: String,

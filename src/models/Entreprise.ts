@@ -3,35 +3,35 @@ import mongoose from 'mongoose';
 const entrepriseSchema = new mongoose.Schema({
     address: {
         type: String,
-        required: [true],
+        required: true,
     },
     zip: {
         type: String,
-        required: [true],
+        required: true,
     },
     city: {
         type: String,
-        required: [true],
+        required: true,
     },
     country: {
         type: String,
-        required: [true],
+        required: true,
     },
     activity: {
         type: String,
-        required: [true],
+        required: true,
     },
     numTVA: {
         type: String,
-        required: [true],
+        required: true,
     },
     numRCS: {
         type: String,
-        required: [true],
+        required: true,
     },
     numSIRET: {
         type: String,
-        required: [true],
+        required: true,
     },
 }, { timestamps: true });
 
