@@ -172,16 +172,16 @@ export class AuthController {
     static requestDoubleAuth = async (req: Request, res: Response) => {
         try {
             // Récupération de toutes les données du body
-            const { email, id } = req.body;
+            const { email, userId } = req.body;
 
             // Vérification de si toutes les données nécessaire sont présentes
-            if (!email || !id) throw new Error('Missing email or id field');
+            if (!email || !userId) throw new Error('Missing email or id field');
 
             // Vérification de l'email de l'utilisateur
             if (!VerifyData.validEmail(email)) throw new Error('Invalid email addresse');
 
             // Récupération de l'utilisateur pour vérifier si il existe
-            const user = await findUser(email, id);
+            const user = await findUser(email, userId);
             if (!user) throw new Error('Invalid user information');
 
             // Création du code a envoyer, et de si l'email est déjà vérifié
