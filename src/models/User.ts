@@ -3,11 +3,12 @@ import mongoose from 'mongoose';
 const userSchema = new mongoose.Schema({
     name: {
         type: String,
-        required: [true],
+        required: true,
     },
     email: {
         type: String,
-        required: [true],
+        required: true,
+        unique: true,
     },
     phone: {
         type: String,
@@ -16,11 +17,11 @@ const userSchema = new mongoose.Schema({
         type: String,
     },
     birthdayDate: {
-        type: Date,
+        type: String,
     },
     password: {
         type: String,
-        required: [true],
+        required: true,
     },
     token: {
         type: String,
@@ -30,10 +31,11 @@ const userSchema = new mongoose.Schema({
     },
     attempt: {
         type: Number,
+        default: 0,
     },
     lastLogin: {
-        type: Date,
-        default: new Date(),
+        type: Number,
+        default: Date.now(),
     },
     reset_password: {
         token: {
@@ -64,6 +66,9 @@ const userSchema = new mongoose.Schema({
         verified: {
             type: Boolean
         }
+    },
+    post: {
+        type: String,
     },
     currency: {
         type: String,

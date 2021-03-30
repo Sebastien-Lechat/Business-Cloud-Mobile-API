@@ -3,15 +3,15 @@ import mongoose from 'mongoose';
 const articleSchema = new mongoose.Schema({
     name: {
         type: String,
-        required: [true],
+        required: true,
     },
     price: {
         type: Number,
-        required: [true],
+        required: true,
     },
     accountNumber: {
         type: Number,
-        required: [true],
+        required: true,
     },
     tva: {
         type: Number,

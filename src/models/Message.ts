@@ -3,11 +3,11 @@ import mongoose from 'mongoose';
 const messageSchema = new mongoose.Schema({
     conversationId: {
         type: mongoose.Schema.Types.ObjectId,
-        required: [true],
+        required: true,
     },
     text: {
         type: String,
-        required: [true],
+        required: true,
     }
 }, { timestamps: true });
 

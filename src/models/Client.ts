@@ -3,11 +3,11 @@ import mongoose from 'mongoose';
 const clientSchema = new mongoose.Schema({
     name: {
         type: String,
-        required: [true],
+        required: true,
     },
     email: {
         type: String,
-        required: [true],
+        required: true,
     },
     phone: {
         type: String,
@@ -16,11 +16,11 @@ const clientSchema = new mongoose.Schema({
         type: String,
     },
     birthdayDate: {
-        type: Date,
+        type: String,
     },
     password: {
         type: String,
-        required: [true],
+        required: true,
     },
     token: {
         type: String,
@@ -30,10 +30,11 @@ const clientSchema = new mongoose.Schema({
     },
     attempt: {
         type: Number,
+        default: 0,
     },
     lastLogin: {
-        type: Date,
-        default: new Date(),
+        type: Number,
+        default: Date.now(),
     },
     reset_password: {
         token: {
