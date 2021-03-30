@@ -1,6 +1,4 @@
 import mongoose from 'mongoose';
-import { hashPassword } from '../helpers/passwordHelper';
-import { CreateClientI } from '../interfaces/clientInterface';
 
 const userSchema = new mongoose.Schema({
     name: {
