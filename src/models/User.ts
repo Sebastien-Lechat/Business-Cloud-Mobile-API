@@ -31,10 +31,11 @@ const userSchema = new mongoose.Schema({
     },
     attempt: {
         type: Number,
+        default: 0,
     },
     lastLogin: {
-        type: Date,
-        default: new Date(),
+        type: Number,
+        default: Date.now(),
     },
     reset_password: {
         token: {
@@ -65,6 +66,9 @@ const userSchema = new mongoose.Schema({
         verified: {
             type: Boolean
         }
+    },
+    post: {
+        type: String,
     },
     currency: {
         type: String,

@@ -30,10 +30,11 @@ const clientSchema = new mongoose.Schema({
     },
     attempt: {
         type: Number,
+        default: 0,
     },
     lastLogin: {
-        type: Date,
-        default: new Date(),
+        type: Number,
+        default: Date.now(),
     },
     reset_password: {
         token: {

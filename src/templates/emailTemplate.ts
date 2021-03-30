@@ -26,7 +26,7 @@ const passwordLostModel = (name: string, token: string) => {
                     <tr>
                         <td style="text-align:center;">
                             <a href="" title="logo" target="_blank">
-                            <img width="60" src="" title="logo" alt="logo">
+                            <img width="375" src="https://i.ibb.co/898J5pv/BUSINESS-CLOUD-Logo.png" title="logo" alt="logo">
                             </a>
                         </td>
                     </tr>
@@ -105,7 +105,7 @@ const sendCodeModel = (name: string, code: number, reason: string) => {
                     <tr>
                         <td style="text-align:center;">
                             <a href="" title="logo" target="_blank">
-                            <img width="60" src="" title="logo" alt="logo">
+                            <img width="375" src="https://i.ibb.co/898J5pv/BUSINESS-CLOUD-Logo.png" alt="BUSINESS-CLOUD-Logo" title="logo" alt="logo">
                             </a>
                         </td>
                     </tr>

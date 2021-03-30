@@ -13,7 +13,7 @@ const sendMail = async (email: string, mailSubject: string, model: string): Prom
         const transporter = nodemailer.createTransport({
             host: 'smtp.gmail.com',
             port: 465,
-            secure: true, // true for 465, false for other ports
+            secure: true,
             auth: {
                 user: accountMail,
                 pass: accountPassword,
@@ -21,7 +21,7 @@ const sendMail = async (email: string, mailSubject: string, model: string): Prom
         });
 
         await transporter.sendMail({
-            from: 'Lechat Sébastien - Business Cloud Mobile Support <' + accountMail + '>', // sender address
+            from: 'Business Cloud Mobile Support - Lechat Sébastien <' + accountMail + '>',
             to: email,
             subject: mailSubject,
             html: model,
