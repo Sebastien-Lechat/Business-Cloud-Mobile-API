@@ -1,13 +1,14 @@
 
 import { Request, Response } from 'express';
-import { userHelper } from '../helpers/userHelper';
+import { userUtils } from '../utils/userUtils';
 import { sendMail } from '../helpers/emailHelper';
 import { passwordLostModel, sendCodeModel } from '../templates/emailTemplate';
 import { comparePassword, hashPassword } from '../helpers/passwordHelper';
 import { errorHandler, sendResponse } from '../helpers/responseHelper';
 import VerifyData from '../helpers/verifyDataHelper';
-import { ClientI } from '../interfaces/userInterface';
+import { ClientI, UserObject } from '../interfaces/userInterface';
 import { Client } from '../models/Client';
+import validator from 'validator';
 
 export class AuthController {
     /**
@@ -27,21 +28,21 @@ export class AuthController {
             if (!VerifyData.validEmail(email)) throw new Error('Invalid email addresse');
 
             // Récupération de l'utilisateur si il existe
-            let user = await userHelper.findUser(email);
+            let user = await userUtils.findUser(email);
             if (!user) throw new Error('Invalid login credential');
 
             // Vérification de si l'utilisateur n'a pas fait trop de tentative de connexion
             const timeBetweenLastLogin = (Date.now() - user.data.lastLogin) / 1000;
 
             // Si l'utilisateur à respecter les deux minutes d'attente on remet sont nombres d'essai à 0
-            if (user.data.attempt >= 5 && timeBetweenLastLogin > 300) await userHelper.updateLastLogin(user, true);
+            if (user.data.attempt >= 5 && timeBetweenLastLogin > 300) await userUtils.updateLastLogin(user, true);
 
             // On vérifie le nombre de connnexion et le temps depuis la dernière connexion
             if (user.data.attempt >= 5 && timeBetweenLastLogin < 300) throw new Error('Too many attempts on this email (5 max) - Please wait (5min)');
 
             // Vérification de si le mot de passe est correct ou non. Si il ne l'est pas on ajoute un essai de connexion
             if (!await comparePassword(password, user.data.password)) {
-                await userHelper.updateLastLogin(user);
+                await userUtils.updateLastLogin(user);
                 throw new Error('Invalid login credential');
             }
 
@@ -60,9 +61,9 @@ export class AuthController {
             }
 
             // Génération des tokens de l'utilisateur et de la réponse
-            user = await userHelper.generateUserToken(user);
-            user = await userHelper.generateUserRefreshToken(user);
-            const toReturn = await userHelper.generateUserJSON(user);
+            user = await userUtils.generateUserToken(user);
+            user = await userUtils.generateUserRefreshToken(user);
+            const toReturn = await userUtils.generateUserJSON(user);
 
             // Envoi de la réponse
             sendResponse(res, 200, { error: false, message: 'Successfully connected', user: toReturn });
@@ -78,7 +79,6 @@ export class AuthController {
             else if (err.message === 'Too many attempts on this email (5 max) - Please wait (5min)') sendResponse(res, 400, { error: false, code: '101009', message: err.message });
             else errorHandler(res, err);
         }
-
     }
 
     /**
@@ -98,7 +98,7 @@ export class AuthController {
             if (!VerifyData.validEmail(email)) throw new Error('Invalid email addresse');
 
             // Vérification de si l'email existe déjà
-            if (await userHelper.emailAlreadyExist(email)) throw new Error('This email is already used');
+            if (await userUtils.emailAlreadyExist(email)) throw new Error('This email is already used');
 
             // Vérification du mot de passe de l'utilisateur et encryptage en cas de bon format
             if (!VerifyData.validPassword(password)) throw new Error('Invalid password format');
@@ -127,7 +127,6 @@ export class AuthController {
             else if (err.message === 'This email is already used') sendResponse(res, 400, { error: false, code: '101059', message: err.message });
             else errorHandler(res, err);
         }
-
     }
 
     /**
@@ -147,10 +146,10 @@ export class AuthController {
             if (!VerifyData.validEmail(email)) throw new Error('Invalid email addresse');
 
             // Récupération de l'utilisateur si il existe, on envoie le mail
-            const user = await userHelper.findUser(email);
+            const user = await userUtils.findUser(email);
             if (user) {
                 // Création du token à envoyer
-                const token = await userHelper.generatePasswordToken(user);
+                const token = await userUtils.generatePasswordToken(user);
 
                 // Envoi du mail de récupération de mot de passe
                 sendMail(email, 'Mot de passe oublié', passwordLostModel(user.data.name, token));
@@ -184,10 +183,10 @@ export class AuthController {
             if (!VerifyData.validEmail(email)) throw new Error('Invalid email addresse');
 
             // Récupération de l'utilisateur si il existe, on envoie le mail
-            const user = await userHelper.findUser(email);
+            const user = await userUtils.findUser(email);
             if (user) {
                 // Création du code a envoyer, et de si l'email est déjà vérifié
-                const code = await userHelper.generateVerifyEmailCode(user);
+                const code = await userUtils.generateVerifyEmailCode(user);
                 if (!code) throw new Error('Email already verified');
 
                 // Envoi du mail de vérification du mail avec le code
@@ -223,7 +222,7 @@ export class AuthController {
             if (!VerifyData.validEmail(email)) throw new Error('Invalid email addresse');
 
             // Récupération de l'utilisateur pour vérifier si il existe
-            const user = await userHelper.findUser(email);
+            const user = await userUtils.findUser(email);
             if (!user) throw new Error('Invalid user information');
 
             // Vérification de si l'utilisateur à bien fait une requête de vérification de son mail
@@ -235,7 +234,7 @@ export class AuthController {
             if (time > 600) throw new Error('This code is no longer valid');
 
             // Changement du statut de vérification de l'email
-            await userHelper.updateUser(user, { verify_email: { code: 0, date: 0, verified: true } });
+            await userUtils.updateUser(user, { verify_email: { code: 0, date: 0, verified: true } });
 
             // Envoi de la réponse
             sendResponse(res, 200, { error: false, message: 'Successful verification' });
@@ -248,7 +247,6 @@ export class AuthController {
             else if (err.message === 'This code is no longer valid') sendResponse(res, 400, { error: false, code: '101206', message: err.message });
             else errorHandler(res, err);
         }
-
     }
 
     /**
@@ -268,14 +266,14 @@ export class AuthController {
             if (!VerifyData.validEmail(email)) throw new Error('Invalid email addresse');
 
             // Récupération de l'utilisateur pour vérifier si il existe
-            const user = await userHelper.findUser(email, userId);
+            const user = await userUtils.findUser(email, userId);
             if (!user) throw new Error('Invalid user information');
 
             // Vérification de si la double authentification est activé
             if (!user.data.double_authentification?.activated) throw new Error('Double authentification is not activated on this account');
 
             // Création du code a envoyer
-            const code = await userHelper.generateDoubleAuthCode(user);
+            const code = await userUtils.generateDoubleAuthCode(user);
 
             // Envoi du mail de double authentification avec le code
             sendMail(email, 'Double authentification', sendCodeModel(user.data.name, code, 'pour la double authentification de votre compte'));
@@ -287,6 +285,36 @@ export class AuthController {
             else if (err.message === 'Invalid email addresse') sendResponse(res, 400, { error: false, code: '101252', message: err.message });
             else if (err.message === 'Invalid user information') sendResponse(res, 400, { error: false, code: '101253', message: err.message });
             else if (err.message === 'Double authentification is not activated on this account') sendResponse(res, 400, { error: false, code: '101254', message: err.message });
+            else errorHandler(res, err);
+        }
+    }
+
+    /**
+     * Fonction pour activer la double authentification (POST /auth/activate-double-auth)
+     * @param req express Request
+     * @param res express Response
+     */
+    static activateDoubleAuth = async (req: Request, res: Response) => {
+        try {
+            // Récupération de toutes les données du body
+            let { isActive } = req.body;
+
+            // On assure que la donnée est un booléen
+            isActive = validator.toBoolean(isActive);
+
+            // Vérification de si toutes les données nécessaire sont présentes
+            if (isActive === undefined) throw new Error('Missing isActive field');
+
+            // Récupération de l'utilisateur grâce au Authmiddleware qui rajoute le token dans req
+            const user = userUtils.getRequestUser(req);
+
+            // On met à jour l'option de double authentification
+            await userUtils.updateUser(user, { double_authentification: { activated: isActive, code: 0, date: 0 } });
+
+            // Envoi de la réponse
+            sendResponse(res, 200, { error: false, message: 'Double authentification successfully updated' });
+        } catch (err) {
+            if (err.message === 'Missing isActive field') sendResponse(res, 400, { error: false, code: '101301', message: err.message });
             else errorHandler(res, err);
         }
     }

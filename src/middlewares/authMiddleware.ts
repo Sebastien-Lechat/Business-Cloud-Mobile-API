@@ -1,7 +1,8 @@
 import express, { Request, Response, NextFunction } from 'express';
-import jsonwebtoken, { JwtHeader, VerifyOptions } from 'jsonwebtoken';
+import jsonwebtoken from 'jsonwebtoken';
 import { config } from 'dotenv';
-import { sendResponse } from '../helpers/responseHelper';
+import { errorHandler, sendResponse } from '../helpers/responseHelper';
+import { userUtils } from '../utils/userUtils';
 
 config();
 
@@ -12,21 +13,27 @@ const middleware: express.Application = express();
 // récupération tu token du l'utilisateur
 middleware.use(async (req: Request, res: Response, next: NextFunction) => {
     try {
+        console.log('ttoto');
+
         // Récupération du token
         const token = req.header('Authorization')?.replace('Bearer ', '') as string;
+        if (!token) throw new Error('Not authorized to access to this resource');
 
-        // Vérification du token
-        const data = jsonwebtoken.verify(token, JWT_KEY);
+        // Vérification du token et des informations contenue à l'intérieur
+        const data: any = jsonwebtoken.verify(token, JWT_KEY);
+        if (!data || !data.email || !data._id) throw new Error('Not authorized to access this resource');
+
         // Récupération de l'utilisateur pour le mettre dans le req et y avoir dans les routes après
-        // const user = await UserModels.getOneUser(payload.id, token);
-        // if (!user) { throw new Error('Not authorized to access this resource'); }
-        // Object.assign(req, {user});
+        const user = await userUtils.findUser(data.email, data._id);
+        if (!user) throw new Error('Not authorized to access this resource');
+        Object.assign(req, { user });
 
         // Si tout se passe bien suite de la requête
         next();
     } catch (err) {
-        const body = { error: true, message: err.message };
-        if (err.message === 'Not authorized to access this resource') { sendResponse(res, 401, body); }
+        if (err.message === 'Not authorized to access this resource') sendResponse(res, 401, { error: true, message: err.message });
+        else if (err.message === 'jwt expired') sendResponse(res, 401, { error: true, message: 'This token has expired' });
+        else errorHandler(res, err);
     }
 });
 
