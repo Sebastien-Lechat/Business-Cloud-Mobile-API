@@ -1,13 +1,16 @@
 import mongoose from 'mongoose';
 import jsonwebtoken from 'jsonwebtoken';
-import { ClientI, UserJsonI, UserI, UserUpdateI } from '../interfaces/userInterface';
+import { ClientI, UserJsonI, UserI, UserUpdateI, UserObject } from '../interfaces/userInterface';
 import { Client } from '../models/Client';
 import { User } from '../models/User';
 import { config } from 'dotenv';
+import { Request } from 'express';
 
 config();
 
 const JWT_KEY: string = process.env.JWT_KEY as string;
+
+
 
 /**
  * Fonction de vérification de si l'email existe déjà
@@ -26,7 +29,7 @@ const emailAlreadyExist = async (emailToFind: string): Promise<boolean> => {
  * @param userId ID pour trouver un utilisateur en base de données
  * @returns Retourne l'utilisateur si il est enregistré en base, sinon on retourne null
  */
-const findUser = async (userEmail: string, userId?: string): Promise<{ data: UserI | ClientI, type: 'client' | 'user' } | null> => {
+const findUser = async (userEmail: string, userId?: string): Promise<UserObject | null> => {
     if (userId && userId.length !== 24) return null;
     const alreadyExistC: ClientI = await Client.findOne((userId) ? { _id: mongoose.Types.ObjectId(userId), email: userEmail } : { email: userEmail });
     const alreadyExistU: UserI = await User.findOne((userId) ? { _id: mongoose.Types.ObjectId(userId), email: userEmail } : { email: userEmail });
@@ -38,7 +41,7 @@ const findUser = async (userEmail: string, userId?: string): Promise<{ data: Use
  * @param user Utilisateur à mettre à jour
  * @param updateData Données à mettre à jour
  */
-const updateUser = async (user: { data: UserI, type: 'client' | 'user' }, updateData: UserUpdateI): Promise<void> => {
+const updateUser = async (user: UserObject, updateData: UserUpdateI): Promise<void> => {
     if (user.type === 'user') await User.updateOne({ _id: mongoose.Types.ObjectId(user.data._id), email: user.data.email }, { $set: updateData });
     if (user.type === 'client') await Client.updateOne({ _id: mongoose.Types.ObjectId(user.data._id), email: user.data.email }, { $set: updateData });
 };
@@ -48,7 +51,7 @@ const updateUser = async (user: { data: UserI, type: 'client' | 'user' }, update
  * @param user Utilisateur pour lequel on met à jour la dernière date de connexion, et le nombre tentative.
  * @returns Retourne l'utilisateur modifié
  */
-const updateLastLogin = async (user: { data: UserI, type: 'client' | 'user' }, reset?: boolean): Promise<{ data: UserI, type: 'client' | 'user' }> => {
+const updateLastLogin = async (user: UserObject, reset?: boolean): Promise<UserObject> => {
     if (reset) user.data.attempt = 0;
     await updateUser(user, { lastLogin: Date.now(), attempt: user.data.attempt + 1 });
     return user;
@@ -59,7 +62,7 @@ const updateLastLogin = async (user: { data: UserI, type: 'client' | 'user' }, r
  * @param user Utilisateur pour lequel on génère le token
  * @returns Retourne l'utilisateur modifié
  */
-const generateUserToken = async (user: { data: UserI, type: 'client' | 'user' }): Promise<{ data: UserI, type: 'client' | 'user' }> => {
+const generateUserToken = async (user: UserObject): Promise<UserObject> => {
     user.data.token = jsonwebtoken.sign({ _id: user.data._id, email: user.data.email }, JWT_KEY, { expiresIn: '24h' });
     await updateUser(user, { token: user.data.token });
     return user;
@@ -70,7 +73,7 @@ const generateUserToken = async (user: { data: UserI, type: 'client' | 'user' })
  * @param user Utilisateur pour lequel on génère le refreshToken
  * @returns Retourne l'utilisateur modifié
  */
-const generateUserRefreshToken = async (user: { data: UserI, type: 'client' | 'user' }): Promise<{ data: UserI, type: 'client' | 'user' }> => {
+const generateUserRefreshToken = async (user: UserObject): Promise<UserObject> => {
     user.data.refreshToken = jsonwebtoken.sign({ _id: user.data._id, email: user.data.email }, JWT_KEY, { expiresIn: '30d' });
     await updateUser(user, { refreshToken: user.data.refreshToken });
     return user;
@@ -142,7 +145,19 @@ const generateDoubleAuthCode = async (user: { data: UserI, type: 'client' | 'use
     return user.data.double_authentification.code;
 };
 
-const userHelper = {
+/**
+ * Fonction de récupération de l'utilisateur dans la requête grâce au token
+ * @param req Requête contenant l'utilisateur
+ * @returns Retourne l'utilisateur
+ */
+const getRequestUser = (req: Request): UserObject => {
+    // Récupération de l'utilisateur grâce au Authmiddleware qui rajoute le token dans req
+    const request: any = req;
+    const user: UserObject = request.user;
+    return user;
+};
+
+const userUtils = {
     emailAlreadyExist,
     findUser,
     updateUser,
@@ -152,10 +167,11 @@ const userHelper = {
     generateUserJSON,
     generatePasswordToken,
     generateVerifyEmailCode,
-    generateDoubleAuthCode
+    generateDoubleAuthCode,
+    getRequestUser
 };
 
-export { userHelper };
+export { userUtils };
 
 /* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */
 

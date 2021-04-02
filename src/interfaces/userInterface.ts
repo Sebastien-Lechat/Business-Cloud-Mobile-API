@@ -1,3 +1,8 @@
+export interface UserObject {
+    data: UserI | ClientI;
+    type: 'client' | 'user';
+}
+
 export interface UserI {
     _id: string;
     name: string;
