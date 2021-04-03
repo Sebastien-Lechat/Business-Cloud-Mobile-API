@@ -13,8 +13,6 @@ const middleware: express.Application = express();
 // récupération tu token du l'utilisateur
 middleware.use(async (req: Request, res: Response, next: NextFunction) => {
     try {
-        console.log('ttoto');
-
         // Récupération du token
         const token = req.header('Authorization')?.replace('Bearer ', '') as string;
         if (!token) throw new Error('Not authorized to access to this resource');
@@ -33,6 +31,8 @@ middleware.use(async (req: Request, res: Response, next: NextFunction) => {
     } catch (err) {
         if (err.message === 'Not authorized to access this resource') sendResponse(res, 401, { error: true, message: err.message });
         else if (err.message === 'jwt expired') sendResponse(res, 401, { error: true, message: 'This token has expired' });
+        else if (err.message === 'invalid token') sendResponse(res, 401, { error: true, message: 'Invalid token' });
+        else if (err.message === 'invalid signature') sendResponse(res, 401, { error: true, message: 'Invalid token signature' });
         else errorHandler(res, err);
     }
 });

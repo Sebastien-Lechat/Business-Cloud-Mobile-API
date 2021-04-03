@@ -21,7 +21,7 @@ export interface UserI {
     createdAt: Date;
     updatedAt: Date;
     currency?: string;
-    post?: string;
+    role: string;
     isActive: boolean;
 }
 
@@ -43,7 +43,7 @@ export interface UserUpdateI {
     createdAt?: Date;
     updatedAt?: Date;
     currency?: string;
-    post?: string;
+    role?: string;
 }
 
 
@@ -64,8 +64,19 @@ export interface UserJsonI {
     numTVA?: string;
     numSIRET?: string;
     numRCS?: string;
-    post?: string;
+    role?: string;
     currency?: string;
+}
+
+export interface EmployeeJsonI {
+    id: string;
+    name: string;
+    email: string;
+    role: string;
+    phone?: string;
+    avatar?: string;
+    createdAt: Date;
+    updatedAt: Date;
 }
 
 export interface ClientI extends UserI {

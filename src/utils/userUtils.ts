@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 import jsonwebtoken from 'jsonwebtoken';
-import { ClientI, UserJsonI, UserI, UserUpdateI, UserObject } from '../interfaces/userInterface';
+import { ClientI, UserJsonI, UserI, UserUpdateI, UserObject, EmployeeJsonI } from '../interfaces/userInterface';
 import { Client } from '../models/Client';
 import { User } from '../models/User';
 import { config } from 'dotenv';
@@ -44,6 +44,15 @@ const findUser = async (userEmail: string, userId?: string): Promise<UserObject 
 const updateUser = async (user: UserObject, updateData: UserUpdateI): Promise<void> => {
     if (user.type === 'user') await User.updateOne({ _id: mongoose.Types.ObjectId(user.data._id), email: user.data.email }, { $set: updateData });
     if (user.type === 'client') await Client.updateOne({ _id: mongoose.Types.ObjectId(user.data._id), email: user.data.email }, { $set: updateData });
+};
+
+/**
+ * Fonction pour désactiver un utilisateur.
+ * @param model Modèle mongoose
+ * @param id Id pour filtrer
+ */
+const disabledOne = async (model: mongoose.Model<any, any>, id: string): Promise<any> => {
+    return await model.updateOne({ _id: mongoose.Types.ObjectId(id) }, { $set: { isActive: false } });
 };
 
 /**
@@ -95,6 +104,8 @@ const generateUserJSON = (user: { data: ClientI, type: 'client' | 'user' }): Use
         refreshToken: user.data.refreshToken as string,
     };
 
+    if (user.data.avatar) toReturn.avatar = user.data.avatar;
+    if (user.data.phone) toReturn.phone = user.data.phone;
     if (user.data.address) toReturn.address = user.data.address;
     if (user.data.zip) toReturn.zip = user.data.zip;
     if (user.data.city) toReturn.city = user.data.city;
@@ -103,8 +114,27 @@ const generateUserJSON = (user: { data: ClientI, type: 'client' | 'user' }): Use
     if (user.data.numSIRET) toReturn.numSIRET = user.data.numSIRET;
     if (user.data.numRCS) toReturn.numRCS = user.data.numRCS;
     if (user.data.currency) toReturn.currency = user.data.currency;
-    if (user.data.post) toReturn.post = user.data.post;
+    if (user.data.role) toReturn.role = user.data.role;
 
+    return toReturn;
+};
+
+/**
+ * Fonction générer le JSON de réponse pour les requête lié à l'employé.
+ * @param user Utilisateur pour lequel on génère le JSON
+ * @returns Retourne JSON
+ */
+const generateEmployeeJSON = (user: UserI): EmployeeJsonI => {
+    const toReturn: EmployeeJsonI = {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt,
+    };
+    if (user.avatar) toReturn.avatar = user.avatar;
+    if (user.phone) toReturn.phone = user.phone;
     return toReturn;
 };
 
@@ -161,10 +191,12 @@ const userUtils = {
     emailAlreadyExist,
     findUser,
     updateUser,
+    disabledOne,
     updateLastLogin,
     generateUserToken,
     generateUserRefreshToken,
     generateUserJSON,
+    generateEmployeeJSON,
     generatePasswordToken,
     generateVerifyEmailCode,
     generateDoubleAuthCode,

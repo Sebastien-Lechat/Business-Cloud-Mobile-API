@@ -63,7 +63,7 @@ export class AuthController {
             // Génération des tokens de l'utilisateur et de la réponse
             user = await userUtils.generateUserToken(user);
             user = await userUtils.generateUserRefreshToken(user);
-            const toReturn = await userUtils.generateUserJSON(user);
+            const toReturn = userUtils.generateUserJSON(user);
 
             // Envoi de la réponse
             sendResponse(res, 200, { error: false, message: 'Successfully connected', user: toReturn });
@@ -105,7 +105,7 @@ export class AuthController {
             req.body.password = await hashPassword(req.body.password);
 
             // Vérification du numéro de téléphone de l'utilisateur
-            if (phone && !VerifyData.validPhone(email)) throw new Error('Invalid phone number');
+            if (phone && !VerifyData.validPhone(phone)) throw new Error('Invalid phone number');
 
             // Vérification de la date de naissance de l'utilisateur
             if (birthdayDate && !VerifyData.validDate(birthdayDate)) throw new Error('Invalid date format');
@@ -226,7 +226,7 @@ export class AuthController {
             if (!user) throw new Error('Invalid user information');
 
             // Vérification de si l'utilisateur à bien fait une requête de vérification de son mail
-            if (!user.data.verify_email || !user.data.verify_email.code || !user.data.verify_email.verified) throw new Error('You need to make a request to check this email');
+            if (!user.data.verify_email || !user.data.verify_email.code || user.data.verify_email.verified === undefined) throw new Error('You need to make a request to check this email');
 
             // Vérification de si le code est toujours valide et si c'est le bon code
             if (code !== user.data.verify_email.code) throw new Error('Wrong code');

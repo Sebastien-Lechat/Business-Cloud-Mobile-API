@@ -27,7 +27,6 @@ export default class VerifyData {
         else return regex.test(password);
     }
 
-
     /**
      * Vérification de si la date est au bon format
      * @param date Date à vérifier
@@ -35,6 +34,15 @@ export default class VerifyData {
     static validDate(date: string): boolean {
         return validator.isDate(date, { format: 'DD-MM-YYYY', strictMode: true, delimiters: ['-', '/', '.'] });
     }
+
+    /**
+     * Vérification de si le rôle est au bon format
+     * @param role Rôle à vérifier
+     */
+    static validRole(role: string): boolean {
+        return (role === 'Gérant') ? false : true;
+    }
+
 
     /**
      * Vérification de si le numéro de tva est au bon format
