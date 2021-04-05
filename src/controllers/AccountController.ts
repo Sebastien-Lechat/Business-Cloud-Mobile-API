@@ -135,10 +135,8 @@ export class AccountController {
 
                 if (user.data.role === 'Gérant') {
                     await globalUtils.updateOne(Enterprise, { userId: user.data._id }, toUpdate);
-                } else {
-                    // Modification du client
+                } else // Modification du client
                     await globalUtils.updateOneById(Client, user.data._id, toUpdate);
-                }
 
                 // Envoi de la réponse
                 sendResponse(res, 200, { error: false, message: 'Profile successfully updated', user: userUtils.generateUserJSON(user) });
@@ -175,10 +173,8 @@ export class AccountController {
 
                 if (user.data.role === 'Gérant') {
                     await globalUtils.updateOne(Enterprise, { userId: user.data._id }, toUpdate);
-                } else {
-                    // Modification du client
+                } else // Modification du client
                     await globalUtils.updateOneById(Client, user.data._id, toUpdate);
-                }
 
                 // Envoi de la réponse
                 sendResponse(res, 200, { error: false, message: 'Profile successfully updated', user: userUtils.generateUserJSON(user) });
