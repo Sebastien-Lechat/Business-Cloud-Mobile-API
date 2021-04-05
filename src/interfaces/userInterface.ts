@@ -48,6 +48,7 @@ export interface UserUpdateI {
 
 
 export interface UserJsonI {
+    type: string;
     id: string;
     name: string;
     email: string;
@@ -57,6 +58,7 @@ export interface UserJsonI {
     refreshToken: string;
     createdAt: Date;
     updatedAt: Date;
+    activity?: any;
     address?: string;
     zip?: string;
     city?: string;
@@ -66,9 +68,11 @@ export interface UserJsonI {
     numRCS?: string;
     role?: string;
     currency?: string;
+    needVerifyEmail?: boolean;
 }
 
 export interface EmployeeJsonI {
+    type: string;
     id: string;
     name: string;
     email: string;
@@ -80,6 +84,7 @@ export interface EmployeeJsonI {
 }
 
 export interface ClientI extends UserI {
+    activity?: any;
     address?: string;
     zip?: string;
     city?: string;

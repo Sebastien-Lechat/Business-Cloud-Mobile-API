@@ -46,15 +46,15 @@ export class ClientController {
             // Envoi de la réponse
             sendResponse(res, 200, { error: false, message: 'Customer successfully created', customer: userUtils.generateUserJSON({ data: createdEmployee, type: 'client' }) });
         } catch (err) {
-            if (err.message === 'You do not have the required permissions') sendResponse(res, 400, { error: false, code: '401002', message: err.message });
-            else if (err.message === 'Missing important fields') sendResponse(res, 400, { error: false, code: '103151', message: err.message });
-            else if (err.message === 'Invalid email addresse') sendResponse(res, 400, { error: false, code: '103152', message: err.message });
-            else if (err.message === 'Invalid phone number') sendResponse(res, 400, { error: false, code: '103153', message: err.message });
-            else if (err.message === 'Invalid password format') sendResponse(res, 400, { error: false, code: '103154', message: err.message });
-            else if (err.message === 'Invalid TVA number') sendResponse(res, 400, { error: false, code: '103155', message: err.message });
-            else if (err.message === 'Invalid SIRET number') sendResponse(res, 400, { error: false, code: '103156', message: err.message });
-            else if (err.message === 'Invalid RCS number') sendResponse(res, 400, { error: false, code: '103157', message: err.message });
-            else if (err.message === 'This email is already used') sendResponse(res, 400, { error: false, code: '103158', message: err.message });
+            if (err.message === 'You do not have the required permissions') sendResponse(res, 400, { error: true, code: '401002', message: err.message });
+            else if (err.message === 'Missing important fields') sendResponse(res, 400, { error: true, code: '103151', message: err.message });
+            else if (err.message === 'Invalid email addresse') sendResponse(res, 400, { error: true, code: '103152', message: err.message });
+            else if (err.message === 'Invalid phone number') sendResponse(res, 400, { error: true, code: '103153', message: err.message });
+            else if (err.message === 'Invalid password format') sendResponse(res, 400, { error: true, code: '103154', message: err.message });
+            else if (err.message === 'Invalid TVA number') sendResponse(res, 400, { error: true, code: '103155', message: err.message });
+            else if (err.message === 'Invalid SIRET number') sendResponse(res, 400, { error: true, code: '103156', message: err.message });
+            else if (err.message === 'Invalid RCS number') sendResponse(res, 400, { error: true, code: '103157', message: err.message });
+            else if (err.message === 'This email is already used') sendResponse(res, 400, { error: true, code: '103158', message: err.message });
             else errorHandler(res, err);
         }
     }
@@ -94,6 +94,7 @@ export class ClientController {
             if (name) toUpdate.name = user.name = name;
             if (email) toUpdate.email = user.email = email;
             if (address) toUpdate.address = user.address = address;
+            if (phone) toUpdate.phone = user.phone = phone;
             if (zip) toUpdate.zip = user.zip = zip;
             if (city) toUpdate.city = user.city = city;
             if (country) toUpdate.country = user.country = country;
@@ -102,20 +103,20 @@ export class ClientController {
             if (numRCS) toUpdate.numRCS = user.numRCS = numRCS;
 
             // Modification du client
-            await globalUtils.updateOne(Client, id, toUpdate);
+            await globalUtils.updateOneById(Client, id, toUpdate);
 
             // Envoi de la réponse
             sendResponse(res, 200, { error: false, message: 'Customer successfully updated', customer: userUtils.generateUserJSON({ data: user, type: 'client' }) });
         } catch (err) {
-            if (err.message === 'You do not have the required permissions') sendResponse(res, 400, { error: false, code: '401002', message: err.message });
-            else if (err.message === 'Missing id field') sendResponse(res, 400, { error: false, code: '103201', message: err.message });
-            else if (err.message === 'Invalid email addresse') sendResponse(res, 400, { error: false, code: '103202', message: err.message });
-            else if (err.message === 'Invalid phone number') sendResponse(res, 400, { error: false, code: '103203', message: err.message });
-            else if (err.message === 'Invalid customer id') sendResponse(res, 400, { error: false, code: '103204', message: err.message });
-            else if (err.message === 'Invalid TVA number') sendResponse(res, 400, { error: false, code: '103205', message: err.message });
-            else if (err.message === 'Invalid SIRET number') sendResponse(res, 400, { error: false, code: '103206', message: err.message });
-            else if (err.message === 'Invalid RCS number') sendResponse(res, 400, { error: false, code: '103207', message: err.message });
-            else if (err.message === 'This email is already used') sendResponse(res, 400, { error: false, code: '103208', message: err.message });
+            if (err.message === 'You do not have the required permissions') sendResponse(res, 400, { error: true, code: '401002', message: err.message });
+            else if (err.message === 'Missing id field') sendResponse(res, 400, { error: true, code: '103201', message: err.message });
+            else if (err.message === 'Invalid email addresse') sendResponse(res, 400, { error: true, code: '103202', message: err.message });
+            else if (err.message === 'Invalid phone number') sendResponse(res, 400, { error: true, code: '103203', message: err.message });
+            else if (err.message === 'Invalid customer id') sendResponse(res, 400, { error: true, code: '103204', message: err.message });
+            else if (err.message === 'Invalid TVA number') sendResponse(res, 400, { error: true, code: '103205', message: err.message });
+            else if (err.message === 'Invalid SIRET number') sendResponse(res, 400, { error: true, code: '103206', message: err.message });
+            else if (err.message === 'Invalid RCS number') sendResponse(res, 400, { error: true, code: '103207', message: err.message });
+            else if (err.message === 'This email is already used') sendResponse(res, 400, { error: true, code: '103208', message: err.message });
             else errorHandler(res, err);
         }
     }
@@ -151,9 +152,9 @@ export class ClientController {
             // Envoi de la réponse
             sendResponse(res, 200, { error: false, message: 'Customer successfully deleted' });
         } catch (err) {
-            if (err.message === 'You do not have the required permissions') sendResponse(res, 400, { error: false, code: '401002', message: err.message });
-            else if (err.message === 'Missing id field') sendResponse(res, 400, { error: false, code: '103251', message: err.message });
-            else if (err.message === 'Invalid customer id') sendResponse(res, 400, { error: false, code: '103252', message: err.message });
+            if (err.message === 'You do not have the required permissions') sendResponse(res, 400, { error: true, code: '401002', message: err.message });
+            else if (err.message === 'Missing id field') sendResponse(res, 400, { error: true, code: '103251', message: err.message });
+            else if (err.message === 'Invalid customer id') sendResponse(res, 400, { error: true, code: '103252', message: err.message });
             else errorHandler(res, err);
         }
     }

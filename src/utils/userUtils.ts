@@ -95,6 +95,7 @@ const generateUserRefreshToken = async (user: UserObject): Promise<UserObject> =
  */
 const generateUserJSON = (user: { data: ClientI, type: 'client' | 'user' }): UserJsonI => {
     const toReturn: UserJsonI = {
+        type: user.type,
         id: user.data._id,
         name: user.data.name,
         email: user.data.email,
@@ -106,6 +107,7 @@ const generateUserJSON = (user: { data: ClientI, type: 'client' | 'user' }): Use
 
     if (user.data.avatar) toReturn.avatar = user.data.avatar;
     if (user.data.phone) toReturn.phone = user.data.phone;
+    if (user.data.activity) toReturn.activity = user.data.activity;
     if (user.data.address) toReturn.address = user.data.address;
     if (user.data.zip) toReturn.zip = user.data.zip;
     if (user.data.city) toReturn.city = user.data.city;
@@ -115,6 +117,9 @@ const generateUserJSON = (user: { data: ClientI, type: 'client' | 'user' }): Use
     if (user.data.numRCS) toReturn.numRCS = user.data.numRCS;
     if (user.data.currency) toReturn.currency = user.data.currency;
     if (user.data.role) toReturn.role = user.data.role;
+
+    if (!user.data.verify_email?.verified) toReturn.needVerifyEmail = true;
+    else toReturn.needVerifyEmail = false;
 
     return toReturn;
 };
@@ -126,6 +131,7 @@ const generateUserJSON = (user: { data: ClientI, type: 'client' | 'user' }): Use
  */
 const generateEmployeeJSON = (user: UserI): EmployeeJsonI => {
     const toReturn: EmployeeJsonI = {
+        type: 'user',
         id: user._id,
         name: user.name,
         email: user.email,

@@ -49,13 +49,13 @@ export class EmployeeController {
             // Envoi de la réponse
             sendResponse(res, 200, { error: false, message: 'Employee successfully created', employee: userUtils.generateEmployeeJSON(createdEmployee) });
         } catch (err) {
-            if (err.message === 'You do not have the required permissions') sendResponse(res, 400, { error: false, code: '401002', message: err.message });
-            else if (err.message === 'Missing important fields') sendResponse(res, 400, { error: false, code: '103301', message: err.message });
-            else if (err.message === 'Invalid email addresse') sendResponse(res, 400, { error: false, code: '103302', message: err.message });
-            else if (err.message === 'Invalid phone number') sendResponse(res, 400, { error: false, code: '103303', message: err.message });
-            else if (err.message === 'Invalid password format') sendResponse(res, 400, { error: false, code: '103304', message: err.message });
-            else if (err.message === 'Invalid enterprise role') sendResponse(res, 400, { error: false, code: '103305', message: err.message });
-            else if (err.message === 'This email is already used') sendResponse(res, 400, { error: false, code: '103306', message: err.message });
+            if (err.message === 'You do not have the required permissions') sendResponse(res, 400, { error: true, code: '401002', message: err.message });
+            else if (err.message === 'Missing important fields') sendResponse(res, 400, { error: true, code: '103301', message: err.message });
+            else if (err.message === 'Invalid email addresse') sendResponse(res, 400, { error: true, code: '103302', message: err.message });
+            else if (err.message === 'Invalid phone number') sendResponse(res, 400, { error: true, code: '103303', message: err.message });
+            else if (err.message === 'Invalid password format') sendResponse(res, 400, { error: true, code: '103304', message: err.message });
+            else if (err.message === 'Invalid enterprise role') sendResponse(res, 400, { error: true, code: '103305', message: err.message });
+            else if (err.message === 'This email is already used') sendResponse(res, 400, { error: true, code: '103306', message: err.message });
             else errorHandler(res, err);
         }
     }
@@ -101,18 +101,18 @@ export class EmployeeController {
             if (role) toUpdate.role = user.role = role;
 
             // Modification de l'employé
-            await globalUtils.updateOne(User, id, toUpdate);
+            await globalUtils.updateOneById(User, id, toUpdate);
 
             // Envoi de la réponse
             sendResponse(res, 200, { error: false, message: 'Employee successfully updated', employee: userUtils.generateEmployeeJSON(user) });
         } catch (err) {
-            if (err.message === 'You do not have the required permissions') sendResponse(res, 400, { error: false, code: '401002', message: err.message });
-            else if (err.message === 'Missing id field') sendResponse(res, 400, { error: false, code: '103351', message: err.message });
-            else if (err.message === 'Invalid email addresse') sendResponse(res, 400, { error: false, code: '103352', message: err.message });
-            else if (err.message === 'Invalid phone number') sendResponse(res, 400, { error: false, code: '103353', message: err.message });
-            else if (err.message === 'Invalid employee id') sendResponse(res, 400, { error: false, code: '103354', message: err.message });
-            else if (err.message === 'Invalid enterprise role') sendResponse(res, 400, { error: false, code: '103355', message: err.message });
-            else if (err.message === 'This email is already used') sendResponse(res, 400, { error: false, code: '103356', message: err.message });
+            if (err.message === 'You do not have the required permissions') sendResponse(res, 400, { error: true, code: '401002', message: err.message });
+            else if (err.message === 'Missing id field') sendResponse(res, 400, { error: true, code: '103351', message: err.message });
+            else if (err.message === 'Invalid email addresse') sendResponse(res, 400, { error: true, code: '103352', message: err.message });
+            else if (err.message === 'Invalid phone number') sendResponse(res, 400, { error: true, code: '103353', message: err.message });
+            else if (err.message === 'Invalid employee id') sendResponse(res, 400, { error: true, code: '103354', message: err.message });
+            else if (err.message === 'Invalid enterprise role') sendResponse(res, 400, { error: true, code: '103355', message: err.message });
+            else if (err.message === 'This email is already used') sendResponse(res, 400, { error: true, code: '103356', message: err.message });
             else errorHandler(res, err);
         }
     }
@@ -148,9 +148,9 @@ export class EmployeeController {
             // Envoi de la réponse
             sendResponse(res, 200, { error: false, message: 'Employee successfully deleted' });
         } catch (err) {
-            if (err.message === 'You do not have the required permissions') sendResponse(res, 400, { error: false, code: '401002', message: err.message });
-            else if (err.message === 'Missing id field') sendResponse(res, 400, { error: false, code: '103401', message: err.message });
-            else if (err.message === 'Invalid employee id') sendResponse(res, 400, { error: false, code: '103402', message: err.message });
+            if (err.message === 'You do not have the required permissions') sendResponse(res, 400, { error: true, code: '401002', message: err.message });
+            else if (err.message === 'Missing id field') sendResponse(res, 400, { error: true, code: '103401', message: err.message });
+            else if (err.message === 'Invalid employee id') sendResponse(res, 400, { error: true, code: '103402', message: err.message });
             else errorHandler(res, err);
         }
     }

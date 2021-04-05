@@ -36,7 +36,17 @@ const findOne = async (model: mongoose.Model<any, any>, id: string): Promise<any
  * @param id Id pour filtrer
  * @param updateData Données à mettre à jour
  */
-const updateOne = async (model: mongoose.Model<any, any>, id: string, updateData: any): Promise<any> => {
+const updateOne = async (model: mongoose.Model<any, any>, filter: any, updateData: object): Promise<any> => {
+    return await model.updateOne(filter, { $set: updateData });
+};
+
+/**
+ * Fonction pour mettre à jour un document dans une collection.
+ * @param model Modèle mongoose
+ * @param id Id pour filtrer
+ * @param updateData Données à mettre à jour
+ */
+const updateOneById = async (model: mongoose.Model<any, any>, id: string, updateData: any): Promise<any> => {
     return await model.updateOne({ _id: mongoose.Types.ObjectId(id) }, { $set: updateData });
 };
 
@@ -52,6 +62,7 @@ const deleteOne = async (model: mongoose.Model<any, any>, id: string): Promise<a
 const globalUtils = {
     findOne,
     updateOne,
+    updateOneById,
     deleteOne,
     checkPermission
 };
