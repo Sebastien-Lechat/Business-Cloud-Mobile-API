@@ -96,7 +96,10 @@ export class EmployeeController {
             // Création des données existante à modifier
             const toUpdate: any = {};
             if (name) toUpdate.name = user.name = name;
-            if (email) toUpdate.email = user.email = email;
+            if (email) {
+                toUpdate.email = user.email = email;
+                toUpdate.verify_email = user.verify_email = { code: 0, date: 0, verified: false };
+            }
             if (phone) toUpdate.phone = user.phone = phone;
             if (role) toUpdate.role = user.role = role;
 

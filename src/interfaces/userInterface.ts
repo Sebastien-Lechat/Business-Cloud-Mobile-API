@@ -68,6 +68,7 @@ export interface UserJsonI {
     numRCS?: string;
     role?: string;
     currency?: string;
+    userId?: string;
     needVerifyEmail?: boolean;
 }
 
@@ -92,4 +93,5 @@ export interface ClientI extends UserI {
     numTVA?: string;
     numSIRET?: string;
     numRCS?: string;
+    userId?: string;
 }

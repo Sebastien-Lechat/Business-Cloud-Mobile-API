@@ -4,6 +4,7 @@ import { errorHandler, sendResponse } from '../helpers/responseHelper';
 import VerifyData from '../helpers/verifyDataHelper';
 import { ClientI } from '../interfaces/userInterface';
 import { Client } from '../models/Client';
+import { User } from '../models/User';
 import { globalUtils } from '../utils/globalUtils';
 import { userUtils } from '../utils/userUtils';
 
@@ -11,7 +12,7 @@ import { userUtils } from '../utils/userUtils';
 export class ClientController {
 
     /**
-     * Fonction d création d'un client  (POST /customer)
+     * Fonction de création d'un client  (POST /customer)
      * @param req express Request
      * @param res express Response
      */
@@ -22,7 +23,7 @@ export class ClientController {
             if (!hasPermission) throw new Error('You do not have the required permissions');
 
             // Récupération de toutes les données du body
-            const { name, email, phone, password, address, zip, city, country, numTVA, numSIRET, numRCS } = req.body;
+            const { name, email, phone, password, address, zip, city, country, numTVA, numSIRET, numRCS, userId } = req.body;
 
             // Vérification de si toutes les données nécessaire sont présentes
             if (!name || !email || !password) throw new Error('Missing important fields');
@@ -40,6 +41,9 @@ export class ClientController {
             // Vérification du numéro de téléphone de l'utilisateur
             if (phone && !VerifyData.validPhone(phone)) throw new Error('Invalid phone number');
 
+            // Vérification de l'id de l'employé référent
+            if (userId && !await globalUtils.findOne(User, userId)) throw new Error('Invalid employee id');
+
             // Création du client
             const createdEmployee: ClientI = await Client.create(req.body);
 
@@ -55,12 +59,13 @@ export class ClientController {
             else if (err.message === 'Invalid SIRET number') sendResponse(res, 400, { error: true, code: '103156', message: err.message });
             else if (err.message === 'Invalid RCS number') sendResponse(res, 400, { error: true, code: '103157', message: err.message });
             else if (err.message === 'This email is already used') sendResponse(res, 400, { error: true, code: '103158', message: err.message });
+            else if (err.message === 'Invalid employee id') sendResponse(res, 400, { error: true, code: '103159', message: err.message });
             else errorHandler(res, err);
         }
     }
 
     /**
-     * Fonction d création d'un client  (PUT /customer)
+     * Fonction de modification d'un client  (PUT /customer)
      * @param req express Request
      * @param res express Response
      */
@@ -71,7 +76,7 @@ export class ClientController {
             if (!hasPermission) throw new Error('You do not have the required permissions');
 
             // Récupération de toutes les données du body
-            const { id, name, email, phone, address, zip, city, country, numTVA, numSIRET, numRCS } = req.body;
+            const { id, name, email, phone, address, zip, city, country, numTVA, numSIRET, numRCS, userId } = req.body;
 
             // Vérification de si toutes les données nécessaire sont présentes
             if (!id) throw new Error('Missing id field');
@@ -89,10 +94,16 @@ export class ClientController {
             // Vérification du numéro de téléphone du client que l'on veut modifier
             if (phone && !VerifyData.validPhone(phone)) throw new Error('Invalid phone number');
 
+            // Vérification de l'id de l'employé référent
+            if (userId && !await globalUtils.findOne(User, userId)) throw new Error('Invalid employee id');
+
             // Création des données existante à modifier
             const toUpdate: any = {};
             if (name) toUpdate.name = user.name = name;
-            if (email) toUpdate.email = user.email = email;
+            if (email) {
+                toUpdate.email = user.email = email;
+                toUpdate.verify_email = user.verify_email = { code: 0, date: 0, verified: false };
+            }
             if (address) toUpdate.address = user.address = address;
             if (phone) toUpdate.phone = user.phone = phone;
             if (zip) toUpdate.zip = user.zip = zip;
@@ -101,6 +112,7 @@ export class ClientController {
             if (numTVA) toUpdate.numTVA = user.numTVA = numTVA;
             if (numSIRET) toUpdate.numSIRET = user.numSIRET = numSIRET;
             if (numRCS) toUpdate.numRCS = user.numRCS = numRCS;
+            if (userId) toUpdate.userId = user.userId = userId;
 
             // Modification du client
             await globalUtils.updateOneById(Client, id, toUpdate);
@@ -117,6 +129,7 @@ export class ClientController {
             else if (err.message === 'Invalid SIRET number') sendResponse(res, 400, { error: true, code: '103206', message: err.message });
             else if (err.message === 'Invalid RCS number') sendResponse(res, 400, { error: true, code: '103207', message: err.message });
             else if (err.message === 'This email is already used') sendResponse(res, 400, { error: true, code: '103208', message: err.message });
+            else if (err.message === 'Invalid employee id') sendResponse(res, 400, { error: true, code: '103209', message: err.message });
             else errorHandler(res, err);
         }
     }

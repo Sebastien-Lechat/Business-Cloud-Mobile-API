@@ -41,10 +41,10 @@ export class AccountController {
             const { avatar, name, email, phone, birthdayDate } = req.body;
 
             // Vérification de l'email de l'utilisateur
-            if (!VerifyData.validEmail(email)) throw new Error('Invalid email addresse');
+            if (email && !VerifyData.validEmail(email)) throw new Error('Invalid email addresse');
 
             // Vérification de si l'email existe déjà
-            if (await userUtils.emailAlreadyExist(email)) throw new Error('This email is already used');
+            if (email && await userUtils.emailAlreadyExist(email)) throw new Error('This email is already used');
 
             // Vérification du numéro de téléphone de l'utilisateur
             if (phone && !VerifyData.validPhone(phone)) throw new Error('Invalid phone number');
@@ -55,7 +55,10 @@ export class AccountController {
             // Création des données existante à modifier
             const toUpdate: any = {};
             if (name) toUpdate.name = user.data.name = name;
-            if (email) toUpdate.email = user.data.email = email;
+            if (email) {
+                toUpdate.email = user.data.email = email;
+                toUpdate.verify_email = user.data.verify_email = { code: 0, date: 0, verified: false };
+            }
             if (phone) toUpdate.phone = user.data.phone = phone;
             if (birthdayDate) toUpdate.birthdayDate = user.data.birthdayDate = birthdayDate;
 
@@ -87,6 +90,9 @@ export class AccountController {
             // Récupération de toutes les données du body
             const { email, oldPassword, newPassword } = req.body;
 
+            // Vérification de si toutes les données nécessaire sont présentes
+            if (!email || !oldPassword || !newPassword) throw new Error('Missing important fields');
+
             // Vérification de si l'ancien mot de passe est le bon
             if (!await comparePassword(oldPassword, user.data.password)) throw new Error('Invalid old password');
 
@@ -104,8 +110,9 @@ export class AccountController {
             // Envoi de la réponse
             sendResponse(res, 200, { error: false, message: 'Profile successfully updated', user: userUtils.generateUserJSON(user) });
         } catch (err) {
-            if (err.message === 'Invalid old password') sendResponse(res, 400, { error: true, code: '102101', message: err.message });
-            else if (err.message === 'Invalid password format') sendResponse(res, 400, { error: true, code: '102102', message: err.message });
+            if (err.message === 'Missing important fields') sendResponse(res, 400, { error: true, code: '102101', message: err.message });
+            if (err.message === 'Invalid old password') sendResponse(res, 400, { error: true, code: '102102', message: err.message });
+            else if (err.message === 'Invalid password format') sendResponse(res, 400, { error: true, code: '102103', message: err.message });
             else errorHandler(res, err);
         }
     }
@@ -162,7 +169,7 @@ export class AccountController {
             if (user.type === 'client' || user.data.role === 'Gérant') {
 
                 // Récupération de toutes les données du body
-                const { activity, numTVA, numSIRET, numRCS } = req.body;
+                const { activity, numTVA, numSIRET, numRCS, currency } = req.body;
 
                 // Création des données existante à modifier
                 const toUpdate: any = {};
@@ -170,6 +177,7 @@ export class AccountController {
                 if (numTVA) toUpdate.numTVA = (user.data as ClientI).numTVA = numTVA;
                 if (numSIRET) toUpdate.numSIRET = (user.data as ClientI).numSIRET = numSIRET;
                 if (numRCS) toUpdate.numRCS = (user.data as ClientI).numRCS = numRCS;
+                if (currency) toUpdate.currency = (user.data as ClientI).currency = currency;
 
                 if (user.data.role === 'Gérant') {
                     await globalUtils.updateOne(Enterprise, { userId: user.data._id }, toUpdate);
@@ -179,10 +187,9 @@ export class AccountController {
                 // Envoi de la réponse
                 sendResponse(res, 200, { error: false, message: 'Profile successfully updated', user: userUtils.generateUserJSON(user) });
 
-            } else throw new Error('You cannot edit your address with this account');
+            } else throw new Error('You cannot edit your enterprise with this account');
         } catch (err) {
-            if (err.message === '') sendResponse(res, 400, { error: true, code: '', message: err.message });
-            else if (err.message === '') sendResponse(res, 400, { error: true, code: '', message: err.message });
+            if (err.message === 'You cannot edit your enterprise with this account') sendResponse(res, 400, { error: true, code: '102201', message: err.message });
             else errorHandler(res, err);
         }
     }
