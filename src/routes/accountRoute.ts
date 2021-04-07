@@ -4,6 +4,8 @@ import { authMiddleware } from '../middlewares/authMiddleware';
 
 const route: express.Application = express();
 
+route.get('/users', [authMiddleware], AccountController.getUsersList);
+route.get('/user/:id', [authMiddleware], AccountController.getUser);
 route.get('/account', [authMiddleware], AccountController.getProfile);
 route.put('/account/information', [authMiddleware], AccountController.modifyPersonnalInfo);
 route.put('/account/password', [authMiddleware], AccountController.modifyPassword);

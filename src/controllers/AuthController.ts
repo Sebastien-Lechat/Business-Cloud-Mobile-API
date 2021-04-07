@@ -28,7 +28,7 @@ export class AuthController {
             if (!VerifyData.validEmail(email)) throw new Error('Invalid email addresse');
 
             // Récupération de l'utilisateur si il existe
-            let user = await userUtils.findUser(email);
+            let user = await userUtils.findUser({ userEmail: email });
             if (!user) throw new Error('Invalid login credential');
 
             // Vérification de si l'utilisateur n'a pas fait trop de tentative de connexion
@@ -145,7 +145,7 @@ export class AuthController {
             if (!VerifyData.validEmail(email)) throw new Error('Invalid email addresse');
 
             // Récupération de l'utilisateur si il existe, on envoie le mail
-            const user = await userUtils.findUser(email);
+            const user = await userUtils.findUser({ userEmail: email });
             if (user) {
                 // Création du token à envoyer
                 const token = await userUtils.generatePasswordToken(user);
@@ -182,7 +182,7 @@ export class AuthController {
             if (!VerifyData.validEmail(email)) throw new Error('Invalid email addresse');
 
             // Récupération de l'utilisateur si il existe, on envoie le mail
-            const user = await userUtils.findUser(email);
+            const user = await userUtils.findUser({ userEmail: email });
             if (user) {
                 // Création du code a envoyer, et de si l'email est déjà vérifié
                 const code = await userUtils.generateVerifyEmailCode(user);
@@ -221,7 +221,7 @@ export class AuthController {
             if (!VerifyData.validEmail(email)) throw new Error('Invalid email addresse');
 
             // Récupération de l'utilisateur pour vérifier si il existe
-            const user = await userUtils.findUser(email);
+            const user = await userUtils.findUser({ userEmail: email });
             if (!user) throw new Error('Invalid user information');
 
             // Vérification de si l'utilisateur à bien fait une requête de vérification de son mail
@@ -265,7 +265,8 @@ export class AuthController {
             if (!VerifyData.validEmail(email)) throw new Error('Invalid email addresse');
 
             // Récupération de l'utilisateur pour vérifier si il existe
-            const user = await userUtils.findUser(email, userId);
+            // tslint:disable-next-line: object-literal-shorthand
+            const user = await userUtils.findUser({ userEmail: email, userId: userId });
             if (!user) throw new Error('Invalid user information');
 
             // Vérification de si la double authentification est activé

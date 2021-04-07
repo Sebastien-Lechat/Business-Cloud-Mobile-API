@@ -10,6 +10,51 @@ import { ClientI } from '../interfaces/userInterface';
 import { Enterprise } from '../models/Entreprise';
 
 export class AccountController {
+
+    /**
+     * Fonction de récupération de tous les utilisateurs (GET /users)
+     * @param req express Request
+     * @param res express Response
+     */
+    static getUsersList = async (req: Request, res: Response) => {
+        try {
+            // Récupération de l'utilisateur grâce au Authmiddleware qui rajoute le token dans req
+            const user = userUtils.getRequestUser(req);
+
+            // Récupération de la liste des utilisateurs en fonction du rôle
+            const userList = await userUtils.getUsersList(user);
+
+            // Envoi de la réponse
+            sendResponse(res, 200, { error: false, message: 'Successful users acquisition', users: userList });
+        } catch (err) {
+            errorHandler(res, err);
+        }
+    }
+
+    /**
+     * Fonction de récupération d'un utilisateur (GET /user)
+     * @param req express Request
+     * @param res express Response
+     */
+    static getUser = async (req: Request, res: Response) => {
+        try {
+            // Récupération de toutes les données du body
+            const { id } = req.params;
+
+            // Vérification de si toutes les données nécessaire sont présentes
+            if (!id) throw new Error('Missing id field');
+
+            // Récupération de l'utilisateur
+            const user = await userUtils.findUser({ userId: id });
+            if (!user) throw new Error('Invalid id');
+
+            // Envoi de la réponse
+            sendResponse(res, 200, { error: false, message: 'Successful user acquisition', user: userUtils.generateUserJSON(user) });
+        } catch (err) {
+            errorHandler(res, err);
+        }
+    }
+
     /**
      * Fonction de récupération du profil  (GET /account)
      * @param req express Request

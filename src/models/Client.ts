@@ -95,6 +95,7 @@ const clientSchema = new mongoose.Schema({
     },
     userId: {
         type: mongoose.Schema.Types.ObjectId,
+        ref: 'user'
     },
     currency: {
         type: String,

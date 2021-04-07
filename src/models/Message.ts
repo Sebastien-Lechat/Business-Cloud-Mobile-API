@@ -4,6 +4,7 @@ const messageSchema = new mongoose.Schema({
     conversationId: {
         type: mongoose.Schema.Types.ObjectId,
         required: true,
+        ref: 'conversation'
     },
     text: {
         type: String,

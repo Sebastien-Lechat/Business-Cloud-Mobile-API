@@ -1,4 +1,6 @@
 import validator from 'validator';
+import { Bill } from '../models/Bill';
+import { globalUtils } from '../utils/globalUtils';
 
 export default class VerifyData {
     /**
@@ -46,10 +48,47 @@ export default class VerifyData {
 
     /**
      * Vérification de si le numéro de tva est au bon format
-     * @param taxe Téléphone à vérifier
+     * @param zip Code postal à vérifier
      */
     static validPostalCode(zip: string): boolean {
         return validator.isPostalCode(zip, 'FR');
+    }
+
+    /**
+     * Vérification du statut de la facture
+     * @param status Statut à vérifier
+     */
+    static validBillStatus(status: string): boolean {
+        return (status === 'Non payée' || status === 'Partiellement payée' || status === 'Payée' || status === 'Retard') ? true : false;
+    }
+
+    /**
+     * Vérification du numéro de facture
+     * @param billNumber Numéro à vérifier
+     */
+    static async validBillNumber(billNumber: string): Promise<boolean> {
+        if (billNumber.substring(0, 3) !== 'FAC') return false;
+        if (billNumber.length !== 9) return false;
+        const bills = await globalUtils.findMany(Bill, { billNum: billNumber });
+        if (bills.length !== 0) return false;
+        return true;
+    }
+
+    /**
+     * Vérification de la validité de la deadline
+     * @param deadline Deadline à vérifier
+     */
+    static validDeadline(deadline: string): boolean {
+        // if (!validator.isDate(deadline, { format: 'DD-MM-YYYY', strictMode: true, delimiters: ['-', '/', '.'] })) return false;
+        return ((new Date(deadline).getTime() - Date.now()) > 0) ? true : false;
+    }
+
+    /**
+     * Vérification de la taxe de la facture
+     * @param status taxe à vérifier
+     */
+    static validTaxe(taxe: string): number | undefined {
+        return validator.toFloat(taxe);
     }
 
 }
