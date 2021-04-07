@@ -20,6 +20,7 @@ const userExpenseSchema = new mongoose.Schema({
     userId: {
         type: mongoose.Schema.Types.ObjectId,
         required: true,
+        ref: 'user',
     },
     file: {
         type: String,

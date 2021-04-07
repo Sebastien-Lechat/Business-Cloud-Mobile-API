@@ -12,14 +12,17 @@ const estimateSchema = new mongoose.Schema({
     clientId: {
         type: mongoose.Schema.Types.ObjectId,
         required: true,
+        ref: 'client'
     },
     enterpriseId: {
         type: mongoose.Schema.Types.ObjectId,
         required: true,
+        ref: 'enterprise'
     },
     articles: [{
         articleId: {
             type: mongoose.Schema.Types.ObjectId,
+            ref: 'article'
         },
         quantity: {
             type: Number,
@@ -29,7 +32,7 @@ const estimateSchema = new mongoose.Schema({
         type: Number,
     },
     currency: {
-        type: Number,
+        type: String,
     },
     totalTTC: {
         type: Number,

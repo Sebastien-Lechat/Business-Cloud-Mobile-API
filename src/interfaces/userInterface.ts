@@ -21,7 +21,7 @@ export interface UserI {
     createdAt: Date;
     updatedAt: Date;
     currency?: string;
-    post?: string;
+    role: string;
     isActive: boolean;
 }
 
@@ -43,11 +43,11 @@ export interface UserUpdateI {
     createdAt?: Date;
     updatedAt?: Date;
     currency?: string;
-    post?: string;
+    role?: string;
 }
 
-
 export interface UserJsonI {
+    type: string;
     id: string;
     name: string;
     email: string;
@@ -57,6 +57,7 @@ export interface UserJsonI {
     refreshToken: string;
     createdAt: Date;
     updatedAt: Date;
+    activity?: any;
     address?: string;
     zip?: string;
     city?: string;
@@ -64,11 +65,26 @@ export interface UserJsonI {
     numTVA?: string;
     numSIRET?: string;
     numRCS?: string;
-    post?: string;
+    role?: string;
     currency?: string;
+    userId?: string;
+    needVerifyEmail?: boolean;
+}
+
+export interface EmployeeJsonI {
+    type: string;
+    id: string;
+    name: string;
+    email: string;
+    role: string;
+    phone?: string;
+    avatar?: string;
+    createdAt: Date;
+    updatedAt: Date;
 }
 
 export interface ClientI extends UserI {
+    activity?: any;
     address?: string;
     zip?: string;
     city?: string;
@@ -76,4 +92,18 @@ export interface ClientI extends UserI {
     numTVA?: string;
     numSIRET?: string;
     numRCS?: string;
+    userId?: string;
+}
+
+export interface ShortUserListI {
+    type: string;
+    id: string;
+    name: string;
+    email: string;
+    phone?: string;
+    avatar?: string;
+    createdAt: Date;
+    updatedAt: Date;
+    role?: string;
+    userId?: string;
 }

@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 import jsonwebtoken from 'jsonwebtoken';
-import { ClientI, UserJsonI, UserI, UserUpdateI, UserObject } from '../interfaces/userInterface';
+import { ClientI, UserJsonI, UserI, UserUpdateI, UserObject, EmployeeJsonI, ShortUserListI } from '../interfaces/userInterface';
 import { Client } from '../models/Client';
 import { User } from '../models/User';
 import { config } from 'dotenv';
@@ -29,11 +29,67 @@ const emailAlreadyExist = async (emailToFind: string): Promise<boolean> => {
  * @param userId ID pour trouver un utilisateur en base de données
  * @returns Retourne l'utilisateur si il est enregistré en base, sinon on retourne null
  */
-const findUser = async (userEmail: string, userId?: string): Promise<UserObject | null> => {
-    if (userId && userId.length !== 24) return null;
-    const alreadyExistC: ClientI = await Client.findOne((userId) ? { _id: mongoose.Types.ObjectId(userId), email: userEmail } : { email: userEmail });
-    const alreadyExistU: UserI = await User.findOne((userId) ? { _id: mongoose.Types.ObjectId(userId), email: userEmail } : { email: userEmail });
+const findUser = async (option: { userEmail?: string, userId?: string }): Promise<UserObject | null> => {
+    if (option.userId && option.userId.length !== 24) return null;
+
+    let query: any;
+    if (option.userId && option.userEmail) query = { _id: mongoose.Types.ObjectId(option.userId), email: option.userEmail };
+    else if (option.userId) query = { _id: mongoose.Types.ObjectId(option.userId) };
+    else if (option.userEmail) query = { email: option.userEmail };
+
+    const alreadyExistC: ClientI = await Client.findOne(query);
+    const alreadyExistU: UserI = await User.findOne(query);
     return (alreadyExistC) ? { data: alreadyExistC, type: 'client' } : (alreadyExistU) ? { data: alreadyExistU, type: 'user' } : null;
+};
+
+/**
+ * Fonction pour retourner la liste des utilisateur en fonction du rôle.
+ * @param model Modèle mongoose
+ * @param id Id pour filtrer
+ * @param updateData Données à mettre à jour
+ */
+const getUsersList = async (user: UserObject): Promise<ShortUserListI[]> => {
+    const userList: ShortUserListI[] = [];
+    if (user.type === 'client') {
+        // Pour un client réucpération du gérant
+        userList.push(generateShortUserJSON({ data: await User.findOne({ role: 'Gérant' }), type: 'user' }));
+
+        // Et de son employé référent si il en a un
+        if ((user.data as ClientI).userId) userList.push(generateShortUserJSON({ data: await User.findOne({ _id: (user.data as ClientI).userId }), type: 'user' }));
+
+        // Envoi de la liste
+        return userList;
+    } else if (user.type === 'user') {
+        if (user.data.role === 'Gérant') {
+            // Pour un gérant on récupère tous les clients
+            const customers: ClientI[] = await Client.find();
+            customers.map((customer) => userList.push(generateShortUserJSON({ data: customer, type: 'client' })));
+
+            // Pour un gérant on récupère tous les employés
+            const employees: UserI[] = await User.find();
+            employees.map((employee) => userList.push(generateShortUserJSON({ data: employee, type: 'user' })));
+
+            // On organise par date de création (le plus ancien en premier)
+            userList.sort((a: any, b: any) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+
+            // Envoi de la liste filtrer (on ne s'envoi pas soit même)
+            return userList.filter((item) => item.id.toString() !== user.data._id.toString());
+        } else {
+            // Pour un employé on récupère tous ses clients
+            const customers: ClientI[] = await Client.find({ userId: user.data._id });
+            customers.map((customer) => userList.push(generateShortUserJSON({ data: customer, type: 'client' })));
+
+            // Pour un employé on récupère la liste des autres employés
+            const employees: UserI[] = await User.find();
+            employees.map((employee) => userList.push(generateShortUserJSON({ data: employee, type: 'user' })));
+
+            // On organise par date de création (le plus ancien en premier)
+            userList.sort((a: any, b: any) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime());
+
+            // Envoi de la liste filtrer (on ne s'envoi pas soit même)
+            return userList.filter((item) => item.id.toString() !== user.data._id.toString());
+        }
+    } else return userList;
 };
 
 /**
@@ -44,6 +100,15 @@ const findUser = async (userEmail: string, userId?: string): Promise<UserObject 
 const updateUser = async (user: UserObject, updateData: UserUpdateI): Promise<void> => {
     if (user.type === 'user') await User.updateOne({ _id: mongoose.Types.ObjectId(user.data._id), email: user.data.email }, { $set: updateData });
     if (user.type === 'client') await Client.updateOne({ _id: mongoose.Types.ObjectId(user.data._id), email: user.data.email }, { $set: updateData });
+};
+
+/**
+ * Fonction pour désactiver un utilisateur.
+ * @param model Modèle mongoose
+ * @param id Id pour filtrer
+ */
+const disabledOne = async (model: mongoose.Model<any, any>, id: string): Promise<any> => {
+    return await model.updateOne({ _id: mongoose.Types.ObjectId(id) }, { $set: { isActive: false } });
 };
 
 /**
@@ -86,6 +151,7 @@ const generateUserRefreshToken = async (user: UserObject): Promise<UserObject> =
  */
 const generateUserJSON = (user: { data: ClientI, type: 'client' | 'user' }): UserJsonI => {
     const toReturn: UserJsonI = {
+        type: user.type,
         id: user.data._id,
         name: user.data.name,
         email: user.data.email,
@@ -95,6 +161,9 @@ const generateUserJSON = (user: { data: ClientI, type: 'client' | 'user' }): Use
         refreshToken: user.data.refreshToken as string,
     };
 
+    if (user.data.avatar) toReturn.avatar = user.data.avatar;
+    if (user.data.phone) toReturn.phone = user.data.phone;
+    if (user.data.activity) toReturn.activity = user.data.activity;
     if (user.data.address) toReturn.address = user.data.address;
     if (user.data.zip) toReturn.zip = user.data.zip;
     if (user.data.city) toReturn.city = user.data.city;
@@ -103,8 +172,53 @@ const generateUserJSON = (user: { data: ClientI, type: 'client' | 'user' }): Use
     if (user.data.numSIRET) toReturn.numSIRET = user.data.numSIRET;
     if (user.data.numRCS) toReturn.numRCS = user.data.numRCS;
     if (user.data.currency) toReturn.currency = user.data.currency;
-    if (user.data.post) toReturn.post = user.data.post;
+    if (user.data.role) toReturn.role = user.data.role;
 
+    if (!user.data.verify_email?.verified) toReturn.needVerifyEmail = true;
+    else toReturn.needVerifyEmail = false;
+
+    return toReturn;
+};
+
+/**
+ * Fonction générer le short JSON de réponse pour les requête lié à l'utilisateur.
+ * @param user Utilisateur pour lequel on génère le JSON
+ * @returns Retourne JSON
+ */
+const generateShortUserJSON = (user: UserObject): ShortUserListI => {
+    const toReturn: ShortUserListI = {
+        type: user.type,
+        id: user.data._id,
+        name: user.data.name,
+        email: user.data.email,
+        createdAt: user.data.createdAt,
+        updatedAt: user.data.updatedAt,
+    };
+
+    if (user.data.avatar) toReturn.avatar = user.data.avatar;
+    if (user.data.phone) toReturn.phone = user.data.phone;
+    if (user.data.role) toReturn.role = user.data.role;
+    if ((user.data as ClientI).userId) toReturn.userId = (user.data as ClientI).userId;
+    return toReturn;
+};
+
+/**
+ * Fonction générer le JSON de réponse pour les requête lié à l'employé.
+ * @param user Utilisateur pour lequel on génère le JSON
+ * @returns Retourne JSON
+ */
+const generateEmployeeJSON = (user: UserI): EmployeeJsonI => {
+    const toReturn: EmployeeJsonI = {
+        type: 'user',
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt,
+    };
+    if (user.avatar) toReturn.avatar = user.avatar;
+    if (user.phone) toReturn.phone = user.phone;
     return toReturn;
 };
 
@@ -160,11 +274,15 @@ const getRequestUser = (req: Request): UserObject => {
 const userUtils = {
     emailAlreadyExist,
     findUser,
+    getUsersList,
     updateUser,
+    disabledOne,
     updateLastLogin,
     generateUserToken,
     generateUserRefreshToken,
     generateUserJSON,
+    generateShortUserJSON,
+    generateEmployeeJSON,
     generatePasswordToken,
     generateVerifyEmailCode,
     generateDoubleAuthCode,

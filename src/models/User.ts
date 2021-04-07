@@ -67,7 +67,7 @@ const userSchema = new mongoose.Schema({
             type: Boolean
         }
     },
-    post: {
+    role: {
         type: String,
     },
     currency: {

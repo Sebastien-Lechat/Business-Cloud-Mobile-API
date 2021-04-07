@@ -1,14 +1,14 @@
 
 import { Request, Response } from 'express';
-import { userUtils } from '../utils/userUtils';
+import validator from 'validator';
 import { sendMail } from '../helpers/emailHelper';
-import { passwordLostModel, sendCodeModel } from '../templates/emailTemplate';
 import { comparePassword, hashPassword } from '../helpers/passwordHelper';
 import { errorHandler, sendResponse } from '../helpers/responseHelper';
 import VerifyData from '../helpers/verifyDataHelper';
-import { ClientI, UserObject } from '../interfaces/userInterface';
+import { ClientI } from '../interfaces/userInterface';
 import { Client } from '../models/Client';
-import validator from 'validator';
+import { passwordLostModel, sendCodeModel } from '../templates/emailTemplate';
+import { userUtils } from '../utils/userUtils';
 
 export class AuthController {
     /**
@@ -28,7 +28,7 @@ export class AuthController {
             if (!VerifyData.validEmail(email)) throw new Error('Invalid email addresse');
 
             // Récupération de l'utilisateur si il existe
-            let user = await userUtils.findUser(email);
+            let user = await userUtils.findUser({ userEmail: email });
             if (!user) throw new Error('Invalid login credential');
 
             // Vérification de si l'utilisateur n'a pas fait trop de tentative de connexion
@@ -63,20 +63,19 @@ export class AuthController {
             // Génération des tokens de l'utilisateur et de la réponse
             user = await userUtils.generateUserToken(user);
             user = await userUtils.generateUserRefreshToken(user);
-            const toReturn = await userUtils.generateUserJSON(user);
 
             // Envoi de la réponse
-            sendResponse(res, 200, { error: false, message: 'Successfully connected', user: toReturn });
+            sendResponse(res, 200, { error: false, message: 'Successfully connected', user: userUtils.generateUserJSON(user) });
         } catch (err) {
-            if (err.message === 'Missing email or password field') sendResponse(res, 400, { error: false, code: '101001', message: err.message });
-            else if (err.message === 'Invalid email addresse') sendResponse(res, 400, { error: false, code: '101002', message: err.message });
-            else if (err.message === 'Invalid login credential') sendResponse(res, 400, { error: false, code: '101003', message: err.message });
-            else if (err.message === 'Email address is not verified') sendResponse(res, 400, { error: false, code: '101004', message: err.message });
-            else if (err.message === 'Double authentification is activated, code is required') sendResponse(res, 400, { error: false, code: '101205', message: err.message });
-            else if (err.message === 'Wrong code') sendResponse(res, 400, { error: false, code: '101006', message: err.message });
-            else if (err.message === 'This code is no longer valid') sendResponse(res, 400, { error: false, code: '101007', message: err.message });
-            else if (err.message === 'This account is disabled') sendResponse(res, 400, { error: false, code: '101008', message: err.message });
-            else if (err.message === 'Too many attempts on this email (5 max) - Please wait (5min)') sendResponse(res, 400, { error: false, code: '101009', message: err.message });
+            if (err.message === 'Missing email or password field') sendResponse(res, 400, { error: true, code: '101001', message: err.message });
+            else if (err.message === 'Invalid email addresse') sendResponse(res, 400, { error: true, code: '101002', message: err.message });
+            else if (err.message === 'Invalid login credential') sendResponse(res, 400, { error: true, code: '101003', message: err.message });
+            else if (err.message === 'Email address is not verified') sendResponse(res, 400, { error: true, code: '101004', message: err.message });
+            else if (err.message === 'Double authentification is activated, code is required') sendResponse(res, 400, { error: true, code: '101205', message: err.message });
+            else if (err.message === 'Wrong code') sendResponse(res, 400, { error: true, code: '101006', message: err.message });
+            else if (err.message === 'This code is no longer valid') sendResponse(res, 400, { error: true, code: '101007', message: err.message });
+            else if (err.message === 'This account is disabled') sendResponse(res, 400, { error: true, code: '101008', message: err.message });
+            else if (err.message === 'Too many attempts on this email (5 max) - Please wait (5min)') sendResponse(res, 400, { error: true, code: '101009', message: err.message });
             else errorHandler(res, err);
         }
     }
@@ -105,7 +104,7 @@ export class AuthController {
             req.body.password = await hashPassword(req.body.password);
 
             // Vérification du numéro de téléphone de l'utilisateur
-            if (phone && !VerifyData.validPhone(email)) throw new Error('Invalid phone number');
+            if (phone && !VerifyData.validPhone(phone)) throw new Error('Invalid phone number');
 
             // Vérification de la date de naissance de l'utilisateur
             if (birthdayDate && !VerifyData.validDate(birthdayDate)) throw new Error('Invalid date format');
@@ -116,15 +115,15 @@ export class AuthController {
             // Envoi de la réponse
             sendResponse(res, 200, { error: false, message: 'Successfully registred', user: { id: client._id, name: client.name, email: client.email } });
         } catch (err) {
-            if (err.message === 'Missing important fields') sendResponse(res, 400, { error: false, code: '101051', message: err.message });
-            else if (err.message === 'Invalid email addresse') sendResponse(res, 400, { error: false, code: '101052', message: err.message });
-            else if (err.message === 'Invalid phone number') sendResponse(res, 400, { error: false, code: '101053', message: err.message });
-            else if (err.message === 'Invalid password format') sendResponse(res, 400, { error: false, code: '101054', message: err.message });
-            else if (err.message === 'Invalid TVA number') sendResponse(res, 400, { error: false, code: '101055', message: err.message });
-            else if (err.message === 'Invalid SIRET number') sendResponse(res, 400, { error: false, code: '101056', message: err.message });
-            else if (err.message === 'Invalid RCS number') sendResponse(res, 400, { error: false, code: '101057', message: err.message });
-            else if (err.message === 'Invalid date format') sendResponse(res, 400, { error: false, code: '101058', message: err.message });
-            else if (err.message === 'This email is already used') sendResponse(res, 400, { error: false, code: '101059', message: err.message });
+            if (err.message === 'Missing important fields') sendResponse(res, 400, { error: true, code: '101051', message: err.message });
+            else if (err.message === 'Invalid email addresse') sendResponse(res, 400, { error: true, code: '101052', message: err.message });
+            else if (err.message === 'Invalid phone number') sendResponse(res, 400, { error: true, code: '101053', message: err.message });
+            else if (err.message === 'Invalid password format') sendResponse(res, 400, { error: true, code: '101054', message: err.message });
+            else if (err.message === 'Invalid TVA number') sendResponse(res, 400, { error: true, code: '101055', message: err.message });
+            else if (err.message === 'Invalid SIRET number') sendResponse(res, 400, { error: true, code: '101056', message: err.message });
+            else if (err.message === 'Invalid RCS number') sendResponse(res, 400, { error: true, code: '101057', message: err.message });
+            else if (err.message === 'Invalid date format') sendResponse(res, 400, { error: true, code: '101058', message: err.message });
+            else if (err.message === 'This email is already used') sendResponse(res, 400, { error: true, code: '101059', message: err.message });
             else errorHandler(res, err);
         }
     }
@@ -146,7 +145,7 @@ export class AuthController {
             if (!VerifyData.validEmail(email)) throw new Error('Invalid email addresse');
 
             // Récupération de l'utilisateur si il existe, on envoie le mail
-            const user = await userUtils.findUser(email);
+            const user = await userUtils.findUser({ userEmail: email });
             if (user) {
                 // Création du token à envoyer
                 const token = await userUtils.generatePasswordToken(user);
@@ -160,8 +159,8 @@ export class AuthController {
                 sendResponse(res, 200, { error: false, message: 'Email successfully send' });
             }
         } catch (err) {
-            if (err.message === 'Missing email field') sendResponse(res, 400, { error: false, code: '101101', message: err.message });
-            else if (err.message === 'Invalid email addresse') sendResponse(res, 400, { error: false, code: '101102', message: err.message });
+            if (err.message === 'Missing email field') sendResponse(res, 400, { error: true, code: '101101', message: err.message });
+            else if (err.message === 'Invalid email addresse') sendResponse(res, 400, { error: true, code: '101102', message: err.message });
             else errorHandler(res, err);
         }
     }
@@ -183,7 +182,7 @@ export class AuthController {
             if (!VerifyData.validEmail(email)) throw new Error('Invalid email addresse');
 
             // Récupération de l'utilisateur si il existe, on envoie le mail
-            const user = await userUtils.findUser(email);
+            const user = await userUtils.findUser({ userEmail: email });
             if (user) {
                 // Création du code a envoyer, et de si l'email est déjà vérifié
                 const code = await userUtils.generateVerifyEmailCode(user);
@@ -198,9 +197,9 @@ export class AuthController {
                 sendResponse(res, 200, { error: false, message: 'Email successfully send' });
             }
         } catch (err) {
-            if (err.message === 'Missing email field') sendResponse(res, 400, { error: false, code: '101151', message: err.message });
-            else if (err.message === 'Invalid email addresse') sendResponse(res, 400, { error: false, code: '101152', message: err.message });
-            else if (err.message === 'Email already verified') sendResponse(res, 400, { error: false, code: '101153', message: err.message });
+            if (err.message === 'Missing email field') sendResponse(res, 400, { error: true, code: '101151', message: err.message });
+            else if (err.message === 'Invalid email addresse') sendResponse(res, 400, { error: true, code: '101152', message: err.message });
+            else if (err.message === 'Email already verified') sendResponse(res, 400, { error: true, code: '101153', message: err.message });
             else errorHandler(res, err);
         }
     }
@@ -222,11 +221,11 @@ export class AuthController {
             if (!VerifyData.validEmail(email)) throw new Error('Invalid email addresse');
 
             // Récupération de l'utilisateur pour vérifier si il existe
-            const user = await userUtils.findUser(email);
+            const user = await userUtils.findUser({ userEmail: email });
             if (!user) throw new Error('Invalid user information');
 
             // Vérification de si l'utilisateur à bien fait une requête de vérification de son mail
-            if (!user.data.verify_email || !user.data.verify_email.code || !user.data.verify_email.verified) throw new Error('You need to make a request to check this email');
+            if (!user.data.verify_email || !user.data.verify_email.code || user.data.verify_email.verified === undefined) throw new Error('You need to make a request to check this email');
 
             // Vérification de si le code est toujours valide et si c'est le bon code
             if (code !== user.data.verify_email.code) throw new Error('Wrong code');
@@ -239,12 +238,12 @@ export class AuthController {
             // Envoi de la réponse
             sendResponse(res, 200, { error: false, message: 'Successful verification' });
         } catch (err) {
-            if (err.message === 'Missing email or code field') sendResponse(res, 400, { error: false, code: '101201', message: err.message });
-            else if (err.message === 'Invalid email addresse') sendResponse(res, 400, { error: false, code: '101202', message: err.message });
-            else if (err.message === 'Invalid user information') sendResponse(res, 400, { error: false, code: '101203', message: err.message });
-            else if (err.message === 'You need to make a request to check this email') sendResponse(res, 400, { error: false, code: '101204', message: err.message });
-            else if (err.message === 'Wrong code') sendResponse(res, 400, { error: false, code: '101205', message: err.message });
-            else if (err.message === 'This code is no longer valid') sendResponse(res, 400, { error: false, code: '101206', message: err.message });
+            if (err.message === 'Missing email or code field') sendResponse(res, 400, { error: true, code: '101201', message: err.message });
+            else if (err.message === 'Invalid email addresse') sendResponse(res, 400, { error: true, code: '101202', message: err.message });
+            else if (err.message === 'Invalid user information') sendResponse(res, 400, { error: true, code: '101203', message: err.message });
+            else if (err.message === 'You need to make a request to check this email') sendResponse(res, 400, { error: true, code: '101204', message: err.message });
+            else if (err.message === 'Wrong code') sendResponse(res, 400, { error: true, code: '101205', message: err.message });
+            else if (err.message === 'This code is no longer valid') sendResponse(res, 400, { error: true, code: '101206', message: err.message });
             else errorHandler(res, err);
         }
     }
@@ -266,7 +265,8 @@ export class AuthController {
             if (!VerifyData.validEmail(email)) throw new Error('Invalid email addresse');
 
             // Récupération de l'utilisateur pour vérifier si il existe
-            const user = await userUtils.findUser(email, userId);
+            // tslint:disable-next-line: object-literal-shorthand
+            const user = await userUtils.findUser({ userEmail: email, userId: userId });
             if (!user) throw new Error('Invalid user information');
 
             // Vérification de si la double authentification est activé
@@ -281,10 +281,10 @@ export class AuthController {
             // Envoi de la réponse
             sendResponse(res, 200, { error: false, message: 'Email successfully send' });
         } catch (err) {
-            if (err.message === 'Missing email or userId field') sendResponse(res, 400, { error: false, code: '101251', message: err.message });
-            else if (err.message === 'Invalid email addresse') sendResponse(res, 400, { error: false, code: '101252', message: err.message });
-            else if (err.message === 'Invalid user information') sendResponse(res, 400, { error: false, code: '101253', message: err.message });
-            else if (err.message === 'Double authentification is not activated on this account') sendResponse(res, 400, { error: false, code: '101254', message: err.message });
+            if (err.message === 'Missing email or userId field') sendResponse(res, 400, { error: true, code: '101251', message: err.message });
+            else if (err.message === 'Invalid email addresse') sendResponse(res, 400, { error: true, code: '101252', message: err.message });
+            else if (err.message === 'Invalid user information') sendResponse(res, 400, { error: true, code: '101253', message: err.message });
+            else if (err.message === 'Double authentification is not activated on this account') sendResponse(res, 400, { error: true, code: '101254', message: err.message });
             else errorHandler(res, err);
         }
     }
@@ -314,7 +314,7 @@ export class AuthController {
             // Envoi de la réponse
             sendResponse(res, 200, { error: false, message: 'Double authentification successfully updated' });
         } catch (err) {
-            if (err.message === 'Missing isActive field') sendResponse(res, 400, { error: false, code: '101301', message: err.message });
+            if (err.message === 'Missing isActive field') sendResponse(res, 400, { error: true, code: '101301', message: err.message });
             else errorHandler(res, err);
         }
     }
