@@ -2,10 +2,12 @@ import { Request, Response } from 'express';
 import { errorHandler, sendResponse } from '../helpers/responseHelper';
 import VerifyData from '../helpers/verifyDataHelper';
 import { BillArticleI, BillI } from '../interfaces/billInterface';
+import { EnterpriseI } from '../interfaces/enterpriseInterface';
 import { ClientI } from '../interfaces/userInterface';
 import { Article } from '../models/Article';
 import { Bill } from '../models/Bill';
 import { Client } from '../models/Client';
+import { Enterprise } from '../models/Entreprise';
 import { billUtils } from '../utils/billUtils';
 import { globalUtils } from '../utils/globalUtils';
 import { userUtils } from '../utils/userUtils';
@@ -64,8 +66,9 @@ export class BillController {
             const customer: ClientI = await globalUtils.findOne(Client, clientId);
             if (!customer) throw new Error('Invalid customer id');
 
-            // Vérification de si l'entreprise existe'
-            // TODO
+            // Vérification de si l'entreprise existe
+            const enterprise: EnterpriseI = await globalUtils.findOne(Enterprise, enterpriseId);
+            if (!enterprise) throw new Error('Invalid enterprise id');
 
             // Vérification de la validité du numéro de facture
             if (!await VerifyData.validBillNumber(billNum)) throw new Error('Invalid bill number');
@@ -91,9 +94,10 @@ export class BillController {
             if (err.message === 'Missing important fields') sendResponse(res, 400, { error: true, code: '104151', message: err.message });
             else if (err.message === 'Invalid bill status') sendResponse(res, 400, { error: true, code: '104152', message: err.message });
             else if (err.message === 'Invalid customer id') sendResponse(res, 400, { error: true, code: '104153', message: err.message });
-            else if (err.message === 'Invalid bill number') sendResponse(res, 400, { error: true, code: '104154', message: err.message });
-            else if (err.message === 'Invalid deadline') sendResponse(res, 400, { error: true, code: '104155', message: err.message });
-            else if (err.message === 'Invalid taxe rate') sendResponse(res, 400, { error: true, code: '104156', message: err.message });
+            else if (err.message === 'Invalid enterprise id') sendResponse(res, 400, { error: true, code: '104154', message: err.message });
+            else if (err.message === 'Invalid bill number') sendResponse(res, 400, { error: true, code: '104155', message: err.message });
+            else if (err.message === 'Invalid deadline') sendResponse(res, 400, { error: true, code: '104156', message: err.message });
+            else if (err.message === 'Invalid taxe rate') sendResponse(res, 400, { error: true, code: '104157', message: err.message });
             else errorHandler(res, err);
         }
     }
