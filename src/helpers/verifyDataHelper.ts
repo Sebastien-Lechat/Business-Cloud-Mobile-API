@@ -1,5 +1,6 @@
 import validator from 'validator';
 import { Bill } from '../models/Bill';
+import { Estimate } from '../models/Estimate';
 import { globalUtils } from '../utils/globalUtils';
 
 export default class VerifyData {
@@ -89,7 +90,7 @@ export default class VerifyData {
     static async validEstimateNumber(estimateNumber: string): Promise<boolean> {
         if (estimateNumber.substring(0, 3) !== 'EST') return false;
         if (estimateNumber.length !== 9) return false;
-        const estimates = await globalUtils.findMany(Bill, { estimateNum: estimateNumber });
+        const estimates = await globalUtils.findMany(Estimate, { estimateNum: estimateNumber });
         if (estimates.length !== 0) return false;
         return true;
     }

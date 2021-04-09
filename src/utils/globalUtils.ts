@@ -35,7 +35,7 @@ const findOne = async (model: mongoose.Model<any, any>, id: string): Promise<any
  * Fonction pour trouver un document dans une collection et le populate.
  * @param model Modèle mongoose
  * @param id Id pour filtrer
- * @param updateData Données à mettre à jour
+ * @param populate Données à populate
  */
 const findOneAndPopulate = async (model: mongoose.Model<any, any>, id: string, populate: string[]): Promise<any> => {
     if (id.length !== 24) return null;
@@ -45,17 +45,26 @@ const findOneAndPopulate = async (model: mongoose.Model<any, any>, id: string, p
 /**
  * Fonction pour trouver plusieurs documents dans une collection.
  * @param model Modèle mongoose
- * @param id Id pour filtrer
- * @param updateData Données à mettre à jour
+ * @param filter Filtre
  */
 const findMany = async (model: mongoose.Model<any, any>, filter: any): Promise<any> => {
     return await model.find(filter);
 };
 
 /**
+ * Fonction pour trouver plusieurs documents dans une collection.
+ * @param model Modèle mongoose
+ * @param filter Filtre
+ * @param populate Données à populate
+ */
+const findManyAndPopulate = async (model: mongoose.Model<any, any>, filter: any, populate: string[]): Promise<any> => {
+    return await model.find(filter).populate(populate);
+};
+
+/**
  * Fonction pour mettre à jour un document dans une collection.
  * @param model Modèle mongoose
- * @param id Id pour filtrer
+ * @param filter filtre
  * @param updateData Données à mettre à jour
  */
 const updateOne = async (model: mongoose.Model<any, any>, filter: any, updateData: object): Promise<any> => {
@@ -87,6 +96,7 @@ const globalUtils = {
     findOne,
     findOneAndPopulate,
     findMany,
+    findManyAndPopulate,
     updateOne,
     updateOneById,
     deleteOne,

@@ -46,12 +46,13 @@ export class AccountController {
 
             // Récupération de l'utilisateur
             const user = await userUtils.findUser({ userId: id });
-            if (!user) throw new Error('Invalid id');
+            if (!user) throw new Error('Invalid user id');
 
             // Envoi de la réponse
             sendResponse(res, 200, { error: false, message: 'Successful user acquisition', user: userUtils.generateUserJSON(user) });
         } catch (err) {
-            errorHandler(res, err);
+            if (err.message === 'Invalid user id') sendResponse(res, 400, { error: true, code: '104101', message: err.message });
+            else errorHandler(res, err);
         }
     }
 

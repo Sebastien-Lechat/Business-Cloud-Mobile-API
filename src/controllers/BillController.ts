@@ -21,8 +21,14 @@ export class BillController {
      */
     static getBillsList = async (req: Request, res: Response) => {
         try {
+            // Récupération de l'utilisateur grâce au Authmiddleware qui rajoute le token dans req
+            const user = userUtils.getRequestUser(req);
+
+            // Récupération de la liste des devis en fonction du rôle
+            const billList = await billUtils.getBillList(user);
+
             // Envoi de la réponse
-            sendResponse(res, 200, { error: false, message: 'Successful bills acquisition' });
+            sendResponse(res, 200, { error: false, message: 'Successful bills acquisition', bills: billList });
         } catch (err) {
             errorHandler(res, err);
         }
@@ -35,10 +41,21 @@ export class BillController {
      */
     static getOneBill = async (req: Request, res: Response) => {
         try {
+            // Récupération de toutes les données du body
+            const { id } = req.params;
+
+            // Vérification de si toutes les données nécessaire sont présentes
+            if (!id) throw new Error('Missing id field');
+
+            // Récupération de l'utilisateur
+            const bill = await globalUtils.findOne(Bill, id);
+            if (!bill) throw new Error('Invalid bill id');
+
             // Envoi de la réponse
-            sendResponse(res, 200, { error: false, message: 'Successful bill acquisition' });
+            sendResponse(res, 200, { error: false, message: 'Successful bill acquisition', bill: billUtils.generateBillJSON(bill) });
         } catch (err) {
-            errorHandler(res, err);
+            if (err.message === 'Invalid bill id') sendResponse(res, 400, { error: true, code: '104101', message: err.message });
+            else errorHandler(res, err);
         }
     }
 
