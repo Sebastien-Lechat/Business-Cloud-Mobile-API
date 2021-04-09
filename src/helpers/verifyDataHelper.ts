@@ -1,5 +1,6 @@
 import validator from 'validator';
 import { Bill } from '../models/Bill';
+import { Estimate } from '../models/Estimate';
 import { globalUtils } from '../utils/globalUtils';
 
 export default class VerifyData {
@@ -59,7 +60,15 @@ export default class VerifyData {
      * @param status Statut à vérifier
      */
     static validBillStatus(status: string): boolean {
-        return (status === 'Non payée' || status === 'Partiellement payée' || status === 'Payée' || status === 'Retard') ? true : false;
+        return (status === 'Non payée' || status === 'Partiellement payée' || status === 'Payée' || status === 'En retard') ? true : false;
+    }
+
+    /**
+     * Vérification du statut du devis
+     * @param status Statut à vérifier
+     */
+    static validEstimateStatus(status: string): boolean {
+        return (status === 'En attente' || status === 'Refusé' || status === 'Accepté' || status === 'En retard') ? true : false;
     }
 
     /**
@@ -75,6 +84,18 @@ export default class VerifyData {
     }
 
     /**
+     * Vérification du numéro de devis
+     * @param estimateNumber Numéro à vérifier
+     */
+    static async validEstimateNumber(estimateNumber: string): Promise<boolean> {
+        if (estimateNumber.substring(0, 3) !== 'EST') return false;
+        if (estimateNumber.length !== 9) return false;
+        const estimates = await globalUtils.findMany(Estimate, { estimateNum: estimateNumber });
+        if (estimates.length !== 0) return false;
+        return true;
+    }
+
+    /**
      * Vérification de la validité de la deadline
      * @param deadline Deadline à vérifier
      */
@@ -85,7 +106,7 @@ export default class VerifyData {
 
     /**
      * Vérification de la taxe de la facture
-     * @param status taxe à vérifier
+     * @param taxe taxe à vérifier
      */
     static validTaxe(taxe: string): number | undefined {
         return validator.toFloat(taxe);

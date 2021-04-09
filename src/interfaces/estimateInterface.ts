@@ -1,8 +1,9 @@
+import { ClientI } from './userInterface';
 export interface EstimateI {
     estimateNum: string;
     id: string;
     status: string;
-    clientId: string;
+    clientId: string | ClientI;
     enterpriseId: string;
     articles: EstimateArticleI[];
     currency?: string;

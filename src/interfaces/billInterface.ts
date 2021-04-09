@@ -1,8 +1,10 @@
+import { ClientI } from './userInterface';
+
 export interface BillI {
     billNum: string;
     id: string;
     status: string;
-    clientId: string;
+    clientId: string | ClientI;
     enterpriseId: string;
     articles: BillArticleI[];
     currency?: string;

@@ -44,9 +44,7 @@ const findUser = async (option: { userEmail?: string, userId?: string }): Promis
 
 /**
  * Fonction pour retourner la liste des utilisateur en fonction du rôle.
- * @param model Modèle mongoose
- * @param id Id pour filtrer
- * @param updateData Données à mettre à jour
+ * @param user Utilisateur pour lequel on génère la liste
  */
 const getUsersList = async (user: UserObject): Promise<ShortUserListI[]> => {
     const userList: ShortUserListI[] = [];
