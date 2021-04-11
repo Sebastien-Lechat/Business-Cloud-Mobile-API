@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { errorHandler, sendResponse } from '../helpers/responseHelper';
 import VerifyData from '../helpers/verifyDataHelper';
+import { ArticleI } from '../interfaces/articleInterface';
 import { BillArticleI, BillI } from '../interfaces/billInterface';
 import { EnterpriseI } from '../interfaces/enterpriseInterface';
 import { ClientI } from '../interfaces/userInterface';
@@ -8,6 +9,7 @@ import { Article } from '../models/Article';
 import { Bill } from '../models/Bill';
 import { Client } from '../models/Client';
 import { Enterprise } from '../models/Entreprise';
+import { articleUtils } from '../utils/articleUtils';
 import { billUtils } from '../utils/billUtils';
 import { globalUtils } from '../utils/globalUtils';
 import { userUtils } from '../utils/userUtils';
@@ -24,7 +26,7 @@ export class BillController {
             // Récupération de l'utilisateur grâce au Authmiddleware qui rajoute le token dans req
             const user = userUtils.getRequestUser(req);
 
-            // Récupération de la liste des devis en fonction du rôle
+            // Récupération de la liste des factures en fonction du rôle
             const billList = await billUtils.getBillList(user);
 
             // Envoi de la réponse
@@ -131,7 +133,8 @@ export class BillController {
             if (!hasPermission) throw new Error('You do not have the required permissions');
 
             // Récupération de toutes les données du body
-            const { id, status, clientId, billNum, articles, currency, deadline, taxe } = req.body;
+            const { id, status, clientId, billNum, currency, deadline, taxe } = req.body;
+            const articles: Array<BillArticleI> = req.body.articles;
 
             // Vérification de si toutes les données nécessaire sont présentes
             if (!id) throw new Error('Missing id field');
@@ -159,12 +162,16 @@ export class BillController {
             if (taxe && !VerifyData.validTaxe(taxe)) throw new Error('Invalid taxe rate');
 
             // Vérification de la validité des articles
+            let newTotalHT = 0;
+            let newTotalTTC = 0;
             if (articles) {
-                articles.map(async (article: BillArticleI) => {
+                for (const article of articles) {
                     if (!article.articleId || !article.quantity) throw new Error('Invalid article format');
-                    const articleFind = await globalUtils.findOne(Article, article.articleId);
+                    const articleFind: ArticleI = await globalUtils.findOne(Article, article.articleId as string);
                     if (!articleFind) throw new Error('Invalid article id');
-                });
+                    newTotalHT += (articleFind.price * article.quantity);
+                    newTotalTTC += ((articleFind.price * (1 + (articleFind.tva / 100))) * article.quantity);
+                }
             }
 
             // Création des données existante à modifier
@@ -173,7 +180,11 @@ export class BillController {
             if (status) toUpdate.status = bill.status = status;
             if (clientId) toUpdate.clientId = bill.clientId = clientId;
             if (billNum) toUpdate.billNum = bill.billNum = billNum;
-            if (articles) toUpdate.articles = bill.articles = articles;
+            if (articles) {
+                toUpdate.articles = bill.articles = articles;
+                toUpdate.totalHT = newTotalHT.toFixed(2);
+                toUpdate.totalTTC = newTotalTTC.toFixed(2);
+            }
             if (taxe) toUpdate.taxe = bill.taxe = taxe;
             if (currency) toUpdate.currency = bill.currency = currency;
             if (deadline) toUpdate.deadline = bill.deadline = deadline;
@@ -181,8 +192,17 @@ export class BillController {
             // Modification de la facture
             await globalUtils.updateOneById(Bill, id, toUpdate);
 
+            // Récupération de la facture avec les articles
+            const populateBill: BillI = await globalUtils.findOneAndPopulate(Bill, id, ['articles.articleId']);
+
+            // Mise en forme
+            populateBill.articles.map((article: BillArticleI) => {
+                article.articleId = articleUtils.generateArticleJSON(article.articleId as ArticleI);
+                return article;
+            });
+
             // Envoi de la réponse
-            sendResponse(res, 200, { error: false, message: 'Bill successfully updated', bill: billUtils.generateBillJSON(bill) });
+            sendResponse(res, 200, { error: false, message: 'Bill successfully updated', bill: billUtils.generateBillJSON(populateBill) });
         } catch (err) {
             if (err.message === 'Missing id field') sendResponse(res, 400, { error: true, code: '104201', message: err.message });
             else if (err.message === 'Invalid bill id') sendResponse(res, 400, { error: true, code: '104202', message: err.message });

@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { errorHandler, sendResponse } from '../helpers/responseHelper';
 import VerifyData from '../helpers/verifyDataHelper';
+import { ArticleI } from '../interfaces/articleInterface';
 import { EnterpriseI } from '../interfaces/enterpriseInterface';
 import { EstimateArticleI, EstimateI } from '../interfaces/estimateInterface';
 import { ClientI } from '../interfaces/userInterface';
@@ -8,6 +9,7 @@ import { Article } from '../models/Article';
 import { Client } from '../models/Client';
 import { Enterprise } from '../models/Entreprise';
 import { Estimate } from '../models/Estimate';
+import { articleUtils } from '../utils/articleUtils';
 import { estimateUtils } from '../utils/estimateUtils';
 import { globalUtils } from '../utils/globalUtils';
 import { userUtils } from '../utils/userUtils';
@@ -159,12 +161,16 @@ export class EstimateController {
             if (taxe && !VerifyData.validTaxe(taxe)) throw new Error('Invalid taxe rate');
 
             // Vérification de la validité des articles
+            let newTotalHT = 0;
+            let newTotalTTC = 0;
             if (articles) {
-                articles.map(async (article: EstimateArticleI) => {
+                for (const article of articles) {
                     if (!article.articleId || !article.quantity) throw new Error('Invalid article format');
-                    const articleFind = await globalUtils.findOne(Article, article.articleId);
+                    const articleFind: ArticleI = await globalUtils.findOne(Article, article.articleId as string);
                     if (!articleFind) throw new Error('Invalid article id');
-                });
+                    newTotalHT += (articleFind.price * article.quantity);
+                    newTotalTTC += ((articleFind.price * (1 + (articleFind.tva / 100))) * article.quantity);
+                }
             }
 
             // Création des données existante à modifier
@@ -173,7 +179,11 @@ export class EstimateController {
             if (status) toUpdate.status = estimate.status = status;
             if (clientId) toUpdate.clientId = estimate.clientId = clientId;
             if (estimateNum) toUpdate.estimateNum = estimate.estimateNum = estimateNum;
-            if (articles) toUpdate.articles = estimate.articles = articles;
+            if (articles) {
+                toUpdate.articles = estimate.articles = articles;
+                toUpdate.totalHT = newTotalHT.toFixed(2);
+                toUpdate.totalTTC = newTotalTTC.toFixed(2);
+            }
             if (taxe) toUpdate.taxe = estimate.taxe = taxe;
             if (currency) toUpdate.currency = estimate.currency = currency;
             if (deadline) toUpdate.deadline = estimate.deadline = deadline;
@@ -181,8 +191,17 @@ export class EstimateController {
             // Modification du devis
             await globalUtils.updateOneById(Estimate, id, toUpdate);
 
+            // Récupération du devis avec les articles
+            const populateEstimate = await globalUtils.findOneAndPopulate(Estimate, id, ['articles.articleId']);
+
+            // Mise en forme
+            populateEstimate.articles.map((article: EstimateArticleI) => {
+                article.articleId = articleUtils.generateArticleJSON(article.articleId as ArticleI);
+                return article;
+            });
+
             // Envoi de la réponse
-            sendResponse(res, 200, { error: false, message: 'Estimate successfully updated', estimate: estimateUtils.generateEstimateJSON(estimate) });
+            sendResponse(res, 200, { error: false, message: 'Estimate successfully updated', estimate: estimateUtils.generateEstimateJSON(populateEstimate) });
         } catch (err) {
             if (err.message === 'Missing id field') sendResponse(res, 400, { error: true, code: '105201', message: err.message });
             else if (err.message === 'Invalid estimate id') sendResponse(res, 400, { error: true, code: '105202', message: err.message });

@@ -20,6 +20,7 @@ const estimateSchema = new mongoose.Schema({
         ref: 'enterprise'
     },
     articles: [{
+        _id: false,
         articleId: {
             type: mongoose.Schema.Types.ObjectId,
             ref: 'article'
