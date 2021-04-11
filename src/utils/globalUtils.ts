@@ -43,7 +43,7 @@ const findOneAndPopulate = async (model: mongoose.Model<any, any>, id: string, p
 };
 
 /**
- * Fonction pour trouver plusieurs documents dans une collection.
+ * Fonction pour trouver plusieurs documents dans une collection en fonction d'un filtre.
  * @param model Modèle mongoose
  * @param filter Filtre
  */
@@ -52,7 +52,7 @@ const findMany = async (model: mongoose.Model<any, any>, filter: any): Promise<a
 };
 
 /**
- * Fonction pour trouver plusieurs documents dans une collection.
+ * Fonction pour trouver plusieurs documents dans une collectionen fonction d'un filtre.
  * @param model Modèle mongoose
  * @param filter Filtre
  * @param populate Données à populate

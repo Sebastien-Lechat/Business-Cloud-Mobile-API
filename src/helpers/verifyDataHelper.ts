@@ -105,11 +105,26 @@ export default class VerifyData {
     }
 
     /**
-     * Vérification de la taxe de la facture
-     * @param taxe taxe à vérifier
+     * Vérification de la taxe
+     * @param taxe Taxe à vérifier
      */
-    static validTaxe(taxe: string): number | undefined {
+    static validTaxe(taxe: string): number {
         return validator.toFloat(taxe);
     }
 
+    /**
+     * Vérification du prix
+     * @param price Prix à vérifier
+     */
+    static validPrice(price: string): number {
+        return validator.toFloat(price);
+    }
+
+    /**
+     * Vérification du numéro de compte
+     * @param accountNumber Numéro de compte à vérifier
+     */
+    static validAccountNumber(accountNumber: string): number {
+        return validator.toInt(accountNumber);
+    }
 }

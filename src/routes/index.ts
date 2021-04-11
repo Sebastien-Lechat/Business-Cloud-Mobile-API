@@ -1,5 +1,6 @@
 import express from 'express';
 import { accountRouter } from './accountRoute';
+import { articleRouter } from './articleRoute';
 import { authRouter } from './authRoute';
 import { billRouter } from './billRoute';
 import { clientRouter } from './clientRoute';
@@ -14,5 +15,6 @@ route.use(employeeRouter);
 route.use(clientRouter);
 route.use(billRouter);
 route.use(estimateRouter);
+route.use(articleRouter);
 
 export { route as RouteIndex };

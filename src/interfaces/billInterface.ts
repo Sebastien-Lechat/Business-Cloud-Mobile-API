@@ -1,3 +1,4 @@
+import { ArticleI } from './articleInterface';
 import { ClientI } from './userInterface';
 
 export interface BillI {
@@ -19,6 +20,6 @@ export interface BillI {
 }
 
 export interface BillArticleI {
-    articleId: string;
+    articleId: string | ArticleI;
     quantity: number;
 }
