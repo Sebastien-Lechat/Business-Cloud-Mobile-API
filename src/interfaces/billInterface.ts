@@ -9,7 +9,6 @@ export interface BillI {
     enterpriseId: string;
     articles: BillArticleI[];
     currency?: string;
-    taxe?: number;
     totalHT: number;
     totalTTC: number;
     deadline: string;

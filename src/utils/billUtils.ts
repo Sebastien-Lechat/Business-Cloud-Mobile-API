@@ -20,7 +20,6 @@ const generateBillJSON = (bill: BillI): BillI => {
         enterpriseId: bill.enterpriseId,
         articles: bill.articles,
         currency: (bill.currency) ? bill.currency : undefined,
-        taxe: (bill.taxe !== undefined) ? bill.taxe : undefined,
         totalHT: bill.totalHT,
         totalTTC: bill.totalTTC,
         deadline: bill.deadline,

@@ -20,7 +20,6 @@ const generateEstimateJSON = (estimate: EstimateI): EstimateI => {
         enterpriseId: estimate.enterpriseId,
         articles: estimate.articles,
         currency: (estimate.currency) ? estimate.currency : undefined,
-        taxe: (estimate.taxe !== undefined) ? estimate.taxe : undefined,
         totalHT: estimate.totalHT,
         totalTTC: estimate.totalTTC,
         deadline: estimate.deadline,

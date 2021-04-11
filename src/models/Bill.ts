@@ -29,9 +29,6 @@ const billSchema = new mongoose.Schema({
             type: Number,
         }
     }],
-    taxe: {
-        type: Number,
-    },
     currency: {
         type: String,
     },
