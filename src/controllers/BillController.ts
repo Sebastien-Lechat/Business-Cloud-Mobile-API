@@ -73,7 +73,7 @@ export class BillController {
             if (!hasPermission) throw new Error('You do not have the required permissions');
 
             // Récupération de toutes les données du body
-            const { status, clientId, enterpriseId, billNum, deadline, currency, taxe } = req.body;
+            const { status, clientId, enterpriseId, billNum, deadline, currency } = req.body;
 
             // Vérification de si toutes les données nécessaire sont présentes
             if (!status || !clientId || !enterpriseId || !billNum || !deadline) throw new Error('Missing important fields');
@@ -96,10 +96,6 @@ export class BillController {
             if (!VerifyData.validDeadline(deadline)) throw new Error('Invalid deadline');
             req.body.deadline = new Date(deadline);
 
-            // Vérification de la validité de la taxe
-            if (taxe && !VerifyData.validTaxe(taxe)) throw new Error('Invalid taxe rate');
-            if (taxe) req.body.taxe = VerifyData.validTaxe(taxe);
-
             req.body.articles = [];
             req.body.totalHT = 0;
             req.body.totalTTC = 0;
@@ -116,7 +112,6 @@ export class BillController {
             else if (err.message === 'Invalid enterprise id') sendResponse(res, 400, { error: true, code: '104154', message: err.message });
             else if (err.message === 'Invalid bill number') sendResponse(res, 400, { error: true, code: '104155', message: err.message });
             else if (err.message === 'Invalid deadline') sendResponse(res, 400, { error: true, code: '104156', message: err.message });
-            else if (err.message === 'Invalid taxe rate') sendResponse(res, 400, { error: true, code: '104157', message: err.message });
             else errorHandler(res, err);
         }
     }
@@ -133,7 +128,7 @@ export class BillController {
             if (!hasPermission) throw new Error('You do not have the required permissions');
 
             // Récupération de toutes les données du body
-            const { id, status, clientId, billNum, currency, deadline, taxe } = req.body;
+            const { id, status, clientId, billNum, currency, deadline } = req.body;
             const articles: Array<BillArticleI> = req.body.articles;
 
             // Vérification de si toutes les données nécessaire sont présentes
@@ -158,10 +153,7 @@ export class BillController {
             // Vérification de la validité de la date d'échéance
             if (deadline && !VerifyData.validDeadline(deadline)) throw new Error('Invalid deadline');
 
-            // Vérification de la validité de la taxe
-            if (taxe && !VerifyData.validTaxe(taxe)) throw new Error('Invalid taxe rate');
-
-            // Vérification de la validité des articles
+            // Vérification de la validité des articles et mise à jour du prix HT et TTC
             let newTotalHT = 0;
             let newTotalTTC = 0;
             if (articles) {
@@ -185,7 +177,6 @@ export class BillController {
                 toUpdate.totalHT = newTotalHT.toFixed(2);
                 toUpdate.totalTTC = newTotalTTC.toFixed(2);
             }
-            if (taxe) toUpdate.taxe = bill.taxe = taxe;
             if (currency) toUpdate.currency = bill.currency = currency;
             if (deadline) toUpdate.deadline = bill.deadline = deadline;
 
@@ -210,9 +201,8 @@ export class BillController {
             else if (err.message === 'Invalid customer id') sendResponse(res, 400, { error: true, code: '104204', message: err.message });
             else if (err.message === 'Invalid bill number') sendResponse(res, 400, { error: true, code: '104205', message: err.message });
             else if (err.message === 'Invalid deadline') sendResponse(res, 400, { error: true, code: '104206', message: err.message });
-            else if (err.message === 'Invalid taxe rate') sendResponse(res, 400, { error: true, code: '104207', message: err.message });
-            else if (err.message === 'Invalid article format') sendResponse(res, 400, { error: true, code: '104208', message: err.message });
-            else if (err.message === 'Invalid article id') sendResponse(res, 400, { error: true, code: '104209', message: err.message });
+            else if (err.message === 'Invalid article format') sendResponse(res, 400, { error: true, code: '104207', message: err.message });
+            else if (err.message === 'Invalid article id') sendResponse(res, 400, { error: true, code: '104208', message: err.message });
             else errorHandler(res, err);
         }
     }

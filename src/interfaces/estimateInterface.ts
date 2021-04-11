@@ -8,7 +8,6 @@ export interface EstimateI {
     enterpriseId: string;
     articles: EstimateArticleI[];
     currency?: string;
-    taxe?: number;
     totalHT: number;
     totalTTC: number;
     deadline: string;

@@ -265,7 +265,6 @@ export class AuthController {
             if (!VerifyData.validEmail(email)) throw new Error('Invalid email addresse');
 
             // Récupération de l'utilisateur pour vérifier si il existe
-            // tslint:disable-next-line: object-literal-shorthand
             const user = await userUtils.findUser({ userEmail: email, userId: userId });
             if (!user) throw new Error('Invalid user information');
 

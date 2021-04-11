@@ -5,7 +5,7 @@ const conversationSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         required: true,
     },
-    user1Id: {
+    userId1: {
         type: mongoose.Schema.Types.ObjectId,
         required: true,
     }

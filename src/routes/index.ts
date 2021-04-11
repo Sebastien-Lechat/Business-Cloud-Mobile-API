@@ -4,6 +4,7 @@ import { articleRouter } from './articleRoute';
 import { authRouter } from './authRoute';
 import { billRouter } from './billRoute';
 import { clientRouter } from './clientRoute';
+import { conversationRouter } from './conversationRoute';
 import { employeeRouter } from './employeeRoute';
 import { estimateRouter } from './estimateRoute';
 
@@ -16,5 +17,6 @@ route.use(clientRouter);
 route.use(billRouter);
 route.use(estimateRouter);
 route.use(articleRouter);
+route.use(conversationRouter);
 
 export { route as RouteIndex };
