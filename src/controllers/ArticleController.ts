@@ -73,7 +73,7 @@ export class ArticleController {
     }
 
     /**
-     * Fonction de suppression d'un article (DELETE /article)
+     * Fonction de suppression d'un article (DELETE /article/:id)
      * @param req express Request
      * @param res express Response
      */
