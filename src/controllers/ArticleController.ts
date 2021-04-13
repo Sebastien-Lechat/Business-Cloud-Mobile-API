@@ -25,7 +25,8 @@ export class ArticleController {
             // Envoi de la réponse
             sendResponse(res, 200, { error: false, message: 'Successful articles acquisition', articles: articleListe });
         } catch (err) {
-            errorHandler(res, err);
+            if (err.message === 'You do not have the required permissions') sendResponse(res, 400, { error: true, code: '401002', message: err.message });
+            else errorHandler(res, err);
         }
     }
 
@@ -44,7 +45,7 @@ export class ArticleController {
             const { name, accountNumber, price, tva } = req.body;
 
             // Vérification de si toutes les données nécessaire sont présentes
-            if (!name || !accountNumber === undefined || price === undefined || tva === undefined) throw new Error('Missing important fields');
+            if (!name || accountNumber === undefined || price === undefined || tva === undefined) throw new Error('Missing important fields');
 
             // Vérification de la validité du numéro de compte
             if (!VerifyData.validAccountNumber(accountNumber)) throw new Error('Invalid account number');
@@ -64,7 +65,8 @@ export class ArticleController {
             // Envoi de la réponse
             sendResponse(res, 200, { error: false, message: 'Article successfully created', article: articleUtils.generateArticleJSON(article) });
         } catch (err) {
-            if (err.message === 'Missing important fields') sendResponse(res, 400, { error: true, code: '106101', message: err.message });
+            if (err.message === 'You do not have the required permissions') sendResponse(res, 400, { error: true, code: '401002', message: err.message });
+            else if (err.message === 'Missing important fields') sendResponse(res, 400, { error: true, code: '106101', message: err.message });
             else if (err.message === 'Invalid account number') sendResponse(res, 400, { error: true, code: '106102', message: err.message });
             else if (err.message === 'Invalid price format') sendResponse(res, 400, { error: true, code: '106103', message: err.message });
             else if (err.message === 'Invalid tva format') sendResponse(res, 400, { error: true, code: '106104', message: err.message });
@@ -89,7 +91,7 @@ export class ArticleController {
             // Vérification de si toutes les données nécessaire sont présentes
             if (!id) throw new Error('Missing id field');
 
-            // Vérification de si l'utilisateur existe
+            // Vérification de si l'article existe
             const article: ArticleI = await globalUtils.findOne(Article, id);
             if (!article) throw new Error('Invalid article id');
 

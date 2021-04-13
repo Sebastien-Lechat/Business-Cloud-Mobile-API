@@ -138,7 +138,7 @@ export class EmployeeController {
             // Vérification de si toutes les données nécessaire sont présentes
             if (!id) throw new Error('Missing id field');
 
-            // Vérification de si l'utilisateur existe
+            // Vérification de si l'employé existe
             const user: UserI = await globalUtils.findOne(User, id);
             if (!user) throw new Error('Invalid employee id');
 

@@ -17,7 +17,7 @@ const sendResponse = (res: Response, code: number, body: object) => {
  */
 const errorHandler = (res: Response, err: any) => {
     console.log(err);
-    res.status(500).send({ error: true, message: 'Unexpected error', errorMessage: err });
+    res.status(500).send({ error: true, message: 'Unexpected error', err });
 };
 
 export { sendResponse, errorHandler };

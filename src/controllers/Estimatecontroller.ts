@@ -106,7 +106,8 @@ export class EstimateController {
             // Envoi de la réponse
             sendResponse(res, 200, { error: false, message: 'Estimate successfully created', estimate: estimateUtils.generateEstimateJSON(estimate) });
         } catch (err) {
-            if (err.message === 'Missing important fields') sendResponse(res, 400, { error: true, code: '105151', message: err.message });
+            if (err.message === 'You do not have the required permissions') sendResponse(res, 400, { error: true, code: '401002', message: err.message });
+            else if (err.message === 'Missing important fields') sendResponse(res, 400, { error: true, code: '105151', message: err.message });
             else if (err.message === 'Invalid estimate status') sendResponse(res, 400, { error: true, code: '105152', message: err.message });
             else if (err.message === 'Invalid customer id') sendResponse(res, 400, { error: true, code: '105153', message: err.message });
             else if (err.message === 'Invalid enterprise id') sendResponse(res, 400, { error: true, code: '105154', message: err.message });
@@ -194,7 +195,8 @@ export class EstimateController {
             // Envoi de la réponse
             sendResponse(res, 200, { error: false, message: 'Estimate successfully updated', estimate: estimateUtils.generateEstimateJSON(populateEstimate) });
         } catch (err) {
-            if (err.message === 'Missing id field') sendResponse(res, 400, { error: true, code: '105201', message: err.message });
+            if (err.message === 'You do not have the required permissions') sendResponse(res, 400, { error: true, code: '401002', message: err.message });
+            else if (err.message === 'Missing id field') sendResponse(res, 400, { error: true, code: '105201', message: err.message });
             else if (err.message === 'Invalid estimate id') sendResponse(res, 400, { error: true, code: '105202', message: err.message });
             else if (err.message === 'Invalid estimate status') sendResponse(res, 400, { error: true, code: '105203', message: err.message });
             else if (err.message === 'Invalid customer id') sendResponse(res, 400, { error: true, code: '105204', message: err.message });
@@ -223,7 +225,7 @@ export class EstimateController {
             // Vérification de si toutes les données nécessaire sont présentes
             if (!id) throw new Error('Missing id field');
 
-            // Vérification de si l'utilisateur existe
+            // Vérification de si le devis existe
             const estimate: EstimateI = await globalUtils.findOne(Estimate, id);
             if (!estimate) throw new Error('Invalid estimate id');
 

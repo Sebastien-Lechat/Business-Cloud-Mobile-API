@@ -1,6 +1,8 @@
 import validator from 'validator';
 import { Bill } from '../models/Bill';
 import { Estimate } from '../models/Estimate';
+import { Expense } from '../models/Expense';
+import { UserExpense } from '../models/UserExpense';
 import { globalUtils } from '../utils/globalUtils';
 
 export default class VerifyData {
@@ -92,6 +94,30 @@ export default class VerifyData {
         if (estimateNumber.length !== 9) return false;
         const estimates = await globalUtils.findMany(Estimate, { estimateNum: estimateNumber });
         if (estimates.length !== 0) return false;
+        return true;
+    }
+
+    /**
+     * Vérification du numéro de note de frais
+     * @param userExpenseNumber Numéro à vérifier
+     */
+    static async validUserExpenseNumber(userExpenseNumber: string): Promise<boolean> {
+        if (userExpenseNumber.substring(0, 4) !== 'UEXP') return false;
+        if (userExpenseNumber.length !== 10) return false;
+        const userExpenses = await globalUtils.findMany(UserExpense, { userExpenseNum: userExpenseNumber });
+        if (userExpenses.length !== 0) return false;
+        return true;
+    }
+
+    /**
+     * Vérification du numéro de note de frais
+     * @param expenseNumber Numéro à vérifier
+     */
+    static async validExpenseNumber(expenseNumber: string): Promise<boolean> {
+        if (expenseNumber.substring(0, 3) !== 'EXP') return false;
+        if (expenseNumber.length !== 9) return false;
+        const expenses = await globalUtils.findMany(Expense, { expenseNum: expenseNumber });
+        if (expenses.length !== 0) return false;
         return true;
     }
 
