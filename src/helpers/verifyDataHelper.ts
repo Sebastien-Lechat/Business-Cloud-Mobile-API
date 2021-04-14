@@ -2,6 +2,7 @@ import validator from 'validator';
 import { Bill } from '../models/Bill';
 import { Estimate } from '../models/Estimate';
 import { Expense } from '../models/Expense';
+import { Project } from '../models/Project';
 import { UserExpense } from '../models/UserExpense';
 import { globalUtils } from '../utils/globalUtils';
 
@@ -74,6 +75,14 @@ export default class VerifyData {
     }
 
     /**
+     * Vérification du statut du projet
+     * @param status Statut à vérifier
+     */
+    static validProjectStatus(status: string): boolean {
+        return (status === 'En attente' || status === 'En cours' || status === 'Fini' || status === 'En retard') ? true : false;
+    }
+
+    /**
      * Vérification du numéro de facture
      * @param billNumber Numéro à vérifier
      */
@@ -122,6 +131,18 @@ export default class VerifyData {
     }
 
     /**
+     * Vérification du numéro de projet
+     * @param projectNumber Numéro à vérifier
+     */
+    static async validProjectNumber(projectNumber: string): Promise<boolean> {
+        if (projectNumber.substring(0, 3) !== 'PRO') return false;
+        if (projectNumber.length !== 9) return false;
+        const projects = await globalUtils.findMany(Project, { projectNum: projectNumber });
+        if (projects.length !== 0) return false;
+        return true;
+    }
+
+    /**
      * Vérification de la validité de la deadline
      * @param deadline Deadline à vérifier
      */
@@ -134,23 +155,44 @@ export default class VerifyData {
      * Vérification de la taxe
      * @param taxe Taxe à vérifier
      */
-    static validTaxe(taxe: string): number {
+    static validTaxe(taxe: string | number): number {
+        if (typeof taxe === 'number') return validator.toFloat((taxe as number).toFixed(2));
         return validator.toFloat(taxe);
+    }
+
+    /**
+     * Vérification de la validité d'un nombre
+     * @param num Nombre à vérifier
+     */
+    static validFloat(num: string): number {
+        if (typeof num === 'number') return validator.toFloat((num as number).toFixed(2));
+        else return validator.toFloat(num);
+    }
+
+    /**
+     * Vérification de la validité d'un nombre
+     * @param num Nombre à vérifier
+     */
+    static validInt(num: string | number): number {
+        if (typeof num === 'number') return Math.round(num);
+        else return validator.toInt(num);
     }
 
     /**
      * Vérification du prix
      * @param price Prix à vérifier
      */
-    static validPrice(price: string): number {
-        return validator.toFloat(price);
+    static validPrice(price: string | number): number {
+        if (typeof price === 'number') return validator.toFloat((price as number).toFixed(2));
+        else return validator.toFloat(price);
     }
 
     /**
      * Vérification du numéro de compte
      * @param accountNumber Numéro de compte à vérifier
      */
-    static validAccountNumber(accountNumber: string): number {
-        return validator.toInt(accountNumber);
+    static validAccountNumber(accountNumber: string | number): number {
+        if (typeof accountNumber === 'number') return Math.round(accountNumber);
+        else return validator.toInt(accountNumber);
     }
 }

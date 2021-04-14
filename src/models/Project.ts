@@ -33,8 +33,11 @@ const projectSchema = new mongoose.Schema({
         type: String,
     },
     employees: [{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'user',
+        _id: false,
+        id: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'user',
+        }
     }],
     fixedRate: {
         type: Number,

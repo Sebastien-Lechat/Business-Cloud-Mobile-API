@@ -160,7 +160,7 @@ export class EstimateController {
                 for (const article of articles) {
                     if (!article.articleId || !article.quantity) throw new Error('Invalid article format');
                     const articleFind: ArticleI = await globalUtils.findOne(Article, article.articleId as string);
-                    if (!articleFind) throw new Error('Invalid article id');
+                    if (!articleFind) throw new Error('Some article id are invalid');
                     newTotalHT += (articleFind.price * article.quantity);
                     newTotalTTC += ((articleFind.price * (1 + (articleFind.tva / 100))) * article.quantity);
                 }
@@ -203,7 +203,7 @@ export class EstimateController {
             else if (err.message === 'Invalid estimate number') sendResponse(res, 400, { error: true, code: '105205', message: err.message });
             else if (err.message === 'Invalid deadline') sendResponse(res, 400, { error: true, code: '105206', message: err.message });
             else if (err.message === 'Invalid article format') sendResponse(res, 400, { error: true, code: '105207', message: err.message });
-            else if (err.message === 'Invalid article id') sendResponse(res, 400, { error: true, code: '105208', message: err.message });
+            else if (err.message === 'Some article id are invalid') sendResponse(res, 400, { error: true, code: '105208', message: err.message });
             else errorHandler(res, err);
         }
     }
