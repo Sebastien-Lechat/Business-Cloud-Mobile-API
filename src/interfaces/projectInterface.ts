@@ -11,6 +11,8 @@ export interface ProjectI {
     fixedRate?: number;
     hourlyRate?: number;
     estimateHour: number;
+    createdAt: Date;
+    updatedAt: Date;
 }
 
 export interface ProjectJsonI {
@@ -26,4 +28,6 @@ export interface ProjectJsonI {
     fixedRate?: number;
     hourlyRate?: number;
     estimateHour: number;
+    createdAt: Date;
+    updatedAt: Date;
 }

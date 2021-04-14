@@ -1,4 +1,6 @@
 import { UserExpenseI, UserExpenseJsonI } from '../interfaces/userExpense';
+import { UserObject } from '../interfaces/userInterface';
+import { UserExpense } from '../models/UserExpense';
 import { globalUtils } from './globalUtils';
 
 /**
@@ -12,6 +14,7 @@ const generateUserExpenseJSON = (userExpense: UserExpenseI): UserExpenseJsonI =>
         id: userExpense._id,
         price: userExpense.price,
         file: userExpense.file,
+        category: userExpense.category,
         description: userExpense.description,
         userId: userExpense.userId,
         accountNumber: userExpense.accountNumber,
@@ -26,10 +29,29 @@ const generateUserExpenseJSON = (userExpense: UserExpenseI): UserExpenseJsonI =>
  * Fonction pour retourner la liste des notes de frais.
  * @return Retourne le JSON
  */
-const getUserExpenseList = async (): Promise<UserExpenseJsonI[]> => {
+const getUserExpenseList = async (user: UserObject): Promise<UserExpenseJsonI[]> => {
     const userExpenseList: UserExpenseJsonI[] = [];
+    if (user.data.role === 'Gérant') {
+        // Récupération de toutess les notes de frais
+        const userExpenses = await globalUtils.findMany(UserExpense, {});
 
-    return userExpenseList;
+        // Mise en forme
+        userExpenses.map((userExpense: UserExpenseI) => {
+            userExpenseList.push(generateUserExpenseJSON(userExpense));
+        });
+
+        return userExpenseList;
+    } else {
+        // Récupération de toutess les notes de frais
+        const userExpenses = await globalUtils.findMany(UserExpense, { userId: user.data._id });
+
+        // Mise en forme
+        userExpenses.map((userExpense: UserExpenseI) => {
+            userExpenseList.push(generateUserExpenseJSON(userExpense));
+        });
+
+        return userExpenseList;
+    }
 };
 
 const userExpenseUtils = {

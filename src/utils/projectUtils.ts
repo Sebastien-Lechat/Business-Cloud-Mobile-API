@@ -1,4 +1,6 @@
 import { ProjectI, ProjectJsonI } from '../interfaces/projectInterface';
+import { Project } from '../models/Project';
+import { globalUtils } from './globalUtils';
 
 /**
  * Fonction générer le JSON de retour d'un projet.
@@ -19,6 +21,8 @@ const generateProjectJSON = (project: ProjectI): ProjectJsonI => {
         fixedRate: (project.fixedRate) ? project.fixedRate : undefined,
         hourlyRate: (project.hourlyRate) ? project.hourlyRate : undefined,
         estimateHour: project.estimateHour,
+        createdAt: project.createdAt,
+        updatedAt: project.updatedAt,
     };
 
     return toReturn;
@@ -29,9 +33,17 @@ const generateProjectJSON = (project: ProjectI): ProjectJsonI => {
  * @return Retourne le JSON
  */
 const getProjectList = async (): Promise<ProjectJsonI[]> => {
-    const expenseList: ProjectJsonI[] = [];
+    const projectList: ProjectJsonI[] = [];
 
-    return expenseList;
+    // Récupération de tous les projets
+    const projects = await globalUtils.findMany(Project, {});
+
+    // Mise en forme
+    projects.map((project: ProjectI) => {
+        projectList.push(generateProjectJSON(project));
+    });
+
+    return projectList;
 };
 
 const projectUtils = {

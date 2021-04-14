@@ -1,4 +1,6 @@
 import { ExpenseI, ExpenseJsonI } from '../interfaces/expenseInterface';
+import { Expense } from '../models/Expense';
+import { globalUtils } from './globalUtils';
 
 /**
  * Fonction générer le JSON de retour d'une dépense.
@@ -28,10 +30,29 @@ const generateExpenseJSON = (expense: ExpenseI): ExpenseJsonI => {
  * Fonction pour retourner la liste des dépenses.
  * @return Retourne le JSON
  */
-const getExpenseList = async (): Promise<ExpenseJsonI[]> => {
+const getExpenseList = async (projectId?: string): Promise<ExpenseJsonI[]> => {
     const expenseList: ExpenseJsonI[] = [];
+    if (projectId) {
+        // Récupération de toutess les notes de frais
+        const expenses = await globalUtils.findMany(Expense, { projectId: projectId });
 
-    return expenseList;
+        // Mise en forme
+        expenses.map((userExpense: ExpenseI) => {
+            expenseList.push(generateExpenseJSON(userExpense));
+        });
+
+        return expenseList;
+    } else {
+        // Récupération de toutess les notes de frais
+        const userExpenses = await globalUtils.findMany(Expense, {});
+
+        // Mise en forme
+        userExpenses.map((userExpense: ExpenseI) => {
+            expenseList.push(generateExpenseJSON(userExpense));
+        });
+
+        return expenseList;
+    }
 };
 
 const expenseUtils = {

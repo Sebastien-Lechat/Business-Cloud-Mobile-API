@@ -81,7 +81,7 @@ export class ConversationController {
             // Vérification de si toutes les données nécessaire sont présentes
             if (!id) throw new Error('Missing id field');
 
-            // Vérification de si l'utilisateur existe
+            // Vérification de si la conversation existe
             const conversation: ConvI = await globalUtils.findOne(Conversation, id);
             if (!conversation) throw new Error('Invalid conversation id');
 
@@ -91,8 +91,7 @@ export class ConversationController {
             // Envoi de la réponse
             sendResponse(res, 200, { error: false, message: 'Conversation successfully deleted' });
         } catch (err) {
-            if (err.message === 'You do not have the required permissions') sendResponse(res, 400, { error: true, code: '401002', message: err.message });
-            else if (err.message === 'Missing id field') sendResponse(res, 400, { error: true, code: '112151', message: err.message });
+            if (err.message === 'Missing id field') sendResponse(res, 400, { error: true, code: '112151', message: err.message });
             else if (err.message === 'Invalid conversation id') sendResponse(res, 400, { error: true, code: '112152', message: err.message });
             else errorHandler(res, err);
         }

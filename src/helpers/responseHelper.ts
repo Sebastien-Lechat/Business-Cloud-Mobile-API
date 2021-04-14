@@ -15,9 +15,10 @@ const sendResponse = (res: Response, code: number, body: object) => {
  * @param res Réponse express
  * @param err Message d'erreur
  */
-const errorHandler = (res: Response, err: any) => {
-    console.log(err);
-    res.status(500).send({ error: true, message: 'Unexpected error', errorMessage: err });
+const errorHandler = (res: Response, err: Error) => {
+    const errorMessage = { message: err.message, error: err };
+    console.log(errorMessage);
+    res.status(500).send({ error: true, message: 'Unexpected error', errorMessage });
 };
 
 export { sendResponse, errorHandler };
