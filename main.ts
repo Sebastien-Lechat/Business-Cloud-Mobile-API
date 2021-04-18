@@ -7,7 +7,7 @@ import rateLimit from 'express-rate-limit';
 import { RouteIndex } from './src/routes';
 
 
-const port: string | undefined = process.env.PORT;
+const port: string | number = process.env.PORT || 5000;
 
 const app: express.Application = express();
 app.use(cors());
