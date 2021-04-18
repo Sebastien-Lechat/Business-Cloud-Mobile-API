@@ -79,7 +79,7 @@ export default class VerifyData {
      * @param status Statut à vérifier
      */
     static validProjectStatus(status: string): boolean {
-        return (status === 'En attente' || status === 'En cours' || status === 'Fini' || status === 'En retard') ? true : false;
+        return (status === 'En attente' || status === 'En cours' || status === 'Terminé' || status === 'En retard') ? true : false;
     }
 
     /**

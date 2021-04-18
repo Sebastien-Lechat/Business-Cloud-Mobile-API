@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 import { errorHandler, sendResponse } from '../helpers/responseHelper';
 import VerifyData from '../helpers/verifyDataHelper';
 import { ExpenseI } from '../interfaces/expenseInterface';
+import { ProjectI } from '../interfaces/projectInterface';
 import { UserI } from '../interfaces/userInterface';
 import { Expense } from '../models/Expense';
 import { Project } from '../models/Project';
@@ -28,11 +29,11 @@ export class ExpenseController {
 
             if (projectId) {
                 // vérification de si le projet existe bien
-                const project = await Project.findOne({ _id: mongoose.Types.ObjectId(projectId) });
+                const project: ProjectI = await globalUtils.findOne(Project, projectId);
                 if (!project) throw new Error('Invalid project id');
 
                 // Récupération de la liste des dépenses
-                const expenseList = await expenseUtils.getExpenseList(project);
+                const expenseList = await expenseUtils.getExpenseList(projectId);
 
                 // Envoi de la réponse
                 sendResponse(res, 200, { error: false, message: 'Successful expenses acquisition', expenses: expenseList });
@@ -135,7 +136,8 @@ export class ExpenseController {
             sendResponse(res, 200, { error: false, message: 'Expense successfully deleted' });
         } catch (err) {
             if (err.message === 'You do not have the required permissions') sendResponse(res, 400, { error: true, code: '401002', message: err.message });
-            else if (err.message === '') sendResponse(res, 400, { error: true, code: '111151', message: err.message });
+            else if (err.message === 'Missing id field') sendResponse(res, 400, { error: true, code: '111151', message: err.message });
+            else if (err.message === 'Invalid expense id') sendResponse(res, 400, { error: true, code: '111152', message: err.message });
             else errorHandler(res, err);
         }
     }

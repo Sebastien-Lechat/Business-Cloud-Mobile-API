@@ -18,8 +18,11 @@ const taskSchema = new mongoose.Schema({
         ref: 'project',
     },
     employees: [{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'user',
+        _id: false,
+        id: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'user',
+        }
     }],
     startDate: {
         type: Date,

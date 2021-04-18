@@ -1,4 +1,6 @@
 import { TaskI, TaskJsonI } from '../interfaces/taskInterface';
+import { Task } from '../models/Task';
+import { globalUtils } from './globalUtils';
 
 /**
  * Fonction générer le JSON de retour d'une tâche.
@@ -27,10 +29,29 @@ const generateTaskJSON = (task: TaskI): TaskJsonI => {
  * Fonction pour retourner la liste des tâches.
  * @return Retourne le JSON
  */
-const getTaskList = async (): Promise<TaskJsonI[]> => {
-    const expenseList: TaskJsonI[] = [];
+const getTaskList = async (projectId?: string): Promise<TaskJsonI[]> => {
+    const taskList: TaskJsonI[] = [];
+    if (projectId) {
+        // Récupération de toutess les notes de frais
+        const tasks = await globalUtils.findMany(Task, { projectId: projectId });
 
-    return expenseList;
+        // Mise en forme
+        tasks.map((task: TaskI) => {
+            taskList.push(generateTaskJSON(task));
+        });
+
+        return taskList;
+    } else {
+        // Récupération de toutess les notes de frais
+        const tasks = await globalUtils.findMany(Task, {});
+
+        // Mise en forme
+        tasks.map((task: TaskI) => {
+            taskList.push(generateTaskJSON(task));
+        });
+
+        return taskList;
+    }
 };
 
 const taskUtils = {

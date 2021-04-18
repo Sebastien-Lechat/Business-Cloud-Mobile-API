@@ -117,7 +117,7 @@ export class ProjectController {
             if (!startDate) req.body.startDate = new Date();
             else req.body.startDate = new Date(startDate);
 
-            // Vérification de la date de début du projet
+            // Vérification du nombre d'heures estimé
             if (estimateHour && !VerifyData.validInt(estimateHour)) throw new Error('Invalid estimate hour');
             if (estimateHour) req.body.estimateHour = VerifyData.validInt(estimateHour);
 

@@ -24,7 +24,6 @@ const checkPermission = (user: UserObject, type: 'user' | 'client', admin?: bool
  * Fonction pour trouver un document dans une collection.
  * @param model Modèle mongoose
  * @param id Id pour filtrer
- * @param updateData Données à mettre à jour
  */
 const findOne = async (model: mongoose.Model<any, any>, id: string): Promise<any> => {
     if (id.length !== 24) return null;

@@ -6,7 +6,7 @@ import { authMiddleware } from '../middlewares/authMiddleware';
 
 const route: express.Application = express();
 
-route.get('/tasks', [authMiddleware], TaskController.getTasksList);
+route.get('/tasks/:projectId', [authMiddleware], TaskController.getTasksList);
 route.post('/task', [authMiddleware], TaskController.create);
 route.delete('/task/:id', [authMiddleware], TaskController.delete);
 
