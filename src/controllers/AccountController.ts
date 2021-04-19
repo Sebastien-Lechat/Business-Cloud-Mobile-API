@@ -202,7 +202,7 @@ export class AccountController {
     }
 
     /**
-     * Fonction de modification des informations de l'entreprise  (PUT /account/enterprise)
+     * Fonction de modification des informations de l'entreprise (PUT /account/enterprise)
      * @param req express Request
      * @param res express Response
      */
