@@ -27,7 +27,7 @@ jobs:
         node-version: ${{ matrix.node-version }}
     - run: npm ci
     - run: npm run build --if-present
-    - name: Run API test (${{ secrets.MONGODB_URL }})
+    - name: Run API test ( ${{ secrets.MONGODB_URL }} )
       run: npm test
       env:
         CI: true
