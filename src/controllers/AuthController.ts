@@ -60,7 +60,7 @@ export class AuthController {
                 if (!code) throw new Error('Double authentification is activated, code is required');
                 if (user.data.double_authentification.code !== code) throw new Error('Wrong code');
                 const time = (Date.now() - user.data.double_authentification.date) / 1000;
-                if (time > 600) return res.status(400).send({ success: false, message: 'This code is no longer valid' });
+                if (time > 600) throw new Error('This code is no longer valid');
             }
 
             // Génération des tokens de l'utilisateur et de la réponse
@@ -102,12 +102,12 @@ export class AuthController {
             // Vérification de si l'email existe déjà
             if (await userUtils.emailAlreadyExist(email)) throw new Error('This email is already used');
 
+            // Vérification du numéro de téléphone de l'utilisateur
+            if (phone && !VerifyData.validPhone(phone)) throw new Error('Invalid phone number');
+
             // Vérification du mot de passe de l'utilisateur et encryptage en cas de bon format
             if (!VerifyData.validPassword(password)) throw new Error('Invalid password format');
             req.body.password = await hashPassword(req.body.password);
-
-            // Vérification du numéro de téléphone de l'utilisateur
-            if (phone && !VerifyData.validPhone(phone)) throw new Error('Invalid phone number');
 
             // Vérification de la date de naissance de l'utilisateur
             if (birthdayDate && !VerifyData.validDate(birthdayDate)) throw new Error('Invalid date format');
@@ -116,7 +116,7 @@ export class AuthController {
             const client: ClientI = await Client.create(req.body);
 
             // Envoi de la réponse
-            sendResponse(res, 200, { error: false, message: 'Successfully registred', user: { id: client._id, name: client.name, email: client.email } });
+            sendResponse(res, 201, { error: false, message: 'Successfully registred', user: { id: client._id, name: client.name, email: client.email } });
         } catch (err) {
             if (err.message === 'Missing important fields') sendResponse(res, 400, { error: true, code: '101051', message: err.message });
             else if (err.message === 'Invalid email addresse') sendResponse(res, 400, { error: true, code: '101052', message: err.message });
