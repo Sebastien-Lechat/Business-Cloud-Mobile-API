@@ -7,7 +7,8 @@
         "test": "jest",
         "dev": "nodemon ./server.ts",
         "start": "nodemon ./dist/server.js",
-        "build": "tsc -p ."
+        "build": "tsc -p .",
+        "git": "git add . && git commit -am"
     },
     "author": "Lechat Sébastien",
     "license": "ISC",
