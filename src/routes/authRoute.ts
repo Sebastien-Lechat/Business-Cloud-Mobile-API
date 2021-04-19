@@ -11,5 +11,6 @@ route.post('/auth/request-verify-email', AuthController.requestVerifyEmail);
 route.post('/auth/verify-email', AuthController.verifyEmail);
 route.post('/auth/request-double-auth', AuthController.requestDoubleAuth);
 route.post('/auth/activate-double-auth', [authMiddleware], AuthController.activateDoubleAuth);
+route.delete('/auth/disconnect', [authMiddleware], AuthController.logout);
 
 export { route as authRouter };
