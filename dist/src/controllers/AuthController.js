@@ -467,6 +467,37 @@ var AuthController = /** @class */ (function () {
             }
         });
     }); };
+    /**
+     * Fonction pour déconnecter l'utilisateur (DELETE /auth/disconnect)
+     * @param req express Request
+     * @param res express Response
+     */
+    AuthController.logout = function (req, res) { return __awaiter(void 0, void 0, void 0, function () {
+        var user, err_8;
+        return __generator(this, function (_a) {
+            switch (_a.label) {
+                case 0:
+                    _a.trys.push([0, 2, , 3]);
+                    user = userUtils_1.userUtils.getRequestUser(req);
+                    // Suppression des tokens d'authentification de l'utilisateur
+                    return [4 /*yield*/, userUtils_1.userUtils.updateUser(user, { token: '', refreshToken: '' })];
+                case 1:
+                    // Suppression des tokens d'authentification de l'utilisateur
+                    _a.sent();
+                    // Envoi de la réponse
+                    responseHelper_1.sendResponse(res, 200, { error: false, message: 'Successfully logout' });
+                    return [3 /*break*/, 3];
+                case 2:
+                    err_8 = _a.sent();
+                    if (err_8.message === 'Missing isActive field')
+                        responseHelper_1.sendResponse(res, 400, { error: true, code: '101301', message: err_8.message });
+                    else
+                        responseHelper_1.errorHandler(res, err_8);
+                    return [3 /*break*/, 3];
+                case 3: return [2 /*return*/];
+            }
+        });
+    }); };
     return AuthController;
 }());
 exports.AuthController = AuthController;

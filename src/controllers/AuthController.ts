@@ -320,4 +320,25 @@ export class AuthController {
             else errorHandler(res, err);
         }
     }
+
+    /**
+     * Fonction pour déconnecter l'utilisateur (DELETE /auth/disconnect)
+     * @param req express Request
+     * @param res express Response
+     */
+    static logout = async (req: Request, res: Response) => {
+        try {
+            // Récupération de l'utilisateur grâce au Authmiddleware qui rajoute le token dans req
+            const user = userUtils.getRequestUser(req);
+
+            // Suppression des tokens d'authentification de l'utilisateur
+            await userUtils.updateUser(user, { token: '', refreshToken: '' });
+
+            // Envoi de la réponse
+            sendResponse(res, 200, { error: false, message: 'Successfully logout' });
+        } catch (err) {
+            if (err.message === 'Missing isActive field') sendResponse(res, 400, { error: true, code: '101301', message: err.message });
+            else errorHandler(res, err);
+        }
+    }
 }
