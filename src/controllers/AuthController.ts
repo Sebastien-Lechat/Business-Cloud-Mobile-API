@@ -256,16 +256,16 @@ export class AuthController {
     static requestDoubleAuth = async (req: Request, res: Response) => {
         try {
             // Récupération de toutes les données du body
-            const { email, userId } = req.body;
+            const { email } = req.body;
 
             // Vérification de si toutes les données nécessaire sont présentes
-            if (!email || !userId) throw new Error('Missing email or userId field');
+            if (!email) throw new Error('Missing email or userId field');
 
             // Vérification de l'email de l'utilisateur
             if (!VerifyData.validEmail(email)) throw new Error('Invalid email addresse');
 
             // Récupération de l'utilisateur pour vérifier si il existe
-            const user = await userUtils.findUser({ userEmail: email, userId: userId });
+            const user = await userUtils.findUser({ userEmail: email });
             if (!user) throw new Error('Invalid user information');
 
             // Vérification de si la double authentification est activé
@@ -280,7 +280,7 @@ export class AuthController {
             // Envoi de la réponse
             sendResponse(res, 200, { error: false, message: 'Email successfully send' });
         } catch (err) {
-            if (err.message === 'Missing email or userId field') sendResponse(res, 400, { error: true, code: '101251', message: err.message });
+            if (err.message === 'Missing email field') sendResponse(res, 400, { error: true, code: '101251', message: err.message });
             else if (err.message === 'Invalid email addresse') sendResponse(res, 400, { error: true, code: '101252', message: err.message });
             else if (err.message === 'Invalid user information') sendResponse(res, 400, { error: true, code: '101253', message: err.message });
             else if (err.message === 'Double authentification is not activated on this account') sendResponse(res, 400, { error: true, code: '101254', message: err.message });
