@@ -74,7 +74,7 @@ export class AuthController {
             else if (err.message === 'Invalid email addresse') sendResponse(res, 400, { error: true, code: '101002', message: err.message });
             else if (err.message === 'Invalid login credential') sendResponse(res, 400, { error: true, code: '101003', message: err.message });
             else if (err.message === 'Email address is not verified') sendResponse(res, 400, { error: true, code: '101004', message: err.message });
-            else if (err.message === 'Double authentification is activated, code is required') sendResponse(res, 400, { error: true, code: '101205', message: err.message });
+            else if (err.message === 'Double authentification is activated, code is required') sendResponse(res, 400, { error: true, code: '101005', message: err.message });
             else if (err.message === 'Wrong code') sendResponse(res, 400, { error: true, code: '101006', message: err.message });
             else if (err.message === 'This code is no longer valid') sendResponse(res, 400, { error: true, code: '101007', message: err.message });
             else if (err.message === 'This account is disabled') sendResponse(res, 400, { error: true, code: '101008', message: err.message });
@@ -262,7 +262,7 @@ export class AuthController {
             const { email } = req.body;
 
             // Vérification de si toutes les données nécessaire sont présentes
-            if (!email) throw new Error('Missing email or userId field');
+            if (!email) throw new Error('Missing email field');
 
             // Vérification de l'email de l'utilisateur
             if (!VerifyData.validEmail(email)) throw new Error('Invalid email addresse');
