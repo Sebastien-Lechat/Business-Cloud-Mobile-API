@@ -49,6 +49,9 @@ export class AuthController {
             // Vérification de si le compte est actif ou non
             if (!user.data.isActive) throw new Error('This account is disabled');
 
+            // Si tout ce passe bien remise des essais de connexion à 0
+            await userUtils.updateLastLogin(user, true);
+
             // Vérification de si l'adresse email est vérifié ou non
             if (!user.data.verify_email || !user.data.verify_email.verified) throw new Error('Email address is not verified');
 
