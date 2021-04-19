@@ -399,7 +399,6 @@ describe('Authentification system', () => {
                 .set('Accept', 'application/json')
                 .expect('Content-Type', /json/)
                 .expect(400);
-            console.log(res);
             expect(res.body.error).toBe(true);
             expect(res.body.code).toBe('101007');
 
