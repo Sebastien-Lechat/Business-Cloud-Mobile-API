@@ -29,11 +29,12 @@ const emailAlreadyExist = async (emailToFind: string): Promise<boolean> => {
  * @param userId ID pour trouver un utilisateur en base de données
  * @returns Retourne l'utilisateur si il est enregistré en base, sinon on retourne null
  */
-const findUser = async (option: { userEmail?: string, userId?: string }): Promise<UserObject | null> => {
+const findUser = async (option: { userEmail?: string, userId?: string, token?: string }): Promise<UserObject | null> => {
     if (option.userId && option.userId.toString().length !== 24) return null;
 
     let query: any;
-    if (option.userId && option.userEmail) query = { _id: mongoose.Types.ObjectId(option.userId), email: option.userEmail };
+    if (option.userId && option.userEmail && option.token) query = { _id: mongoose.Types.ObjectId(option.userId), email: option.userEmail, token: option.token };
+    else if (option.userId && option.userEmail) query = { _id: mongoose.Types.ObjectId(option.userId), email: option.userEmail, token: option.token };
     else if (option.userId) query = { _id: mongoose.Types.ObjectId(option.userId) };
     else if (option.userEmail) query = { email: option.userEmail };
 

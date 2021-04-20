@@ -22,7 +22,7 @@ middleware.use(async (req: Request, res: Response, next: NextFunction) => {
         if (!data || !data.email || !data._id) throw new Error('Not authorized to access to this resource');
 
         // Récupération de l'utilisateur pour le mettre dans le req et y avoir dans les routes après
-        const user = await userUtils.findUser({ userEmail: data.email, userId: data._id });
+        const user = await userUtils.findUser({ userEmail: data.email, userId: data._id, token: token });
         if (!user) throw new Error('Not authorized to access to this resource');
         Object.assign(req, { user });
 

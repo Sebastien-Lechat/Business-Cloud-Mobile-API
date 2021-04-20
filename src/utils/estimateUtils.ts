@@ -5,6 +5,7 @@ import { ClientI, UserObject } from '../interfaces/userInterface';
 import { Estimate } from '../models/Estimate';
 import { articleUtils } from './articleUtils';
 import { globalUtils } from './globalUtils';
+import { userUtils } from './userUtils';
 
 /**
  * Fonction générer le JSON de réponse d'un devis.
@@ -39,10 +40,11 @@ const getEstimateList = async (user: UserObject): Promise<EstimateI[]> => {
     let estimateList: EstimateI[] = [];
     if (user.type === 'client') {
         // Récupération de tous les devis concernants ce client
-        estimateList = await globalUtils.findManyAndPopulate(Estimate, { clientId: mongoose.Types.ObjectId(user.data._id) }, ['articles.articleId']);
+        estimateList = await globalUtils.findManyAndPopulate(Estimate, { clientId: mongoose.Types.ObjectId(user.data._id) }, ['clientId', 'articles.articleId']);
 
         // Mise en forme
         estimateList = estimateList.map((estimate: EstimateI) => {
+            estimate.clientId = userUtils.generateShortUserJSON({ data: estimate.clientId as ClientI, type: 'client' });
             estimate.articles.map((article) => {
                 article.articleId = articleUtils.generateArticleJSON(article.articleId as ArticleI);
             });
@@ -54,10 +56,11 @@ const getEstimateList = async (user: UserObject): Promise<EstimateI[]> => {
     } else if (user.type === 'user') {
         if (user.data.role === 'Gérant') {
             // Récupération de tous les devis
-            estimateList = await globalUtils.findManyAndPopulate(Estimate, {}, ['articles.articleId']);
+            estimateList = await globalUtils.findManyAndPopulate(Estimate, {}, ['clientId', 'articles.articleId']);
 
             // Mise en forme
             estimateList = estimateList.map((estimate: EstimateI) => {
+                estimate.clientId = userUtils.generateShortUserJSON({ data: estimate.clientId as ClientI, type: 'client' });
                 estimate.articles.map((article) => {
                     article.articleId = articleUtils.generateArticleJSON(article.articleId as ArticleI);
                 });
@@ -79,6 +82,7 @@ const getEstimateList = async (user: UserObject): Promise<EstimateI[]> => {
 
             // Mise en forme
             estimateList = estimateList.map((estimate: EstimateI) => {
+                estimate.clientId = userUtils.generateShortUserJSON({ data: estimate.clientId as ClientI, type: 'client' });
                 estimate.articles.map((article) => {
                     article.articleId = articleUtils.generateArticleJSON(article.articleId as ArticleI);
                 });

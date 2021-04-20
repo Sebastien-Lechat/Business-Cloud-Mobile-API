@@ -14,8 +14,8 @@ const projectSchema = new mongoose.Schema({
         required: true,
     },
     clientId: {
-        type: String,
-        required: true,
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'client',
     },
     progression: {
         type: Number,

@@ -5,6 +5,7 @@ import { ClientI, UserObject } from '../interfaces/userInterface';
 import { Bill } from '../models/Bill';
 import { articleUtils } from './articleUtils';
 import { globalUtils } from './globalUtils';
+import { userUtils } from './userUtils';
 
 /**
  * Fonction générer le JSON de réponse d'une facture.
@@ -41,10 +42,11 @@ const getBillList = async (user: UserObject): Promise<BillI[]> => {
     let billList: BillI[] = [];
     if (user.type === 'client') {
         // Récupération de toutes les factures concernants ce client
-        billList = await globalUtils.findManyAndPopulate(Bill, { clientId: mongoose.Types.ObjectId(user.data._id) }, ['articles.articleId']);
+        billList = await globalUtils.findManyAndPopulate(Bill, { clientId: mongoose.Types.ObjectId(user.data._id) }, ['clientId', 'articles.articleId']);
 
         // Mise en forme
         billList = billList.map((bill: BillI) => {
+            bill.clientId = userUtils.generateShortUserJSON({ data: bill.clientId as ClientI, type: 'client' });
             bill.articles.map((article) => {
                 article.articleId = articleUtils.generateArticleJSON(article.articleId as ArticleI);
             });
@@ -56,10 +58,11 @@ const getBillList = async (user: UserObject): Promise<BillI[]> => {
     } else if (user.type === 'user') {
         if (user.data.role === 'Gérant') {
             // Récupération de toutes les factures
-            billList = await globalUtils.findManyAndPopulate(Bill, {}, ['articles.articleId']);
+            billList = await globalUtils.findManyAndPopulate(Bill, {}, ['clientId', 'articles.articleId']);
 
             // Mise en forme
             billList = billList.map((bill: BillI) => {
+                bill.clientId = userUtils.generateShortUserJSON({ data: bill.clientId as ClientI, type: 'client' });
                 bill.articles.map((article) => {
                     article.articleId = articleUtils.generateArticleJSON(article.articleId as ArticleI);
                 });
@@ -81,6 +84,7 @@ const getBillList = async (user: UserObject): Promise<BillI[]> => {
 
             // Mise en forme
             billList = billList.map((bill: BillI) => {
+                bill.clientId = userUtils.generateShortUserJSON({ data: bill.clientId as ClientI, type: 'client' });
                 bill.articles.map((article) => {
                     article.articleId = articleUtils.generateArticleJSON(article.articleId as ArticleI);
                 });
