@@ -1,6 +1,7 @@
-jest.useFakeTimers();
-
-require('../../src/db/db');
+import { connect, disconnect } from '../../src/db/db';
+(async () => {
+    await connect();
+})();
 import express, { NextFunction, Request, Response } from 'express';
 import { v4 as uuidv4 } from 'uuid';
 import { billRouter } from '../../src/routes/billRoute';
@@ -62,6 +63,12 @@ let customer: any = {
 describe('Bill system', () => {
     describe('GET /Bills', () => {
         test('Success - Bill list', async done => {
+            done();
+        });
+    });
+    describe('Disconnect database', () => {
+        test('Success - Disconnect', async done => {
+            await disconnect();
             done();
         });
     });

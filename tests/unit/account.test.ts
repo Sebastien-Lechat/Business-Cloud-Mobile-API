@@ -1,6 +1,7 @@
-jest.useFakeTimers();
-
-require('../../src/db/db');
+import { connect, disconnect } from '../../src/db/db';
+(async () => {
+    await connect();
+})();
 import express, { Request, Response, NextFunction } from 'express';
 import request from 'supertest';
 import { v4 as uuidv4 } from 'uuid';
@@ -326,6 +327,14 @@ describe('Account system', () => {
 
             await User.deleteOne({ email: employee.email });
             await Client.deleteOne({ email: customer.email });
+
+            done();
+        });
+    });
+
+    describe('Disconnect database', () => {
+        test('Success - Disconnect', async done => {
+            await disconnect();
             done();
         });
     });

@@ -1,7 +1,13 @@
-jest.useFakeTimers();
-
-require('../../src/db/db');
-import express, { NextFunction, Request, Response } from 'express';
+import { connect, disconnect } from '../../src/db/db';
+(async () => {
+    await connect();
+})();
+import express, { Request, Response, NextFunction } from 'express';
+import request from 'supertest';
+import { v4 as uuidv4 } from 'uuid';
+import { User } from '../../src/models/User';
+import { Client } from '../../src/models/Client';
+import { hashPassword } from '../../src/helpers/passwordHelper';
 import { estimateRouter } from '../../src/routes/estimateRoute';
 
 
@@ -26,6 +32,12 @@ app.use(estimateRouter);
 describe('Estimate system', () => {
     describe('POST xxxx/xxxxx', () => {
         test('Success - xxxxxxx', async done => {
+            done();
+        });
+    });
+    describe('Disconnect database', () => {
+        test('Success - Disconnect', async done => {
+            await disconnect();
             done();
         });
     });

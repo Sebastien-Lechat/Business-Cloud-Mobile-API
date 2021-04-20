@@ -4,11 +4,12 @@
     "description": "",
     "main": "main.ts",
     "scripts": {
-        "test": "jest --detectOpenHandles --forceExit",
-        "dev": "nodemon ./server.ts",
         "start": "nodemon ./dist/server.js",
+        "test": "jest --detectOpenHandles --forceExit ./dist/tests/",
         "build": "tsc -p .",
-        "commit": "git add . && git commit -am"
+        "commit": "git add . && git commit -am",
+        "dev": "nodemon ./server.ts",
+        "test:dev": "jest --watchAll --detectOpenHandles ./tests"
     },
     "author": "Lechat Sébastien",
     "license": "ISC",
