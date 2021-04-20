@@ -302,7 +302,7 @@ export class AuthController {
             let { isActive } = req.body;
 
             // On assure que la donnée est un booléen
-            isActive = validator.toBoolean(isActive);
+            if (typeof isActive !== 'boolean') isActive = validator.toBoolean(isActive);
 
             // Vérification de si toutes les données nécessaire sont présentes
             if (isActive === undefined) throw new Error('Missing isActive field');

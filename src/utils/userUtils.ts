@@ -30,7 +30,7 @@ const emailAlreadyExist = async (emailToFind: string): Promise<boolean> => {
  * @returns Retourne l'utilisateur si il est enregistré en base, sinon on retourne null
  */
 const findUser = async (option: { userEmail?: string, userId?: string }): Promise<UserObject | null> => {
-    if (option.userId && option.userId.length !== 24) return null;
+    if (option.userId && option.userId.toString().length !== 24) return null;
 
     let query: any;
     if (option.userId && option.userEmail) query = { _id: mongoose.Types.ObjectId(option.userId), email: option.userEmail };
@@ -161,6 +161,7 @@ const generateUserJSON = (user: { data: ClientI, type: 'client' | 'user' }): Use
 
     if (user.data.avatar) toReturn.avatar = user.data.avatar;
     if (user.data.phone) toReturn.phone = user.data.phone;
+    if (user.data.birthdayDate) toReturn.birthdayDate = user.data.birthdayDate;
     if (user.data.activity) toReturn.activity = user.data.activity;
     if (user.data.address) toReturn.address = user.data.address;
     if (user.data.zip) toReturn.zip = user.data.zip;
@@ -174,6 +175,9 @@ const generateUserJSON = (user: { data: ClientI, type: 'client' | 'user' }): Use
 
     if (!user.data.verify_email?.verified) toReturn.needVerifyEmail = true;
     else toReturn.needVerifyEmail = false;
+
+    if (user.data.double_authentification?.activated) toReturn.doubleAuthentification = true;
+    else toReturn.doubleAuthentification = false;
 
     return toReturn;
 };
