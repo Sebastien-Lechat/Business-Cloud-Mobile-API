@@ -1,10 +1,7 @@
+jest.useFakeTimers();
+
 require('../../src/db/db');
-import express, { Request, Response, NextFunction } from 'express';
-import request from 'supertest';
-import { v4 as uuidv4 } from 'uuid';
-import { User } from '../../src/models/User';
-import { Client } from '../../src/models/Client';
-import { hashPassword } from '../../src/helpers/passwordHelper';
+import express, { NextFunction, Request, Response } from 'express';
 import { estimateRouter } from '../../src/routes/estimateRoute';
 
 

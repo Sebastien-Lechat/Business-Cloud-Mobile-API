@@ -1,3 +1,5 @@
+jest.useFakeTimers();
+
 require('../../src/db/db');
 import express, { Request, Response, NextFunction } from 'express';
 import request from 'supertest';

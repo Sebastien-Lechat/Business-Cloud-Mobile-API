@@ -1,3 +1,5 @@
+jest.useFakeTimers();
+
 require('../../src/db/db');
 import express, { NextFunction, Request, Response } from 'express';
 import { projectRouter } from '../../src/routes/projectRoute';
