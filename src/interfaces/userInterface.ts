@@ -51,6 +51,7 @@ export interface UserJsonI {
     id: string;
     name: string;
     email: string;
+    birthdayDate?: string;
     phone?: string;
     avatar?: string;
     token: string;
@@ -69,6 +70,7 @@ export interface UserJsonI {
     currency?: string;
     userId?: string;
     needVerifyEmail?: boolean;
+    doubleAuthentification?: boolean;
 }
 
 export interface EmployeeJsonI {

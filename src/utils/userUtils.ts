@@ -161,6 +161,7 @@ const generateUserJSON = (user: { data: ClientI, type: 'client' | 'user' }): Use
 
     if (user.data.avatar) toReturn.avatar = user.data.avatar;
     if (user.data.phone) toReturn.phone = user.data.phone;
+    if (user.data.birthdayDate) toReturn.birthdayDate = user.data.birthdayDate;
     if (user.data.activity) toReturn.activity = user.data.activity;
     if (user.data.address) toReturn.address = user.data.address;
     if (user.data.zip) toReturn.zip = user.data.zip;
@@ -174,6 +175,9 @@ const generateUserJSON = (user: { data: ClientI, type: 'client' | 'user' }): Use
 
     if (!user.data.verify_email?.verified) toReturn.needVerifyEmail = true;
     else toReturn.needVerifyEmail = false;
+
+    if (user.data.double_authentification?.activated) toReturn.doubleAuthentification = true;
+    else toReturn.doubleAuthentification = false;
 
     return toReturn;
 };

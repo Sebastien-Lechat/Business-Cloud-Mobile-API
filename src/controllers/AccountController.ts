@@ -32,7 +32,7 @@ export class AccountController {
     }
 
     /**
-     * Fonction de récupération d'un utilisateur (GET /user)
+     * Fonction de récupération d'un utilisateur (GET /user/:id)
      * @param req express Request
      * @param res express Response
      */
