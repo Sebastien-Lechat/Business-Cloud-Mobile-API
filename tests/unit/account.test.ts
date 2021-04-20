@@ -1,5 +1,3 @@
-import { config } from 'dotenv';
-config();
 import express, { Request, Response, NextFunction } from 'express';
 import request from 'supertest';
 import { v4 as uuidv4 } from 'uuid';
@@ -26,16 +24,7 @@ app.use((error: any, request: Request, response: Response, next: NextFunction) =
 
 app.use(accountRouter);
 
-const uuidUser1 = uuidv4();
-
 // tslint:disable-next-line: prefer-const
-let gerant: any = {
-    name: 'Name_' + uuidUser1,
-    email: uuidUser1 + '@gmail.com',
-    password: 'Azerty1!',
-    phone: '0601111111',
-    role: 'Gérant',
-};
 
 const uuidUser2 = uuidv4();
 

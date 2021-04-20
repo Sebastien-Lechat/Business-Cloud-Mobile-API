@@ -1,5 +1,3 @@
-import { config } from 'dotenv';
-config();
 import express, { Request, Response, NextFunction } from 'express';
 import request from 'supertest';
 import { v4 as uuidv4 } from 'uuid';
