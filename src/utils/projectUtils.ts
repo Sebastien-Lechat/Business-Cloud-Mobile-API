@@ -1,6 +1,8 @@
 import { ProjectI, ProjectJsonI } from '../interfaces/projectInterface';
+import { ClientI } from '../interfaces/userInterface';
 import { Project } from '../models/Project';
 import { globalUtils } from './globalUtils';
+import { userUtils } from './userUtils';
 
 /**
  * Fonction générer le JSON de retour d'un projet.
@@ -13,7 +15,7 @@ const generateProjectJSON = (project: ProjectI): ProjectJsonI => {
         projectNum: project.projectNum,
         title: project.title,
         status: project.status,
-        clientId: project.clientId,
+        clientId: (typeof project.clientId !== 'string') ? userUtils.generateShortUserJSON({ data: project.clientId as ClientI, type: 'client' }) : project.clientId,
         progression: project.progression,
         startDate: project.startDate,
         deadline: project.deadline,
@@ -36,7 +38,7 @@ const getProjectList = async (): Promise<ProjectJsonI[]> => {
     const projectList: ProjectJsonI[] = [];
 
     // Récupération de tous les projets
-    const projects = await globalUtils.findMany(Project, {});
+    const projects = await globalUtils.findManyAndPopulate(Project, {}, ['clientId']);
 
     // Mise en forme
     projects.map((project: ProjectI) => {
