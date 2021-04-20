@@ -12,8 +12,6 @@ export const connect = async () => {
             useCreateIndex: true,
             useFindAndModify: false,
             useUnifiedTopology: true
-        }).then(() => {
-            console.log({ message: 'Successfully connected' });
         });
     } catch (error) {
         console.log({ message: 'Error when connecting to database', error });
@@ -22,9 +20,7 @@ export const connect = async () => {
 
 export const disconnect = async () => {
     try {
-        await mongoose.disconnect().then(() => {
-            console.log({ message: 'Successfully disconnect' });
-        });
+        await mongoose.disconnect();
     } catch (error) {
         console.log({ message: 'Error when disconnect from database', error });
     }
