@@ -1,16 +1,10 @@
-import express, { Request, Response, NextFunction } from 'express';
-import request from 'supertest';
-import { v4 as uuidv4 } from 'uuid';
-import { User } from '../../src/models/User';
-import { Client } from '../../src/models/Client';
-import { hashPassword } from '../../src/helpers/passwordHelper';
+require('../../src/db/db');
+import express, { NextFunction, Request, Response } from 'express';
 import { projectRouter } from '../../src/routes/projectRoute';
 
-require('../../src/db/db');
 
 const app: express.Application = express();
 
-app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 // tslint:disable-next-line: no-shadowed-variable

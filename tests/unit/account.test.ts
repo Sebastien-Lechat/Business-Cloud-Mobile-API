@@ -1,3 +1,4 @@
+require('../../src/db/db');
 import express, { Request, Response, NextFunction } from 'express';
 import request from 'supertest';
 import { v4 as uuidv4 } from 'uuid';
@@ -7,11 +8,9 @@ import { Client } from '../../src/models/Client';
 import { accountRouter } from '../../src/routes/accountRoute';
 import { hashPassword } from '../../src/helpers/passwordHelper';
 
-require('../../src/db/db');
 
 const app: express.Application = express();
 
-app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 // tslint:disable-next-line: no-shadowed-variable
