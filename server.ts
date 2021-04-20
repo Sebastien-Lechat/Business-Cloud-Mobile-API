@@ -1,11 +1,13 @@
 import { config } from 'dotenv';
 config();
-require('./src/db/db');
+
+import { connect } from './src/db/db';
+connect();
+
 import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import rateLimit from 'express-rate-limit';
 import { RouteIndex } from './src/routes';
-
 
 const port: string | number = process.env.PORT || 5000;
 

@@ -157,7 +157,7 @@ export class AccountController {
             sendResponse(res, 200, { error: false, message: 'Profile successfully updated', user: userUtils.generateUserJSON(user) });
         } catch (err) {
             if (err.message === 'Missing important fields') sendResponse(res, 400, { error: true, code: '102101', message: err.message });
-            if (err.message === 'Invalid old password') sendResponse(res, 400, { error: true, code: '102102', message: err.message });
+            else if (err.message === 'Invalid old password') sendResponse(res, 400, { error: true, code: '102102', message: err.message });
             else if (err.message === 'Invalid password format') sendResponse(res, 400, { error: true, code: '102103', message: err.message });
             else errorHandler(res, err);
         }

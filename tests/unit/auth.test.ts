@@ -1,18 +1,18 @@
-import { config } from 'dotenv';
-config();
+import { connect, disconnect } from '../../src/db/db';
+(async () => {
+    await connect();
+})();
 import express, { Request, Response, NextFunction } from 'express';
 import request from 'supertest';
-import { RouteIndex } from '../src/routes';
 import { v4 as uuidv4 } from 'uuid';
-import { User } from '../src/models/User';
-import { Client } from '../src/models/Client';
-import { hashPassword } from '../src/helpers/passwordHelper';
+import { User } from '../../src/models/User';
+import { Client } from '../../src/models/Client';
+import { hashPassword } from '../../src/helpers/passwordHelper';
+import { authRouter } from '../../src/routes/authRoute';
 
-require('../src/db/db');
 
 const app: express.Application = express();
 
-app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 // tslint:disable-next-line: no-shadowed-variable
@@ -23,40 +23,40 @@ app.use((error: any, request: Request, response: Response, next: NextFunction) =
     return next();
 });
 
-app.use(RouteIndex);
+app.use(authRouter);
 
 const uuidUser1 = uuidv4();
 
-const validUser = {
+const validUser: any = {
     name: 'Name_' + uuidUser1,
     email: uuidUser1 + '@gmail.com',
     password: 'Azerty1!',
-    role: 'Gérant'
+    role: 'Développeur'
 };
 
 const uuidUser2 = uuidv4();
 
-const invalidEmailUser = {
+const invalidEmailUser: any = {
     name: 'Name_' + uuidUser2,
     email: uuidUser2 + ';:!@gmail.com',
     password: '1234567',
 };
 
-const invalidPhoneUser = {
+const invalidPhoneUser: any = {
     name: 'Name_' + uuidUser2,
     email: uuidUser2 + '@gmail.com',
     phone: '1234567aaazeqqgqz',
     password: 'Azerty1!',
 };
 
-const invalidPasswordUser = {
+const invalidPasswordUser: any = {
     name: 'Name_' + uuidUser2,
     email: uuidUser2 + '@gmail.com',
     phone: '0601474747',
     password: '1234567',
 };
 
-const invalidDateUser = {
+const invalidDateUser: any = {
     name: 'Name_' + uuidUser2,
     email: uuidUser2 + '@gmail.com',
     phone: '0601474747',
@@ -313,6 +313,8 @@ describe('Authentification system', () => {
             expect(res.body.user.createdAt).not.toBe(undefined);
             expect(res.body.user.updatedAt).not.toBe(undefined);
 
+            validUser.token = res.body.user.token;
+
             done();
         });
 
@@ -358,8 +360,8 @@ describe('Authentification system', () => {
                 .set('Accept', 'application/json')
                 .expect('Content-Type', /json/)
                 .expect(400);
-            expect(res.body.error).toBe(true);
-            expect(res.body.code).toBe('101003');
+            expect(res2.body.error).toBe(true);
+            expect(res2.body.code).toBe('101003');
 
             done();
         });
@@ -448,7 +450,71 @@ describe('Authentification system', () => {
             expect(res.body.error).toBe(true);
             expect(res.body.code).toBe('101008');
 
+            done();
+        });
+    });
+
+    describe('POST auth/password-lost', () => {
+        test('Success - Password lost', async done => {
+            const res = await request(app)
+                .post('/auth/request-password-lost')
+                .send({ email: validUser.email })
+                .set('Accept', 'application/json')
+                .expect('Content-Type', /json/)
+                .expect(200);
+            expect(res.body.error).toBe(false);
+            expect(res.body.message).toBe('Email successfully send');
+
+            done();
+        });
+        test('Error - Missing email field', async done => {
+            const res = await request(app)
+                .post('/auth/request-password-lost')
+                .send()
+                .set('Accept', 'application/json')
+                .expect('Content-Type', /json/)
+                .expect(400);
+            expect(res.body.error).toBe(true);
+            expect(res.body.code).toBe('101101');
+
+            done();
+        });
+        test('Error - Invalid email addresse', async done => {
+            const res = await request(app)
+                .post('/auth/request-password-lost')
+                .send({ email: invalidEmailUser.email })
+                .set('Accept', 'application/json')
+                .expect('Content-Type', /json/)
+                .expect(400);
+            expect(res.body.error).toBe(true);
+            expect(res.body.code).toBe('101102');
+
+            done();
+        });
+    });
+
+    describe('POST auth/disconnect', () => {
+        test('Success - Logout', async done => {
+            const res = await request(app)
+                .delete('/auth/disconnect')
+                .send()
+                .set('Accept', 'application/json')
+                .set({ Authorization: validUser.token })
+                .expect('Content-Type', /json/)
+                .expect(200);
+
+            expect(res.body.error).toBe(false);
+            expect(res.body.message).toBe('Successfully logout');
+
             await User.deleteOne({ email: validUser.email });
+
+            done();
+        });
+    });
+
+    describe('Disconnect database', () => {
+        test('Success - Disconnect', async done => {
+            await disconnect();
             done();
         });
     });

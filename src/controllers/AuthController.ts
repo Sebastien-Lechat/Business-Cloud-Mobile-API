@@ -337,8 +337,7 @@ export class AuthController {
             // Envoi de la réponse
             sendResponse(res, 200, { error: false, message: 'Successfully logout' });
         } catch (err) {
-            if (err.message === 'Missing isActive field') sendResponse(res, 400, { error: true, code: '101301', message: err.message });
-            else errorHandler(res, err);
+            errorHandler(res, err);
         }
     }
 }
