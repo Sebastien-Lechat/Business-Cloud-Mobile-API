@@ -26,7 +26,7 @@ const checkPermission = (user: UserObject, type: 'user' | 'client', admin?: bool
  * @param id Id pour filtrer
  */
 const findOne = async (model: mongoose.Model<any, any>, id: string): Promise<any> => {
-    if (id.length !== 24) return null;
+    if (id.toString().length !== 24) return null;
     return await model.findOne({ _id: mongoose.Types.ObjectId(id) });
 };
 
@@ -37,7 +37,7 @@ const findOne = async (model: mongoose.Model<any, any>, id: string): Promise<any
  * @param populate Données à populate
  */
 const findOneAndPopulate = async (model: mongoose.Model<any, any>, id: string, populate: string[]): Promise<any> => {
-    if (id.length !== 24) return null;
+    if (id.toString().length !== 24) return null;
     return await model.findOne({ _id: mongoose.Types.ObjectId(id) }).populate(populate);
 };
 
@@ -77,7 +77,7 @@ const updateOne = async (model: mongoose.Model<any, any>, filter: any, updateDat
  * @param updateData Données à mettre à jour
  */
 const updateOneById = async (model: mongoose.Model<any, any>, id: string, updateData: any): Promise<any> => {
-    if (id.length !== 24) return null;
+    if (id.toString().length !== 24) return null;
     return await model.updateOne({ _id: mongoose.Types.ObjectId(id) }, { $set: updateData });
 };
 
@@ -87,7 +87,7 @@ const updateOneById = async (model: mongoose.Model<any, any>, id: string, update
  * @param id Id pour filtrer
  */
 const deleteOne = async (model: mongoose.Model<any, any>, id: string): Promise<any> => {
-    if (id.length !== 24) return null;
+    if (id.toString().length !== 24) return null;
     return await model.deleteOne({ _id: mongoose.Types.ObjectId(id) });
 };
 
