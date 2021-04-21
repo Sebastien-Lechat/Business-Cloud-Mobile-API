@@ -8,7 +8,7 @@ export interface BillI {
     clientId: string | ClientI | ShortUserListI;
     enterpriseId: string;
     articles: BillArticleI[];
-    currency?: string;
+    reduction: number;
     totalHT: number;
     totalTTC: number;
     deadline: string;

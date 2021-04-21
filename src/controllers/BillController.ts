@@ -73,7 +73,7 @@ export class BillController {
             if (!hasPermission) throw new Error('You do not have the required permissions');
 
             // Récupération de toutes les données du body
-            const { status, clientId, enterpriseId, billNum, deadline, currency } = req.body;
+            const { status, clientId, enterpriseId, billNum, deadline, reduction } = req.body;
 
             // Vérification de si toutes les données nécessaire sont présentes
             if (!status || !clientId || !enterpriseId || !billNum || !deadline) throw new Error('Missing important fields');
@@ -129,7 +129,7 @@ export class BillController {
             if (!hasPermission) throw new Error('You do not have the required permissions');
 
             // Récupération de toutes les données du body
-            const { id, status, clientId, billNum, currency, deadline } = req.body;
+            const { id, status, clientId, billNum, reduction, deadline } = req.body;
             const articles: Array<BillArticleI> = req.body.articles;
 
             // Vérification de si toutes les données nécessaire sont présentes
@@ -178,7 +178,7 @@ export class BillController {
                 toUpdate.totalHT = newTotalHT.toFixed(2);
                 toUpdate.totalTTC = newTotalTTC.toFixed(2);
             }
-            if (currency) toUpdate.currency = bill.currency = currency;
+            if (reduction) toUpdate.reduction = bill.reduction = reduction;
             if (deadline) toUpdate.deadline = bill.deadline = deadline;
 
             // Modification de la facture

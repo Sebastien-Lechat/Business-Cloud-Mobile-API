@@ -24,7 +24,6 @@ const expenseSchema = new mongoose.Schema({
     },
     projectId: {
         type: mongoose.Schema.Types.ObjectId,
-        required: true,
     },
     file: {
         type: String,

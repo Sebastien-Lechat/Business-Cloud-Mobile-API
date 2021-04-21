@@ -7,7 +7,7 @@ export interface EstimateI {
     clientId: string | ClientI | ShortUserListI;
     enterpriseId: string;
     articles: EstimateArticleI[];
-    currency?: string;
+    reduction: number;
     totalHT: number;
     totalTTC: number;
     deadline: string;

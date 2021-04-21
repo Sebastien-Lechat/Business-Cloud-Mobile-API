@@ -29,8 +29,9 @@ const estimateSchema = new mongoose.Schema({
             type: Number,
         }
     }],
-    currency: {
-        type: String,
+    reduction: {
+        type: Number,
+        default: 0,
     },
     totalTTC: {
         type: Number,

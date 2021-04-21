@@ -99,7 +99,7 @@ export default class VerifyData {
      * @param estimateNumber Numéro à vérifier
      */
     static async validEstimateNumber(estimateNumber: string): Promise<boolean> {
-        if (estimateNumber.substring(0, 3) !== 'EST') return false;
+        if (estimateNumber.substring(0, 3) !== 'DEV') return false;
         if (estimateNumber.length !== 9) return false;
         const estimates = await globalUtils.findMany(Estimate, { estimateNum: estimateNumber });
         if (estimates.length !== 0) return false;

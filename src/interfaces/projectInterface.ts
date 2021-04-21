@@ -9,7 +9,7 @@ export interface ProjectI {
     progression: number;
     startDate: Date;
     deadline: Date;
-    employees: string[];
+    employees: { id: string }[];
     fixedRate?: number;
     hourlyRate?: number;
     estimateHour: number;
@@ -26,7 +26,7 @@ export interface ProjectJsonI {
     progression: number;
     startDate: Date;
     deadline: Date;
-    employees: string[];
+    employees: { id: string }[];
     fixedRate?: number;
     hourlyRate?: number;
     estimateHour: number;

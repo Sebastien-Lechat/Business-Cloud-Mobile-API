@@ -10,8 +10,6 @@ config();
 
 const JWT_KEY: string = process.env.JWT_KEY as string;
 
-
-
 /**
  * Fonction de vérification de si l'email existe déjà
  * @param emailToFind Email à vérifier si elle existe déjà ou non
