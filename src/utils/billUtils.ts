@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 import { ArticleI } from '../interfaces/articleInterface';
-import { BillI } from '../interfaces/billInterface';
+import { BillI, BillJsonI } from '../interfaces/billInterface';
 import { ClientI, UserObject } from '../interfaces/userInterface';
 import { Bill } from '../models/Bill';
 import { articleUtils } from './articleUtils';
@@ -12,12 +12,12 @@ import { userUtils } from './userUtils';
  * @param bill Facture pour laquelle on génère le JSON
  * @return Retourne le JSON
  */
-const generateBillJSON = (bill: BillI): BillI => {
+const generateBillJSON = (bill: BillI): BillJsonI => {
     const toReturn = {
         billNum: bill.billNum,
-        id: bill.id,
+        id: bill._id,
         status: bill.status,
-        clientId: bill.clientId,
+        clientId: (typeof bill.clientId !== 'string') ? userUtils.generateShortUserJSON({ data: bill.clientId as ClientI, type: 'client' }) : bill.clientId,
         enterpriseId: bill.enterpriseId,
         articles: bill.articles,
         reduction: bill.reduction,
@@ -38,19 +38,18 @@ const generateBillJSON = (bill: BillI): BillI => {
  * @param user Utilisateur pour lequel on génère la liste
  * @return Retourne le JSON
  */
-const getBillList = async (user: UserObject): Promise<BillI[]> => {
-    let billList: BillI[] = [];
+const getBillList = async (user: UserObject): Promise<BillJsonI[]> => {
+    const billList: BillJsonI[] = [];
     if (user.type === 'client') {
         // Récupération de toutes les factures concernants ce client
-        billList = await globalUtils.findManyAndPopulate(Bill, { clientId: mongoose.Types.ObjectId(user.data._id) }, ['clientId', 'articles.articleId']);
+        const bills = await globalUtils.findManyAndPopulate(Bill, { clientId: mongoose.Types.ObjectId(user.data._id) }, ['clientId', 'articles.articleId']);
 
         // Mise en forme
-        billList = billList.map((bill: BillI) => {
-            bill.clientId = userUtils.generateShortUserJSON({ data: bill.clientId as ClientI, type: 'client' });
+        bills.map((bill: BillI) => {
             bill.articles.map((article) => {
                 article.articleId = articleUtils.generateArticleJSON(article.articleId as ArticleI);
             });
-            return billUtils.generateBillJSON(bill);
+            billList.push(billUtils.generateBillJSON(bill));
         });
 
         // Envoi de la liste
@@ -58,37 +57,35 @@ const getBillList = async (user: UserObject): Promise<BillI[]> => {
     } else if (user.type === 'user') {
         if (user.data.role === 'Gérant') {
             // Récupération de toutes les factures
-            billList = await globalUtils.findManyAndPopulate(Bill, {}, ['clientId', 'articles.articleId']);
+            const bills = await globalUtils.findManyAndPopulate(Bill, {}, ['clientId', 'articles.articleId']);
 
             // Mise en forme
-            billList = billList.map((bill: BillI) => {
-                bill.clientId = userUtils.generateShortUserJSON({ data: bill.clientId as ClientI, type: 'client' });
+            bills.map((bill: BillI) => {
                 bill.articles.map((article) => {
                     article.articleId = articleUtils.generateArticleJSON(article.articleId as ArticleI);
                 });
-                return billUtils.generateBillJSON(bill);
+                billList.push(billUtils.generateBillJSON(bill));
             });
 
             // Envoi de la liste
             return billList;
         } else {
             // Récupération de toutes les factures
-            billList = await globalUtils.findManyAndPopulate(Bill, {}, ['clientId', 'articles.articleId']);
+            const bills = await globalUtils.findManyAndPopulate(Bill, {}, ['clientId', 'articles.articleId']);
 
             // Filtre de tout ce qui ne concerne pas l'employé
-            billList = billList.filter((bill: BillI) => {
+            bills.filter((bill: BillI) => {
                 const client = bill.clientId as ClientI;
                 bill.clientId = client._id;
                 return (client.userId) ? client.userId.toString() === user.data._id.toString() : false;
             });
 
             // Mise en forme
-            billList = billList.map((bill: BillI) => {
-                bill.clientId = userUtils.generateShortUserJSON({ data: bill.clientId as ClientI, type: 'client' });
+            bills.map((bill: BillI) => {
                 bill.articles.map((article) => {
                     article.articleId = articleUtils.generateArticleJSON(article.articleId as ArticleI);
                 });
-                return billUtils.generateBillJSON(bill);
+                billList.push(billUtils.generateBillJSON(bill));
             });
 
             // Envoi de la liste
