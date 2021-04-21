@@ -73,7 +73,7 @@ export class EstimateController {
             if (!hasPermission) throw new Error('You do not have the required permissions');
 
             // Récupération de toutes les données du body
-            const { status, clientId, enterpriseId, estimateNum, deadline, currency } = req.body;
+            const { status, clientId, enterpriseId, estimateNum, deadline, reduction } = req.body;
 
             // Vérification de si toutes les données nécessaire sont présentes
             if (!status || !clientId || !enterpriseId || !estimateNum || !deadline) throw new Error('Missing important fields');
@@ -129,7 +129,7 @@ export class EstimateController {
             if (!hasPermission) throw new Error('You do not have the required permissions');
 
             // Récupération de toutes les données du body
-            const { id, status, clientId, estimateNum, articles, currency, deadline } = req.body;
+            const { id, status, clientId, estimateNum, articles, reduction, deadline } = req.body;
 
             // Vérification de si toutes les données nécessaire sont présentes
             if (!id) throw new Error('Missing id field');
@@ -177,7 +177,7 @@ export class EstimateController {
                 toUpdate.totalHT = newTotalHT.toFixed(2);
                 toUpdate.totalTTC = newTotalTTC.toFixed(2);
             }
-            if (currency) toUpdate.currency = estimate.currency = currency;
+            if (reduction) toUpdate.reduction = estimate.reduction = reduction;
             if (deadline) toUpdate.deadline = estimate.deadline = deadline;
 
             // Modification du devis

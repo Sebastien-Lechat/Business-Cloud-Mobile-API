@@ -7,8 +7,8 @@ export interface ExpenseI {
     file: string;
     description: string;
     userId: string;
-    projectId: string;
-    invoiced: boolean;
+    projectId?: string;
+    billable: boolean;
     createdAt: Date;
     updatedAt: Date;
 }
@@ -22,8 +22,8 @@ export interface ExpenseJsonI {
     file: string;
     description: string;
     userId: string;
-    projectId: string;
-    invoiced: boolean;
+    projectId?: string;
+    billable: boolean;
     createdAt: Date;
     updatedAt: Date;
 }

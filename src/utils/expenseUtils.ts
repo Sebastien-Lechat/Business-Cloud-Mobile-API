@@ -18,7 +18,7 @@ const generateExpenseJSON = (expense: ExpenseI): ExpenseJsonI => {
         description: expense.description,
         userId: expense.userId,
         projectId: expense.projectId,
-        invoiced: expense.invoiced,
+        billable: expense.billable,
         createdAt: expense.createdAt,
         updatedAt: expense.updatedAt,
     };

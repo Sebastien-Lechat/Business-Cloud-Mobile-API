@@ -42,15 +42,18 @@ export class UserExpenseController {
      */
     static create = async (req: Request, res: Response) => {
         try {
+            // Récupération de l'utilisateur grâce au Authmiddleware qui rajoute le token dans req
+            const user = userUtils.getRequestUser(req);
+
             // Vérification de si l'utilisateur à les permissions de faire la requête
-            const hasPermission = globalUtils.checkPermission(userUtils.getRequestUser(req), 'user');
+            const hasPermission = globalUtils.checkPermission(user, 'user');
             if (!hasPermission) throw new Error('You do not have the required permissions');
 
             // Récupération de toutes les données du body
-            const { userExpenseNum, price, category, file, description, userId, accountNumber } = req.body;
+            const { userExpenseNum, price, category, file, description, accountNumber } = req.body;
 
             // Vérification de si toutes les données nécessaire sont présentes
-            if (!userExpenseNum || accountNumber === undefined || price === undefined || !category || !file || !description || !userId) throw new Error('Missing important fields');
+            if (!userExpenseNum || accountNumber === undefined || price === undefined || !category) throw new Error('Missing important fields');
 
             // Vérification de la validité du numéro de facture
             if (!await VerifyData.validUserExpenseNumber(userExpenseNum)) throw new Error('Invalid expense number');
@@ -63,11 +66,8 @@ export class UserExpenseController {
             if (!VerifyData.validPrice(price)) throw new Error('Invalid price format');
             req.body.price = VerifyData.validPrice(price);
 
-            // Vérification de si l'employé existe
-            const user: UserI = await globalUtils.findOne(User, userId);
-            if (!user) throw new Error('Invalid employee id');
-
             // Création de la note de frais
+            req.body.userId = user.data._id;
             const expense = await UserExpense.create(req.body);
 
             // Envoi de la réponse
@@ -78,7 +78,6 @@ export class UserExpenseController {
             else if (err.message === 'Invalid expense number') sendResponse(res, 400, { error: true, code: '107102', message: err.message });
             else if (err.message === 'Invalid account number') sendResponse(res, 400, { error: true, code: '107103', message: err.message });
             else if (err.message === 'Invalid price format') sendResponse(res, 400, { error: true, code: '107104', message: err.message });
-            else if (err.message === 'Invalid employee id') sendResponse(res, 400, { error: true, code: '107105', message: err.message });
             else errorHandler(res, err);
         }
     }
