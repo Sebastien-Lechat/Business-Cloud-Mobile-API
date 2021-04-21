@@ -1,4 +1,4 @@
-import { ArticleI } from '../interfaces/articleInterface';
+import { ArticleI, ArticleJsonI } from '../interfaces/articleInterface';
 import { Article } from '../models/Article';
 import { globalUtils } from './globalUtils';
 
@@ -7,9 +7,9 @@ import { globalUtils } from './globalUtils';
  * @param article Article pour lequel on génère le JSON
  * @return Retourne le JSON
  */
-const generateArticleJSON = (article: ArticleI): ArticleI => {
+const generateArticleJSON = (article: ArticleI): ArticleJsonI => {
     const toReturn = {
-        _id: article._id,
+        id: article._id,
         name: article.name,
         price: article.price,
         tva: article.tva,
@@ -26,8 +26,8 @@ const generateArticleJSON = (article: ArticleI): ArticleI => {
  * Fonction pour retourner la liste des articles.
  * @return Retourne le JSON
  */
-const getArticleList = async (): Promise<ArticleI[]> => {
-    const articleList: ArticleI[] = [];
+const getArticleList = async (): Promise<ArticleJsonI[]> => {
+    const articleList: ArticleJsonI[] = [];
 
     // Récupération de tous les articles
     const articles = await globalUtils.findMany(Article, {});

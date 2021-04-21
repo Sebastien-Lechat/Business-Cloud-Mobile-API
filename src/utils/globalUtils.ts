@@ -57,7 +57,7 @@ const findMany = async (model: mongoose.Model<any, any>, filter: any): Promise<a
  * @param populate Données à populate
  */
 const findManyAndPopulate = async (model: mongoose.Model<any, any>, filter: any, populate: string[]): Promise<any> => {
-    return await model.find(filter).populate(populate);
+    return JSON.parse(JSON.stringify(await model.find(filter).populate(populate)));
 };
 
 /**

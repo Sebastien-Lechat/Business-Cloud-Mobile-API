@@ -189,7 +189,7 @@ const generateUserJSON = (user: { data: ClientI, type: 'client' | 'user' }): Use
 const generateShortUserJSON = (user: UserObject): ShortUserListI => {
     const toReturn: ShortUserListI = {
         type: user.type,
-        id: user.data._id,
+        id: user.data._id.toString(),
         name: user.data.name,
         email: user.data.email,
         createdAt: user.data.createdAt,
@@ -200,6 +200,7 @@ const generateShortUserJSON = (user: UserObject): ShortUserListI => {
     if (user.data.phone) toReturn.phone = user.data.phone;
     if (user.data.role) toReturn.role = user.data.role;
     if ((user.data as ClientI).userId) toReturn.userId = (user.data as ClientI).userId;
+
     return toReturn;
 };
 

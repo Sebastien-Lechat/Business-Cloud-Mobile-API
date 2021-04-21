@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 import { ArticleI } from '../interfaces/articleInterface';
-import { EstimateI } from '../interfaces/estimateInterface';
+import { EstimateI, EstimateJsonI } from '../interfaces/estimateInterface';
 import { ClientI, UserObject } from '../interfaces/userInterface';
 import { Estimate } from '../models/Estimate';
 import { articleUtils } from './articleUtils';
@@ -12,10 +12,10 @@ import { userUtils } from './userUtils';
  * @param estimate Devis pour laquelle on génère le JSON
  * @return Retourne le JSON
  */
-const generateEstimateJSON = (estimate: EstimateI): EstimateI => {
+const generateEstimateJSON = (estimate: EstimateI): EstimateJsonI => {
     const toReturn = {
         estimateNum: estimate.estimateNum,
-        id: estimate.id,
+        id: estimate._id,
         status: estimate.status,
         clientId: estimate.clientId,
         enterpriseId: estimate.enterpriseId,
@@ -36,19 +36,19 @@ const generateEstimateJSON = (estimate: EstimateI): EstimateI => {
  * @param user Utilisateur pour lequel on génère la liste
  * @return Retourne le JSON
  */
-const getEstimateList = async (user: UserObject): Promise<EstimateI[]> => {
-    let estimateList: EstimateI[] = [];
+const getEstimateList = async (user: UserObject): Promise<EstimateJsonI[]> => {
+    const estimateList: EstimateJsonI[] = [];
     if (user.type === 'client') {
         // Récupération de tous les devis concernants ce client
-        estimateList = await globalUtils.findManyAndPopulate(Estimate, { clientId: mongoose.Types.ObjectId(user.data._id) }, ['clientId', 'articles.articleId']);
+        const estimates = await globalUtils.findManyAndPopulate(Estimate, { clientId: mongoose.Types.ObjectId(user.data._id) }, ['clientId', 'articles.articleId']);
 
         // Mise en forme
-        estimateList = estimateList.map((estimate: EstimateI) => {
+        estimates.map((estimate: EstimateI) => {
             estimate.clientId = userUtils.generateShortUserJSON({ data: estimate.clientId as ClientI, type: 'client' });
             estimate.articles.map((article) => {
                 article.articleId = articleUtils.generateArticleJSON(article.articleId as ArticleI);
             });
-            return estimateUtils.generateEstimateJSON(estimate);
+            estimateList.push(estimateUtils.generateEstimateJSON(estimate));
         });
 
         // Envoi de la liste
@@ -56,37 +56,37 @@ const getEstimateList = async (user: UserObject): Promise<EstimateI[]> => {
     } else if (user.type === 'user') {
         if (user.data.role === 'Gérant') {
             // Récupération de tous les devis
-            estimateList = await globalUtils.findManyAndPopulate(Estimate, {}, ['clientId', 'articles.articleId']);
+            const estimates = await globalUtils.findManyAndPopulate(Estimate, {}, ['clientId', 'articles.articleId']);
 
             // Mise en forme
-            estimateList = estimateList.map((estimate: EstimateI) => {
+            estimates.map((estimate: EstimateI) => {
                 estimate.clientId = userUtils.generateShortUserJSON({ data: estimate.clientId as ClientI, type: 'client' });
                 estimate.articles.map((article) => {
                     article.articleId = articleUtils.generateArticleJSON(article.articleId as ArticleI);
                 });
-                return estimateUtils.generateEstimateJSON(estimate);
+                estimateList.push(estimateUtils.generateEstimateJSON(estimate));
             });
 
             // Envoi de la liste
             return estimateList;
         } else {
             // Récupération de tous les devis
-            estimateList = await globalUtils.findManyAndPopulate(Estimate, {}, ['clientId', 'articles.articleId']);
+            const estimates = await globalUtils.findManyAndPopulate(Estimate, {}, ['clientId', 'articles.articleId']);
 
             // Filtre de tout ce qui ne concerne pas l'employé
-            estimateList = estimateList.filter((estimate: EstimateI) => {
+            estimates.filter((estimate: EstimateI) => {
                 const client = estimate.clientId as ClientI;
                 estimate.clientId = client._id;
                 return (client.userId) ? client.userId.toString() === user.data._id.toString() : false;
             });
 
             // Mise en forme
-            estimateList = estimateList.map((estimate: EstimateI) => {
+            estimates.map((estimate: EstimateI) => {
                 estimate.clientId = userUtils.generateShortUserJSON({ data: estimate.clientId as ClientI, type: 'client' });
                 estimate.articles.map((article) => {
                     article.articleId = articleUtils.generateArticleJSON(article.articleId as ArticleI);
                 });
-                return estimateUtils.generateEstimateJSON(estimate);
+                estimateList.push(estimateUtils.generateEstimateJSON(estimate));
             });
 
             // Envoi de la liste
