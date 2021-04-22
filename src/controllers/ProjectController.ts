@@ -50,7 +50,7 @@ export class ProjectController {
             if (!id) throw new Error('Missing id field');
 
             // Vérification de si le projet existe
-            const project: ProjectI = await globalUtils.findOne(Project, id);
+            const project: ProjectI = await globalUtils.findOneAndPopulate(Project, id, ['clientId']);
             if (!project) throw new Error('Invalid project id');
 
             // Envoi de la réponse

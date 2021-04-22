@@ -20,9 +20,10 @@ const generateProjectJSON = (project: ProjectI): ProjectJsonI => {
         startDate: project.startDate,
         deadline: project.deadline,
         employees: project.employees,
-        fixedRate: (project.fixedRate) ? project.fixedRate : undefined,
-        hourlyRate: (project.hourlyRate) ? project.hourlyRate : undefined,
+        fixedRate: project.fixedRate,
+        hourlyRate: project.hourlyRate,
         estimateHour: project.estimateHour,
+        description: project.description,
         createdAt: project.createdAt,
         updatedAt: project.updatedAt,
     };
