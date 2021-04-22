@@ -50,7 +50,7 @@ export class BillController {
             if (!id) throw new Error('Missing id field');
 
             // Récupération de l'utilisateur
-            const bill = await globalUtils.findOne(Bill, id);
+            const bill = await globalUtils.findOneAndPopulate(Bill, id, ['articles.articleId']);
             if (!bill) throw new Error('Invalid bill id');
 
             // Envoi de la réponse

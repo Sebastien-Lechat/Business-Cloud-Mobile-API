@@ -38,7 +38,7 @@ const findOne = async (model: mongoose.Model<any, any>, id: string): Promise<any
  */
 const findOneAndPopulate = async (model: mongoose.Model<any, any>, id: string, populate: string[]): Promise<any> => {
     if (id.toString().length !== 24) return null;
-    return await model.findOne({ _id: mongoose.Types.ObjectId(id) }).populate(populate);
+    return JSON.parse(JSON.stringify(await model.findOne({ _id: mongoose.Types.ObjectId(id) }).populate(populate)));
 };
 
 /**
