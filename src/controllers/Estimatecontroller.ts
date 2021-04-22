@@ -50,7 +50,7 @@ export class EstimateController {
             if (!id) throw new Error('Missing id field');
 
             // Récupération ddu devis
-            const estimate = await globalUtils.findOne(Estimate, id);
+            const estimate = await globalUtils.findOneAndPopulate(Estimate, id, ['articles.articleId']);
             if (!estimate) throw new Error('Invalid estimate id');
 
             // Envoi de la réponse
