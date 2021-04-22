@@ -36,6 +36,36 @@ export class UserExpenseController {
     }
 
     /**
+     * Fonction de récupération d'une note de frais (GET /expense-employee/:id)
+     * @param req express Request
+     * @param res express Response
+     */
+    static getOneUserExpense = async (req: Request, res: Response) => {
+        try {
+            // Vérification de si l'utilisateur à les permissions de faire la requête
+            const hasPermission = globalUtils.checkPermission(userUtils.getRequestUser(req), 'user');
+            if (!hasPermission) throw new Error('You do not have the required permissions');
+
+            // Récupération de toutes les données du body
+            const { id } = req.params;
+
+            // Vérification de si toutes les données nécessaire sont présentes
+            if (!id) throw new Error('Missing id field');
+
+            // Vérification de si la note de frais existe
+            const userExpense: UserExpenseI = await globalUtils.findOne(UserExpense, id);
+            if (!userExpense) throw new Error('Invalid expense id');
+
+            // Envoi de la réponse
+            sendResponse(res, 200, { error: false, message: 'Successful expense acquisition', expense: userExpenseUtils.generateUserExpenseJSON(userExpense) });
+        } catch (err) {
+            if (err.message === 'Missing id field') sendResponse(res, 400, { error: true, code: '107051', message: err.message });
+            else if (err.message === 'Invalid expense id') sendResponse(res, 400, { error: true, code: '107052', message: err.message });
+            else errorHandler(res, err);
+        }
+    }
+
+    /**
      * Fonction de création (POST /expense-employee)
      * @param req express Request
      * @param res express Response

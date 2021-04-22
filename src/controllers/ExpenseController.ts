@@ -46,7 +46,37 @@ export class ExpenseController {
             }
         } catch (err) {
             if (err.message === 'You do not have the required permissions') sendResponse(res, 400, { error: true, code: '401002', message: err.message });
-            else if (err.message === 'Invalid project id') sendResponse(res, 400, { error: true, code: '111051', message: err.message });
+            else if (err.message === 'Invalid project id') sendResponse(res, 400, { error: true, code: '111001', message: err.message });
+            else errorHandler(res, err);
+        }
+    }
+
+    /**
+     * Fonction de récupération d'une dépense (GET /expense/:id)
+     * @param req express Request
+     * @param res express Response
+     */
+    static getOneExpense = async (req: Request, res: Response) => {
+        try {
+            // Vérification de si l'utilisateur à les permissions de faire la requête
+            const hasPermission = globalUtils.checkPermission(userUtils.getRequestUser(req), 'user');
+            if (!hasPermission) throw new Error('You do not have the required permissions');
+
+            // Récupération de toutes les données du body
+            const { id } = req.params;
+
+            // Vérification de si toutes les données nécessaire sont présentes
+            if (!id) throw new Error('Missing id field');
+
+            // Vérification de si la dépense existe
+            const expense: ExpenseI = await globalUtils.findOne(Expense, id);
+            if (!expense) throw new Error('Invalid expense id');
+
+            // Envoi de la réponse
+            sendResponse(res, 200, { error: false, message: 'Successful expense acquisition', expense: expenseUtils.generateExpenseJSON(expense) });
+        } catch (err) {
+            if (err.message === 'Missing id field') sendResponse(res, 400, { error: true, code: '111051', message: err.message });
+            else if (err.message === 'Invalid expense id') sendResponse(res, 400, { error: true, code: '111052', message: err.message });
             else errorHandler(res, err);
         }
     }
