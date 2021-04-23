@@ -2,6 +2,7 @@
 import { Request, Response } from 'express';
 import validator from 'validator';
 import { sendMail } from '../helpers/emailHelper';
+import { sendNotificationToOne } from '../helpers/notificationHelper';
 import { comparePassword, hashPassword } from '../helpers/passwordHelper';
 import { errorHandler, sendResponse } from '../helpers/responseHelper';
 import VerifyData from '../helpers/verifyDataHelper';
