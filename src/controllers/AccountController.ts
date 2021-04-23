@@ -75,7 +75,10 @@ export class AccountController {
             if (!deviceId || !token) throw new Error('Missing important fields');
 
             if (user.data.fcmDevice) {
-                user.data.fcmDevice.push({ device: deviceId, token: token });
+                const findDevice = user.data.fcmDevice.find(fcmDevice => fcmDevice.device === deviceId);
+                if (!findDevice) {
+                    user.data.fcmDevice.push({ device: deviceId, token: token });
+                }
             } else {
                 user.data.fcmDevice = [{ device: deviceId, token: token }];
             }
