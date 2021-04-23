@@ -27,6 +27,7 @@ const generateUserExpenseJSON = (userExpense: UserExpenseI): UserExpenseJsonI =>
 
 /**
  * Fonction pour retourner la liste des notes de frais.
+ * @param user Utilisateur pour lequel on génère la liste
  * @return Retourne le JSON
  */
 const getUserExpenseList = async (user: UserObject): Promise<UserExpenseJsonI[]> => {
