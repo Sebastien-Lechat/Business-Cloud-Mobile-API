@@ -69,15 +69,19 @@ export class AccountController {
             // Récupération de toutes les données du body
             const { deviceId, token } = req.body;
 
-            console.log(deviceId, token);
-
             // Vérification de si toutes les données nécessaire sont présentes
             if (!deviceId || !token) throw new Error('Missing important fields');
 
+            // Mise à jour ou création du device
             if (user.data.fcmDevice) {
                 const findDevice = user.data.fcmDevice.find(fcmDevice => fcmDevice.device === deviceId);
                 if (!findDevice) {
                     user.data.fcmDevice.push({ device: deviceId, token: token });
+                } else {
+                    user.data.fcmDevice.map(fcmDevice => {
+                        if (fcmDevice.device === deviceId) fcmDevice.token = token;
+                        return fcmDevice;
+                    });
                 }
             } else {
                 user.data.fcmDevice = [{ device: deviceId, token: token }];
