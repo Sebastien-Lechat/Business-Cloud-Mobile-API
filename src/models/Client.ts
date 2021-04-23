@@ -104,6 +104,14 @@ const clientSchema = new mongoose.Schema({
         type: Boolean,
         default: true,
     },
+    fcmDevice: [{
+        token: {
+            type: String,
+        },
+        device: {
+            type: String,
+        },
+    }],
 }, { timestamps: true });
 
 const Client = mongoose.model('client', clientSchema);

@@ -1,4 +1,4 @@
-import { UserExpenseI, UserExpenseJsonI } from '../interfaces/userExpense';
+import { UserExpenseI, UserExpenseJsonI } from '../interfaces/userExpenseInterface';
 import { UserObject } from '../interfaces/userInterface';
 import { UserExpense } from '../models/UserExpense';
 import { globalUtils } from './globalUtils';

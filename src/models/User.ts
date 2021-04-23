@@ -77,6 +77,14 @@ const userSchema = new mongoose.Schema({
         type: Boolean,
         default: true,
     },
+    fcmDevice: [{
+        token: {
+            type: String,
+        },
+        device: {
+            type: String,
+        },
+    }],
 }, { timestamps: true });
 
 const User = mongoose.model('user', userSchema);

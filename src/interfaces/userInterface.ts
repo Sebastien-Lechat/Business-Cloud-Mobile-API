@@ -23,6 +23,7 @@ export interface UserI {
     currency?: string;
     role: string;
     isActive: boolean;
+    fcmDevice?: { token: string, device: string }[];
 }
 
 export interface UserUpdateI {
@@ -44,6 +45,8 @@ export interface UserUpdateI {
     updatedAt?: Date;
     currency?: string;
     role?: string;
+    fcmDevice?: { token: string, device: string }[];
+    isActive?: boolean;
 }
 
 export interface UserJsonI {
