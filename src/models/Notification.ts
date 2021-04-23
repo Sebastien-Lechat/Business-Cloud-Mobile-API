@@ -16,6 +16,10 @@ const notificationSchema = new mongoose.Schema({
     category: {
         type: String,
     },
+    targetId: {
+        type: String,
+        required: true,
+    },
     seen: {
         type: Boolean,
         default: false
