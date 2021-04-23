@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { errorHandler, sendResponse } from '../helpers/responseHelper';
 import VerifyData from '../helpers/verifyDataHelper';
-import { UserExpenseI } from '../interfaces/userExpense';
+import { UserExpenseI } from '../interfaces/userExpenseInterface';
 import { UserI } from '../interfaces/userInterface';
 import { User } from '../models/User';
 import { UserExpense } from '../models/UserExpense';

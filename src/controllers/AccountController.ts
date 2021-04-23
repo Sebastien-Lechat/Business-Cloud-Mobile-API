@@ -57,6 +57,40 @@ export class AccountController {
     }
 
     /**
+     * Fonction d'enregistrement de l'appareil pour les notifications (POST /account/register-fcm/)
+     * @param req express Request
+     * @param res express Response
+     */
+    static fcmRegisterDevice = async (req: Request, res: Response) => {
+        try {
+            // Récupération de l'utilisateur grâce au Authmiddleware qui rajoute le token dans req
+            const user = userUtils.getRequestUser(req);
+
+            // Récupération de toutes les données du body
+            const { deviceId, token } = req.body;
+
+            console.log(deviceId, token);
+
+            // Vérification de si toutes les données nécessaire sont présentes
+            if (!deviceId || !token) throw new Error('Missing important fields');
+
+            if (user.data.fcmDevice) {
+                user.data.fcmDevice.push({ device: deviceId, token: token });
+            } else {
+                user.data.fcmDevice = [{ device: deviceId, token: token }];
+            }
+
+            await userUtils.updateUser(user, { fcmDevice: user.data.fcmDevice });
+
+            // Envoi de la réponse
+            sendResponse(res, 200, { error: false, message: 'Device successfully added' });
+        } catch (err) {
+            if (err.message === 'Missing important fields') sendResponse(res, 400, { error: true, message: err.message });
+            else errorHandler(res, err);
+        }
+    }
+
+    /**
      * Fonction de récupération du profil  (GET /account)
      * @param req express Request
      * @param res express Response
