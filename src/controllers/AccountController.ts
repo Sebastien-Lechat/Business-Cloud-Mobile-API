@@ -69,8 +69,6 @@ export class AccountController {
             // Récupération de toutes les données du body
             const { deviceId, token } = req.body;
 
-            console.log(deviceId, token);
-
             // Vérification de si toutes les données nécessaire sont présentes
             if (!deviceId || !token) throw new Error('Missing important fields');
 
