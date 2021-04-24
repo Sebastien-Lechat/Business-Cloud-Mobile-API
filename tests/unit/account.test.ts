@@ -24,7 +24,7 @@ app.use((error: any, request: Request, response: Response, next: NextFunction) =
     return next();
 });
 
-app.use(accountRouter);
+app.use('/api', accountRouter);
 
 // tslint:disable-next-line: prefer-const
 
@@ -66,7 +66,7 @@ describe('Account system', () => {
             await User.updateOne({ email: employee.email }, { $set: { verify_email: { code: 0, date: 0, verified: true }, token: employee.token, refreshToken: employee.refreshToken } });
 
             const res = await request(app)
-                .get('/account')
+                .get('/api/account')
                 .set({ Authorization: employee.token })
                 .expect('Content-Type', /json/)
                 .expect(200);
@@ -93,7 +93,7 @@ describe('Account system', () => {
             await Client.updateOne({ email: customer.email }, { $set: { verify_email: { code: 0, date: 0, verified: true }, token: customer.token, refreshToken: customer.refreshToken } });
 
             const res = await request(app)
-                .get('/account')
+                .get('/api/account')
                 .set({ Authorization: customer.token })
                 .expect('Content-Type', /json/)
                 .expect(200);
@@ -116,7 +116,7 @@ describe('Account system', () => {
     describe('PUT /account/information', () => {
         test('Success - Update user information', async done => {
             const res = await request(app)
-                .put('/account/information')
+                .put('/api/account/information')
                 .send()
                 .set({ Authorization: employee.token })
                 .set('Accept', 'application/json')
@@ -137,7 +137,7 @@ describe('Account system', () => {
         });
         test('Error - Invalid email addresse', async done => {
             const res = await request(app)
-                .put('/account/information')
+                .put('/api/account/information')
                 .send({ email: 'aaaaaaaaaaaaa' })
                 .set({ Authorization: employee.token })
                 .set('Accept', 'application/json')
@@ -150,7 +150,7 @@ describe('Account system', () => {
         });
         test('Error - Invalid phone number', async done => {
             const res = await request(app)
-                .put('/account/information')
+                .put('/api/account/information')
                 .send({ phone: 'aaaaaaaaaaaaa' })
                 .set({ Authorization: employee.token })
                 .set('Accept', 'application/json')
@@ -163,7 +163,7 @@ describe('Account system', () => {
         });
         test('Error - Invalid date format', async done => {
             const res = await request(app)
-                .put('/account/information')
+                .put('/api/account/information')
                 .send({ birthdayDate: 'aaaaaaaaaaaaa' })
                 .set({ Authorization: employee.token })
                 .set('Accept', 'application/json')
@@ -176,7 +176,7 @@ describe('Account system', () => {
         });
         test('Error - This email is already used', async done => {
             const res = await request(app)
-                .put('/account/information')
+                .put('/api/account/information')
                 .send({ email: customer.email })
                 .set({ Authorization: employee.token })
                 .set('Accept', 'application/json')
@@ -195,7 +195,7 @@ describe('Account system', () => {
     describe('PUT /account/password', () => {
         test('Success - Update user password', async done => {
             const res = await request(app)
-                .put('/account/password')
+                .put('/api/account/password')
                 .send({ email: employee.email, oldPassword: 'Azerty1!', newPassword: 'Azerty1!' })
                 .set({ Authorization: employee.token })
                 .set('Accept', 'application/json')
@@ -216,7 +216,7 @@ describe('Account system', () => {
         });
         test('Error - Missing important fields', async done => {
             const res = await request(app)
-                .put('/account/password')
+                .put('/api/account/password')
                 .send({ email: employee.email })
                 .set({ Authorization: employee.token })
                 .set('Accept', 'application/json')
@@ -229,7 +229,7 @@ describe('Account system', () => {
         });
         test('Error - Invalid old password', async done => {
             const res = await request(app)
-                .put('/account/password')
+                .put('/api/account/password')
                 .send({ email: employee.email, oldPassword: 'aaaaaaaaa', newPassword: 'Azerty1!' })
                 .set({ Authorization: employee.token })
                 .set('Accept', 'application/json')
@@ -242,7 +242,7 @@ describe('Account system', () => {
         });
         test('Error - Invalid password format', async done => {
             const res = await request(app)
-                .put('/account/password')
+                .put('/api/account/password')
                 .send({ email: employee.email, oldPassword: 'Azerty1!', newPassword: 'aaaaaaaaaa' })
                 .set({ Authorization: employee.token })
                 .set('Accept', 'application/json')
@@ -258,7 +258,7 @@ describe('Account system', () => {
     describe('PUT /account/address', () => {
         test('Success - Update user address', async done => {
             const res = await request(app)
-                .put('/account/address')
+                .put('/api/account/address')
                 .send({ zip: '75001' })
                 .set({ Authorization: customer.token })
                 .set('Accept', 'application/json')
@@ -279,7 +279,7 @@ describe('Account system', () => {
         });
         test('Error - You cannot edit your address with this account', async done => {
             const res = await request(app)
-                .put('/account/address')
+                .put('/api/account/address')
                 .send({ zip: '75001' })
                 .set({ Authorization: employee.token })
                 .set('Accept', 'application/json')
@@ -295,7 +295,7 @@ describe('Account system', () => {
     describe('PUT /account/enterprise', () => {
         test('Success - Update user enterprise', async done => {
             const res = await request(app)
-                .put('/account/enterprise')
+                .put('/api/account/enterprise')
                 .send({ activity: 'Téléphonie' })
                 .set({ Authorization: customer.token })
                 .set('Accept', 'application/json')
@@ -316,7 +316,7 @@ describe('Account system', () => {
         });
         test('Error - You cannot edit your enterprise with this account', async done => {
             const res = await request(app)
-                .put('/account/enterprise')
+                .put('/api/account/enterprise')
                 .send({ activity: 'Téléphonie' })
                 .set({ Authorization: employee.token })
                 .set('Accept', 'application/json')

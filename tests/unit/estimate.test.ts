@@ -23,7 +23,7 @@ app.use((error: any, request: Request, response: Response, next: NextFunction) =
     return next();
 });
 
-app.use(estimateRouter);
+app.use('/api', estimateRouter);
 
 /*
  *  ------------------------------------------------------------- Estimate -------------------------------------------------------------

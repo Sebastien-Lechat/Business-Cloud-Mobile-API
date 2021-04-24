@@ -158,6 +158,7 @@ const generateUserJSON = (user: { data: ClientI, type: 'client' | 'user' }): Use
         refreshToken: user.data.refreshToken as string,
     };
 
+    if (user.data.socketToken) toReturn.socketToken = user.data.socketToken;
     if (user.data.avatar) toReturn.avatar = user.data.avatar;
     if (user.data.phone) toReturn.phone = user.data.phone;
     if (user.data.birthdayDate) toReturn.birthdayDate = user.data.birthdayDate;

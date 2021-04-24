@@ -23,7 +23,7 @@ app.use((error: any, request: Request, response: Response, next: NextFunction) =
     return next();
 });
 
-app.use(authRouter);
+app.use('/api', authRouter);
 
 const uuidUser1 = uuidv4();
 
@@ -72,7 +72,7 @@ describe('Authentification system', () => {
     describe('POST auth/register', () => {
         test('Success - register', async done => {
             const res = await request(app)
-                .post('/auth/register')
+                .post('/api/auth/register')
                 .send(validUser)
                 .set('Accept', 'application/json')
                 .expect('Content-Type', /json/)
@@ -88,7 +88,7 @@ describe('Authentification system', () => {
 
         test('Error - Missing important fields', async done => {
             const res = await request(app)
-                .post('/auth/register')
+                .post('/api/auth/register')
                 .send({ name: invalidEmailUser.name })
                 .set('Accept', 'application/json')
                 .expect('Content-Type', /json/)
@@ -100,7 +100,7 @@ describe('Authentification system', () => {
 
         test('Error - Invalid email addresse', async done => {
             const res = await request(app)
-                .post('/auth/register')
+                .post('/api/auth/register')
                 .send(invalidEmailUser)
                 .set('Accept', 'application/json')
                 .expect('Content-Type', /json/)
@@ -113,7 +113,7 @@ describe('Authentification system', () => {
 
         test('Error - Invalid phone number', async done => {
             const res = await request(app)
-                .post('/auth/register')
+                .post('/api/auth/register')
                 .send(invalidPhoneUser)
                 .set('Accept', 'application/json')
                 .expect('Content-Type', /json/)
@@ -126,7 +126,7 @@ describe('Authentification system', () => {
 
         test('Error - Invalid password format', async done => {
             const res = await request(app)
-                .post('/auth/register')
+                .post('/api/auth/register')
                 .send(invalidPasswordUser)
                 .set('Accept', 'application/json')
                 .expect('Content-Type', /json/)
@@ -146,7 +146,7 @@ describe('Authentification system', () => {
         });
         test('Error - Invalid date format', async done => {
             const res = await request(app)
-                .post('/auth/register')
+                .post('/api/auth/register')
                 .send(invalidDateUser)
                 .set('Accept', 'application/json')
                 .expect('Content-Type', /json/)
@@ -157,7 +157,7 @@ describe('Authentification system', () => {
         });
         test('Error - This email is already used', async done => {
             const res = await request(app)
-                .post('/auth/register')
+                .post('/api/auth/register')
                 .send(validUser)
                 .set('Accept', 'application/json')
                 .expect('Content-Type', /json/)
@@ -178,7 +178,7 @@ describe('Authentification system', () => {
             await User.create(validUser);
 
             const resRequest = await request(app)
-                .post('/auth/request-verify-email')
+                .post('/api/auth/request-verify-email')
                 .send({ email: validUser.email })
                 .set('Accept', 'application/json')
                 .expect('Content-Type', /json/)
@@ -189,7 +189,7 @@ describe('Authentification system', () => {
             const code = (await User.findOne({ email: validUser.email })).verify_email.code;
 
             const res = await request(app)
-                .post('/auth/verify-email')
+                .post('/api/auth/verify-email')
                 .send({ email: validUser.email, code: code })
                 .set('Accept', 'application/json')
                 .expect('Content-Type', /json/)
@@ -202,7 +202,7 @@ describe('Authentification system', () => {
 
         test('Error - Missing email field', async done => {
             const res = await request(app)
-                .post('/auth/request-verify-email')
+                .post('/api/auth/request-verify-email')
                 .send()
                 .set('Accept', 'application/json')
                 .expect('Content-Type', /json/)
@@ -215,7 +215,7 @@ describe('Authentification system', () => {
 
         test('Error - Invalid email address', async done => {
             const res = await request(app)
-                .post('/auth/request-verify-email')
+                .post('/api/auth/request-verify-email')
                 .send({ email: invalidEmailUser.email })
                 .set('Accept', 'application/json')
                 .expect('Content-Type', /json/)
@@ -228,7 +228,7 @@ describe('Authentification system', () => {
 
         test('Error - Email already verified', async done => {
             const resRequest = await request(app)
-                .post('/auth/request-verify-email')
+                .post('/api/auth/request-verify-email')
                 .send({ email: validUser.email })
                 .set('Accept', 'application/json')
                 .expect('Content-Type', /json/)
@@ -241,7 +241,7 @@ describe('Authentification system', () => {
 
         test('Error - Missing email or code field', async done => {
             const res = await request(app)
-                .post('/auth/verify-email')
+                .post('/api/auth/verify-email')
                 .send()
                 .set('Accept', 'application/json')
                 .expect('Content-Type', /json/)
@@ -254,7 +254,7 @@ describe('Authentification system', () => {
 
         test('Error - Invalid user information', async done => {
             const res = await request(app)
-                .post('/auth/verify-email')
+                .post('/api/auth/verify-email')
                 .send({ email: validUser.email + 'aaa', code: '123456' })
                 .set('Accept', 'application/json')
                 .expect('Content-Type', /json/)
@@ -267,7 +267,7 @@ describe('Authentification system', () => {
 
         test('Error - Wrong code', async done => {
             const res = await request(app)
-                .post('/auth/verify-email')
+                .post('/api/auth/verify-email')
                 .send({ email: validUser.email, code: '111111' })
                 .set('Accept', 'application/json')
                 .expect('Content-Type', /json/)
@@ -282,7 +282,7 @@ describe('Authentification system', () => {
             await User.updateOne({ email: validUser.email }, { $set: { verify_email: { code: 111111, date: 55555, verified: true } } });
 
             const res = await request(app)
-                .post('/auth/verify-email')
+                .post('/api/auth/verify-email')
                 .send({ email: validUser.email, code: '111111' })
                 .set('Accept', 'application/json')
                 .expect('Content-Type', /json/)
@@ -297,7 +297,7 @@ describe('Authentification system', () => {
     describe('POST auth/login', () => {
         test('Success - login', async done => {
             const res = await request(app)
-                .post('/auth/login')
+                .post('/api/auth/login')
                 .send({ email: validUser.email, password: 'Azerty1!' })
                 .set('Accept', 'application/json')
                 .expect('Content-Type', /json/)
@@ -320,7 +320,7 @@ describe('Authentification system', () => {
 
         test('Error - Missing email or password field', async done => {
             const res = await request(app)
-                .post('/auth/login')
+                .post('/api/auth/login')
                 .send({ email: validUser.email })
                 .set('Accept', 'application/json')
                 .expect('Content-Type', /json/)
@@ -333,7 +333,7 @@ describe('Authentification system', () => {
 
         test('Error - Invalid email addresse', async done => {
             const res = await request(app)
-                .post('/auth/login')
+                .post('/api/auth/login')
                 .send({ email: invalidEmailUser.email, password: invalidEmailUser.password })
                 .set('Accept', 'application/json')
                 .expect('Content-Type', /json/)
@@ -346,7 +346,7 @@ describe('Authentification system', () => {
 
         test('Error - Invalid login credential', async done => {
             const res = await request(app)
-                .post('/auth/login')
+                .post('/api/auth/login')
                 .send({ email: validUser.email, password: 'Azertyyyyy' })
                 .set('Accept', 'application/json')
                 .expect('Content-Type', /json/)
@@ -355,7 +355,7 @@ describe('Authentification system', () => {
             expect(res.body.code).toBe('101003');
 
             const res2 = await request(app)
-                .post('/auth/login')
+                .post('/api/auth/login')
                 .send({ email: invalidPasswordUser.email, password: 'Azertyyyyy' })
                 .set('Accept', 'application/json')
                 .expect('Content-Type', /json/)
@@ -370,7 +370,7 @@ describe('Authentification system', () => {
             await User.updateOne({ email: validUser.email }, { $set: { double_authentification: { code: 111111, date: 55555, activated: true } } });
 
             const res = await request(app)
-                .post('/auth/login')
+                .post('/api/auth/login')
                 .send({ email: validUser.email, password: 'Azerty1!' })
                 .set('Accept', 'application/json')
                 .expect('Content-Type', /json/)
@@ -383,7 +383,7 @@ describe('Authentification system', () => {
 
         test('Error - Wrong code', async done => {
             const res = await request(app)
-                .post('/auth/login')
+                .post('/api/auth/login')
                 .send({ email: validUser.email, password: 'Azerty1!', code: '1245879' })
                 .set('Accept', 'application/json')
                 .expect('Content-Type', /json/)
@@ -396,7 +396,7 @@ describe('Authentification system', () => {
 
         test('Error - This code is no longer valid', async done => {
             const res = await request(app)
-                .post('/auth/login')
+                .post('/api/auth/login')
                 .send({ email: validUser.email, password: 'Azerty1!', code: '111111' })
                 .set('Accept', 'application/json')
                 .expect('Content-Type', /json/)
@@ -412,7 +412,7 @@ describe('Authentification system', () => {
             await User.updateOne({ email: validUser.email }, { $set: { verify_email: { code: 0, date: 0, verified: false } } });
 
             const res = await request(app)
-                .post('/auth/login')
+                .post('/api/auth/login')
                 .send({ email: validUser.email, password: 'Azerty1!' })
                 .set('Accept', 'application/json')
                 .expect('Content-Type', /json/)
@@ -427,7 +427,7 @@ describe('Authentification system', () => {
             await User.updateOne({ email: validUser.email }, { $set: { verify_email: { code: 0, date: 0, verified: true }, attempt: 5 } });
 
             const res = await request(app)
-                .post('/auth/login')
+                .post('/api/auth/login')
                 .send({ email: validUser.email, password: 'Azerty1!' })
                 .set('Accept', 'application/json')
                 .expect('Content-Type', /json/)
@@ -442,7 +442,7 @@ describe('Authentification system', () => {
             await User.updateOne({ email: validUser.email }, { $set: { isActive: false }, attempt: 0 });
 
             const res = await request(app)
-                .post('/auth/login')
+                .post('/api/auth/login')
                 .send({ email: validUser.email, password: 'Azerty1!' })
                 .set('Accept', 'application/json')
                 .expect('Content-Type', /json/)
@@ -457,7 +457,7 @@ describe('Authentification system', () => {
     describe('POST auth/password-lost', () => {
         test('Success - Password lost', async done => {
             const res = await request(app)
-                .post('/auth/request-password-lost')
+                .post('/api/auth/request-password-lost')
                 .send({ email: validUser.email })
                 .set('Accept', 'application/json')
                 .expect('Content-Type', /json/)
@@ -469,7 +469,7 @@ describe('Authentification system', () => {
         });
         test('Error - Missing email field', async done => {
             const res = await request(app)
-                .post('/auth/request-password-lost')
+                .post('/api/auth/request-password-lost')
                 .send()
                 .set('Accept', 'application/json')
                 .expect('Content-Type', /json/)
@@ -481,7 +481,7 @@ describe('Authentification system', () => {
         });
         test('Error - Invalid email addresse', async done => {
             const res = await request(app)
-                .post('/auth/request-password-lost')
+                .post('/api/auth/request-password-lost')
                 .send({ email: invalidEmailUser.email })
                 .set('Accept', 'application/json')
                 .expect('Content-Type', /json/)
@@ -496,7 +496,7 @@ describe('Authentification system', () => {
     describe('POST auth/disconnect', () => {
         test('Success - Logout', async done => {
             const res = await request(app)
-                .delete('/auth/disconnect')
+                .delete('/api/auth/disconnect')
                 .send()
                 .set('Accept', 'application/json')
                 .set({ Authorization: validUser.token })
