@@ -16,6 +16,7 @@ export interface UserI {
     double_authentification?: { code: number, date: number, activated: boolean };
     token?: string;
     refreshToken?: string;
+    socketToken?: string;
     attempt: number;
     lastLogin: number;
     createdAt: Date;
@@ -39,6 +40,7 @@ export interface UserUpdateI {
     double_authentification?: { code: number, date: number, activated: boolean };
     token?: string;
     refreshToken?: string;
+    socketToken?: string;
     attempt?: number;
     lastLogin?: number;
     createdAt?: Date;
@@ -59,6 +61,7 @@ export interface UserJsonI {
     avatar?: string;
     token: string;
     refreshToken: string;
+    socketToken?: string;
     createdAt: Date;
     updatedAt: Date;
     activity?: any;

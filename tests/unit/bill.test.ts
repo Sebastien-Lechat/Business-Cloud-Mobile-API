@@ -18,7 +18,7 @@ app.use((error: any, request: Request, response: Response, next: NextFunction) =
     return next();
 });
 
-app.use(billRouter);
+app.use('/api', billRouter);
 
 const uuidUser1 = uuidv4();
 

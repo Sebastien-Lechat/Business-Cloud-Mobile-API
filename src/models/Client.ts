@@ -28,6 +28,9 @@ const clientSchema = new mongoose.Schema({
     refreshToken: {
         type: String,
     },
+    socketToken: {
+        type: String,
+    },
     attempt: {
         type: Number,
         default: 0,
