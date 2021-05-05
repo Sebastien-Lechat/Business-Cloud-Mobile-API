@@ -17,7 +17,7 @@ const notificationSchema = new mongoose.Schema({
         type: String,
     },
     targetId: {
-        type: String,
+        type: mongoose.Schema.Types.ObjectId,
         required: true,
     },
     seen: {

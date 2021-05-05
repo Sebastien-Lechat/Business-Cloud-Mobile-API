@@ -5,6 +5,7 @@ export interface NotificationI {
     message: string;
     seen: boolean;
     category: string;
+    targetId: string;
     createdAt: Date;
     updatedAt: Date;
 }
@@ -16,6 +17,7 @@ export interface NotificationJsonI {
     message: string;
     seen: boolean;
     category: string;
+    targetId: string;
     createdAt: Date;
     updatedAt: Date;
 }

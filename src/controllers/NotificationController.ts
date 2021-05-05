@@ -20,12 +20,55 @@ export class NotificationController {
             // Récupération de la liste des notifications
             const notificationList = await notificationUtils.getNotificationList(user);
 
+            // Mise à jour de toutes les notifications à vu
+            await notificationUtils.updateAllToSeen(user);
+
             // Envoi de la réponse
             sendResponse(res, 200, { error: false, message: 'Successful notifications acquisition', notifications: notificationList });
         } catch (err) {
             errorHandler(res, err);
         }
     }
+
+    /**
+     * Fonction de récupération du nombre de notifications non lu (GET /notifications/count)
+     * @param req express Request
+     * @param res express Response
+     */
+    static getNotificationsCount = async (req: Request, res: Response) => {
+        try {
+            // Récupération de l'utilisateur grâce au Authmiddleware qui rajoute le token dans req
+            const user = userUtils.getRequestUser(req);
+
+            // Récupération du nombre de notification non lu
+            const notificationCount = await notificationUtils.getNotificationCount(user);
+
+            // Envoi de la réponse
+            sendResponse(res, 200, { error: false, message: 'Successful notifications count acquisition', count: notificationCount });
+        } catch (err) {
+            errorHandler(res, err);
+        }
+    }
+
+    // /**
+    //  * Fonction pour mettre à jour toutes les notifications à vu (PUT /notifications/seen)
+    //  * @param req express Request
+    //  * @param res express Response
+    //  */
+    // static seeAllNotifications = async (req: Request, res: Response) => {
+    //     try {
+    //         // Récupération de l'utilisateur grâce au Authmiddleware qui rajoute le token dans req
+    //         const user = userUtils.getRequestUser(req);
+
+    //         // Mise à jour de toutes les notifications
+    //         await notificationUtils.updateAllToSeen(user);
+
+    //         // Envoi de la réponse
+    //         sendResponse(res, 200, { error: false, message: 'Successful notifications update' });
+    //     } catch (err) {
+    //         errorHandler(res, err);
+    //     }
+    // }
 
     /**
      * Fonction de suppression d'une notification (DELETE /notification/:id)

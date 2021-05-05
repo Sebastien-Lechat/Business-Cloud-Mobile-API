@@ -64,6 +64,8 @@ export class AuthController {
                 if (time > 600) throw new Error('This code is no longer valid');
             }
 
+            sendNotificationToOne('Nouvelle facture', 'Une nouvelle facture à été émise. Cliquez ici pour la consulter.', user.data, '60717a18c8fca720cc84e1c9', 'Facture');
+
             // Génération des tokens de l'utilisateur et de la réponse
             user = await userUtils.generateUserToken(user);
             user = await userUtils.generateUserRefreshToken(user);
