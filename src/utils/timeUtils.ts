@@ -1,4 +1,3 @@
-import { ProjectI } from '../interfaces/projectInterface';
 import { TimeI, TimeJsonI } from '../interfaces/timeInterface';
 
 /**
@@ -26,9 +25,9 @@ const generateTimeJSON = (time: TimeI): TimeJsonI => {
  * @return Retourne le JSON
  */
 const getTimeList = async (projectId?: string): Promise<TimeJsonI[]> => {
-    const expenseList: TimeJsonI[] = [];
+    const timeList: TimeJsonI[] = [];
 
-    return expenseList;
+    return timeList;
 };
 
 const timeUtils = {

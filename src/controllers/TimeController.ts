@@ -4,11 +4,9 @@ import VerifyData from '../helpers/verifyDataHelper';
 import { ProjectI } from '../interfaces/projectInterface';
 import { TaskI } from '../interfaces/taskInterface';
 import { TimeI } from '../interfaces/timeInterface';
-import { UserI } from '../interfaces/userInterface';
 import { Project } from '../models/Project';
 import { Task } from '../models/Task';
 import { Time } from '../models/Time';
-import { User } from '../models/User';
 import { globalUtils } from '../utils/globalUtils';
 import { timeUtils } from '../utils/timeUtils';
 import { userUtils } from '../utils/userUtils';
@@ -109,6 +107,47 @@ export class TimeController {
     }
 
     /**
+     * Fonction de modification d'un temps (PUT /time)
+     * @param req express Request
+     * @param res express Response
+     */
+    static update = async (req: Request, res: Response) => {
+        try {
+            // Récupération de l'utilisateur grâce au Authmiddleware qui rajoute le token dans req
+            const user = userUtils.getRequestUser(req);
+
+            // Vérification de si l'utilisateur à les permissions de faire la requête
+            const hasPermission = globalUtils.checkPermission(user, 'user');
+            if (!hasPermission) throw new Error('You do not have the required permissions');
+
+            // Récupération de toutes les données du body
+            const { id, billable } = req.body;
+
+            // Vérification de si toutes les données nécessaire sont présentes
+            if (!id || billable === undefined) throw new Error('Missing important fields');
+
+            // Vérification de si le temps existe
+            const time: TimeI = await globalUtils.findOne(Time, id);
+            if (!time) throw new Error('Invalid time id');
+
+            // Vérification de la validité du champs facturable
+            if (billable && billable !== true && billable !== false) throw new Error('Invalid billable format');
+
+            // Création de la tâche
+            await globalUtils.updateOneById(Project, id, { billable: billable });
+
+            // Envoi de la réponse
+            sendResponse(res, 200, { error: false, message: 'Time successfully updated', time: timeUtils.generateTimeJSON(time) });
+        } catch (err) {
+            if (err.message === 'You do not have the required permissions') sendResponse(res, 400, { error: true, code: '401002', message: err.message });
+            else if (err.message === 'Missing important fields') sendResponse(res, 400, { error: true, code: '110151', message: err.message });
+            else if (err.message === 'Invalid time id') sendResponse(res, 400, { error: true, code: '110152', message: err.message });
+            else if (err.message === 'Invalid billable format') sendResponse(res, 400, { error: true, code: '110153', message: err.message });
+            else errorHandler(res, err);
+        }
+    }
+
+    /**
      * Fonction de suppression d'un temps (DELETE /time/:id)
      * @param req express Request
      * @param res express Response
@@ -136,8 +175,8 @@ export class TimeController {
             sendResponse(res, 200, { error: false, message: 'Time successfully deleted' });
         } catch (err) {
             if (err.message === 'You do not have the required permissions') sendResponse(res, 400, { error: true, code: '401002', message: err.message });
-            else if (err.message === 'Missing id field') sendResponse(res, 400, { error: true, code: '110151', message: err.message });
-            else if (err.message === 'Invalid time id') sendResponse(res, 400, { error: true, code: '110152', message: err.message });
+            else if (err.message === 'Missing id field') sendResponse(res, 400, { error: true, code: '110201', message: err.message });
+            else if (err.message === 'Invalid time id') sendResponse(res, 400, { error: true, code: '110202', message: err.message });
             else errorHandler(res, err);
         }
     }
