@@ -29,7 +29,7 @@ const getTimeList = async (projectId?: string): Promise<TimeJsonI[]> => {
     const timeList: TimeJsonI[] = [];
     if (projectId) {
         // Récupération de toutess les notes de frais
-        const times = await Time.find({ projectId: projectId }).populate('userId', { _id: 1, name: 1 });
+        const times = await Time.find({ projectId: projectId }).populate('userId', { _id: 1, name: 1 }).sort({ createdAt: -1 });
 
         // Mise en forme
         times.map((time: TimeI) => {
@@ -39,7 +39,7 @@ const getTimeList = async (projectId?: string): Promise<TimeJsonI[]> => {
         return timeList;
     } else {
         // Récupération de toutess les notes de frais
-        const times = await Time.find({}).populate('userId', { _id: 1, name: 1 });
+        const times = await Time.find({}).populate('userId', { _id: 1, name: 1 }).sort({ createdAt: -1 });
 
         // Mise en forme
         times.map((time: TimeI) => {
