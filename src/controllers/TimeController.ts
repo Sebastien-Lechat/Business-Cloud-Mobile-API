@@ -90,11 +90,12 @@ export class TimeController {
             if (!VerifyData.validInt(duration)) throw new Error('Invalid duration number');
             req.body.duration = VerifyData.validInt(duration);
 
-            // Création de la tâche
-            const time = await Time.create(req.body);
+            // Création du temps
+            const time: TimeI = await Time.create(req.body);
+            const populateTime = await Time.findOne({ _id: time._id }).populate('userId', { _id: 1, name: 1 });
 
             // Envoi de la réponse
-            sendResponse(res, 200, { error: false, message: 'Time successfully created', time: timeUtils.generateTimeJSON(time) });
+            sendResponse(res, 200, { error: false, message: 'Time successfully created', time: timeUtils.generateTimeJSON(populateTime) });
         } catch (err) {
             if (err.message === 'You do not have the required permissions') sendResponse(res, 400, { error: true, code: '401002', message: err.message });
             else if (err.message === 'Missing important fields') sendResponse(res, 400, { error: true, code: '110101', message: err.message });
