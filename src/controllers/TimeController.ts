@@ -135,7 +135,7 @@ export class TimeController {
             if (billable && billable !== true && billable !== false) throw new Error('Invalid billable format');
 
             // Création de la tâche
-            await globalUtils.updateOneById(Project, id, { billable: billable });
+            await globalUtils.updateOneById(Time, id, { billable: billable });
 
             // Envoi de la réponse
             sendResponse(res, 200, { error: false, message: 'Time successfully updated', time: timeUtils.generateTimeJSON(time) });
