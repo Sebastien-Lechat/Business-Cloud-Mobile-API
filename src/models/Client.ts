@@ -115,6 +115,22 @@ const clientSchema = new mongoose.Schema({
             type: String,
         },
     }],
+    googleAuth: {
+        id: {
+            type: String,
+        },
+        token: {
+            type: String,
+        },
+    },
+    facebookAuth: {
+        id: {
+            type: String,
+        },
+        token: {
+            type: String,
+        },
+    },
 }, { timestamps: true });
 
 const Client = mongoose.model('client', clientSchema);

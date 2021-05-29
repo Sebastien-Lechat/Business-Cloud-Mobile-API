@@ -88,6 +88,22 @@ const userSchema = new mongoose.Schema({
             type: String,
         },
     }],
+    googleAuth: {
+        id: {
+            type: String,
+        },
+        token: {
+            type: String,
+        },
+    },
+    facebookAuth: {
+        id: {
+            type: String,
+        },
+        token: {
+            type: String,
+        },
+    },
 }, { timestamps: true });
 
 const User = mongoose.model('user', userSchema);
