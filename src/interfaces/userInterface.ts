@@ -25,6 +25,8 @@ export interface UserI {
     role: string;
     isActive: boolean;
     fcmDevice?: { token: string, device: string }[];
+    facebookAuth?: { id: string, token: string };
+    googleAuth?: { id: string, token: string };
 }
 
 export interface UserUpdateI {
@@ -48,6 +50,8 @@ export interface UserUpdateI {
     currency?: string;
     role?: string;
     fcmDevice?: { token: string, device: string }[];
+    facebookAuth?: { id?: string, token?: string };
+    googleAuth?: { id?: string, token?: string };
     isActive?: boolean;
 }
 
