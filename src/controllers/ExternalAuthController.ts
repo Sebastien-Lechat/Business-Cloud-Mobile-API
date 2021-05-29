@@ -34,8 +34,8 @@ export class ExternalAuthController {
             if ((type === 'facebook' && user.data.facebookAuth?.id !== id) || (type === 'google' && user.data.googleAuth?.id !== id)) throw new Error('Invalid external account ID');
 
             // Mise à jour du token de connexion si tout se passe bien
-            if (type === 'facebook') await userUtils.updateUser(user, { facebookAuth: { token: token } });
-            else if (type === 'google') await userUtils.updateUser(user, { googleAuth: { token: token } });
+            if (type === 'facebook') await userUtils.updateUser(user, { facebookAuth: { id: user.data.facebookAuth?.id, token: token } });
+            else if (type === 'google') await userUtils.updateUser(user, { googleAuth: { id: user.data.googleAuth?.id, token: token } });
 
             // Génération des tokens de l'utilisateur et de la réponse
             user = await userUtils.generateUserToken(user);
