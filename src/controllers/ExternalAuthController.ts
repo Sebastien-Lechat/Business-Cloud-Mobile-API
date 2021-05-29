@@ -44,13 +44,12 @@ export class ExternalAuthController {
             // Envoi de la réponse
             sendResponse(res, 200, { error: false, message: 'Successfully connected', user: userUtils.generateUserJSON(user) });
         } catch (err) {
-            if (err.message === 'Missing external ID field') sendResponse(res, 400, { error: true, code: '101401', message: err.message });
-            else if (err.message === 'Missing email field') sendResponse(res, 400, { error: true, code: '101402', message: err.message });
-            else if (err.message === 'Invalid email addresse') sendResponse(res, 400, { error: true, code: '101403', message: err.message });
-            else if (err.message === 'No account linked to this email') sendResponse(res, 400, { error: true, code: '101404', message: err.message });
-            else if (err.message === 'Invalid type') sendResponse(res, 400, { error: true, code: '101405', message: err.message });
-            else if (err.message === 'Another account already exist at this email') sendResponse(res, 400, { error: true, code: '101406', message: err.message });
-            else if (err.message === 'Invalid external account ID') sendResponse(res, 400, { error: true, code: '101407', message: err.message });
+            if (err.message === 'Missing important fields') sendResponse(res, 400, { error: true, code: '101401', message: err.message });
+            else if (err.message === 'Invalid email addresse') sendResponse(res, 400, { error: true, code: '101402', message: err.message });
+            else if (err.message === 'No account linked to this email') sendResponse(res, 400, { error: true, code: '101403', message: err.message });
+            else if (err.message === 'Invalid type') sendResponse(res, 400, { error: true, code: '101404', message: err.message });
+            else if (err.message === 'Another account already exist at this email') sendResponse(res, 400, { error: true, code: '101405', message: err.message });
+            else if (err.message === 'Invalid external account ID') sendResponse(res, 400, { error: true, code: '101406', message: err.message });
             else errorHandler(res, err);
         }
     }
