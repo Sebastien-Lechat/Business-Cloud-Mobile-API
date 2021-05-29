@@ -27,13 +27,8 @@ export class ExternalAuthController {
             // Vérification que le type est correcte
             if (type !== 'facebook' && type !== 'google') throw new Error('Invalid type');
 
-            console.log(type);
-            console.log(user.data);
-            console.log(user.data.googleAuth);
-            console.log(user.data.facebookAuth);
-
             // Vérification que le compte externe est lié au compte existant
-            if ((type === 'facebook' && !user.data.facebookAuth) || (type === 'google' && !user.data.googleAuth)) throw new Error('Another account already exist at this email');
+            if ((type === 'facebook' && !user.data.facebookAuth?.id) || (type === 'google' && !user.data.googleAuth?.id)) throw new Error('Another account already exist at this email');
 
             // Vérification de si l'id de connexion est le bon
             if ((type === 'facebook' && user.data.facebookAuth?.id !== id) || (type === 'google' && user.data.googleAuth?.id !== id)) throw new Error('Invalid external account ID');
