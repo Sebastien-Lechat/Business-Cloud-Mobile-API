@@ -7,6 +7,7 @@ import rateLimit from 'express-rate-limit';
 import SocketIO from 'socket.io';
 import { createServer } from 'http';
 import { Server, Socket } from 'socket.io';
+import { CronTask } from './src/scripts/cron';
 
 config();
 connect();
@@ -43,3 +44,6 @@ app.use('/api', RouteIndex);
 http.listen(port, () => {
     console.log(`Server running on port ${port}`);
 });
+
+const cron = new CronTask();
+cron.startTask();
