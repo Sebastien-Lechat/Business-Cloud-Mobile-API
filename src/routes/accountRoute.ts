@@ -6,6 +6,7 @@ const route: express.Application = express();
 
 route.get('/users', [authMiddleware], AccountController.getUsersList);
 route.get('/user/:id', [authMiddleware], AccountController.getUser);
+route.get('/user/history/:id', [authMiddleware], AccountController.getHistory);
 route.get('/account', [authMiddleware], AccountController.getProfile);
 route.put('/account/register-fcm', [authMiddleware], AccountController.fcmRegisterDevice);
 route.put('/account/information', [authMiddleware], AccountController.modifyPersonnalInfo);

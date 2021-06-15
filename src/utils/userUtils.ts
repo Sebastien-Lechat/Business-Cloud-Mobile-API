@@ -1,10 +1,12 @@
-import mongoose from 'mongoose';
-import jsonwebtoken from 'jsonwebtoken';
-import { ClientI, UserJsonI, UserI, UserUpdateI, UserObject, EmployeeJsonI, ShortUserListI } from '../interfaces/userInterface';
-import { Client } from '../models/Client';
-import { User } from '../models/User';
 import { config } from 'dotenv';
 import { Request } from 'express';
+import jsonwebtoken from 'jsonwebtoken';
+import mongoose from 'mongoose';
+import { HistoryI } from '../interfaces/globalInterface';
+import { ClientI, EmployeeJsonI, ShortUserListI, UserI, UserJsonI, UserObject, UserUpdateI } from '../interfaces/userInterface';
+import { Client } from '../models/Client';
+import { History } from '../models/History';
+import { User } from '../models/User';
 
 config();
 
@@ -25,6 +27,7 @@ const emailAlreadyExist = async (emailToFind: string): Promise<boolean> => {
  * Fonction pour trouver un utilisateur
  * @param userEmail Email pour trouver un utilisateur en base de données
  * @param userId ID pour trouver un utilisateur en base de données
+ * @param token Token pour trouver un utilisateur en base de données
  * @returns Retourne l'utilisateur si il est enregistré en base, sinon on retourne null
  */
 const findUser = async (option: { userEmail?: string, userId?: string, token?: string }): Promise<UserObject | null> => {
@@ -39,6 +42,16 @@ const findUser = async (option: { userEmail?: string, userId?: string, token?: s
     const alreadyExistC: ClientI = await Client.findOne(query);
     const alreadyExistU: UserI = await User.findOne(query);
     return (alreadyExistC) ? { data: alreadyExistC, type: 'client' } : (alreadyExistU) ? { data: alreadyExistU, type: 'user' } : null;
+};
+
+/**
+ * Fonction pour trouver l'historique d'un utilisateur
+ * @param userId ID de l'utilisateur
+ * @returns Retourne l'historique d'action de l'utilisateur si il en a un
+ */
+const findUserHistory = async (userId: string): Promise<HistoryI[]> => {
+    const histories: HistoryI[] = await History.find({ userId: mongoose.Types.ObjectId(userId) }, { __v: 0 });
+    return histories;
 };
 
 /**
@@ -277,6 +290,7 @@ const getRequestUser = (req: Request): UserObject => {
 const userUtils = {
     emailAlreadyExist,
     findUser,
+    findUserHistory,
     getUsersList,
     updateUser,
     disabledOne,

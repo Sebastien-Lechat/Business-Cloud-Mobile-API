@@ -50,26 +50,6 @@ export class NotificationController {
         }
     }
 
-    // /**
-    //  * Fonction pour mettre à jour toutes les notifications à vu (PUT /notifications/seen)
-    //  * @param req express Request
-    //  * @param res express Response
-    //  */
-    // static seeAllNotifications = async (req: Request, res: Response) => {
-    //     try {
-    //         // Récupération de l'utilisateur grâce au Authmiddleware qui rajoute le token dans req
-    //         const user = userUtils.getRequestUser(req);
-
-    //         // Mise à jour de toutes les notifications
-    //         await notificationUtils.updateAllToSeen(user);
-
-    //         // Envoi de la réponse
-    //         sendResponse(res, 200, { error: false, message: 'Successful notifications update' });
-    //     } catch (err) {
-    //         errorHandler(res, err);
-    //     }
-    // }
-
     /**
      * Fonction de suppression d'une notification (DELETE /notification/:id)
      * @param req express Request
