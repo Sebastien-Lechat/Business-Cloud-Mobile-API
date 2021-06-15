@@ -51,7 +51,37 @@ export class AccountController {
             // Envoi de la réponse
             sendResponse(res, 200, { error: false, message: 'Successful user acquisition', user: userUtils.generateUserJSON(user) });
         } catch (err) {
-            if (err.message === 'Invalid user id') sendResponse(res, 400, { error: true, code: '104101', message: err.message });
+            if (err.message === 'Missing id field') sendResponse(res, 400, { error: true, code: '103101', message: err.message });
+            if (err.message === 'Invalid user id') sendResponse(res, 400, { error: true, code: '103102', message: err.message });
+            else errorHandler(res, err);
+        }
+    }
+
+    /**
+     * Fonction de récupération de l'historique d'un utilisateur  (GET /user/history/:id)
+     * @param req express Request
+     * @param res express Response
+     */
+    static getHistory = async (req: Request, res: Response) => {
+        try {
+            // Récupération de toutes les données du body
+            const { id } = req.params;
+
+            // Vérification de si toutes les données nécessaire sont présentes
+            if (!id) throw new Error('Missing id field');
+
+            // Récupération de l'utilisateur
+            const user = await userUtils.findUser({ userId: id });
+            if (!user) throw new Error('Invalid user id');
+
+            // Récupération de l'historique de l'utilisateur
+            const histories = await userUtils.findUserHistory(user.data._id);
+
+            // Envoi de la réponse
+            sendResponse(res, 200, { error: false, message: 'Successful history acquisition', history: histories });
+        } catch (err) {
+            if (err.message === 'Missing id field') sendResponse(res, 400, { error: true, code: '103451', message: err.message });
+            if (err.message === 'Invalid user id') sendResponse(res, 400, { error: true, code: '103452', message: err.message });
             else errorHandler(res, err);
         }
     }

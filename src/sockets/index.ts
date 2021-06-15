@@ -13,7 +13,7 @@ const initUserSocket = async (socket: SocketIO.Socket, id: string) => {
         if (!user) {
             socket.disconnect(true);
         } else {
-            console.log('Open socket : ', user.name);
+            console.log(('Open socket : ' + user.name).cyan);
             await User.updateOne({ _id: mongoose.Types.ObjectId(id) }, { $set: { socketToken: socket.id } });
         }
     } catch (error) {
@@ -25,7 +25,7 @@ const closeUserSocket = async (socket: SocketIO.Socket, id: string) => {
     try {
         const user = await User.findById(id);
         if (user) {
-            console.log('Close socket : ', user.name);
+            console.log(('Close socket : ' + user.name).cyan);
             await User.updateOne({ _id: mongoose.Types.ObjectId(id) }, { $set: { socketToken: socket.id } });
         }
         socket.disconnect(true);

@@ -14,7 +14,7 @@ export const connect = async () => {
             useUnifiedTopology: true
         });
     } catch (error) {
-        console.log({ message: 'Error when connecting to database', error });
+        console.log({ message: 'Error when connecting to database'.red, error });
     }
 };
 
@@ -22,6 +22,6 @@ export const disconnect = async () => {
     try {
         await mongoose.disconnect();
     } catch (error) {
-        console.log({ message: 'Error when disconnect from database', error });
+        console.log({ message: 'Error when disconnect from database'.red, error });
     }
 };

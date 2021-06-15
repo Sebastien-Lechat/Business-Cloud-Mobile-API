@@ -27,8 +27,8 @@ const sendMail = async (email: string, mailSubject: string, model: string): Prom
             html: model,
         });
 
-    } catch (err) {
-        console.log(err);
+    } catch (error) {
+        console.log(error.red);
     }
 
 };

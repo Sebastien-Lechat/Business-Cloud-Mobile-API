@@ -1,13 +1,12 @@
+import cors from 'cors';
 import { config } from 'dotenv';
+import express, { NextFunction, Request, Response } from 'express';
+import rateLimit from 'express-rate-limit';
+import { createServer } from 'http';
+import SocketIO, { Server } from 'socket.io';
 import { connect } from './src/db/db';
 import { RouteIndex } from './src/routes';
-import express, { Request, Response, NextFunction } from 'express';
-import cors from 'cors';
-import rateLimit from 'express-rate-limit';
-import SocketIO from 'socket.io';
-import { createServer } from 'http';
-import { Server, Socket } from 'socket.io';
-import { CronTask } from './src/scripts/cron';
+import { CronTask } from './src/scripts/CronTask';
 
 config();
 connect();
@@ -42,7 +41,7 @@ app.use(limiter);
 app.use('/api', RouteIndex);
 
 http.listen(port, () => {
-    console.log(`Server running on port ${port}`);
+    console.log(`Server running on port ${port}`.magenta);
 });
 
 const cron = new CronTask();

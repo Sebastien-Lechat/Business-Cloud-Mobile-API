@@ -5,6 +5,7 @@
     "main": "server.ts",
     "scripts": {
         "start": "nodemon ./dist/server.js",
+        "init": "ts-node ./init.ts",
         "test": "jest --detectOpenHandles --forceExit ./dist/tests/",
         "build": "tsc -p .",
         "commit": "git add . && git commit -am",

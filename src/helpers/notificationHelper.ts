@@ -20,12 +20,12 @@ export const sendNotificationToOne = async (titleText: string, bodyText: string,
                 },
             };
             fcm.send(message, (err: any) => {
-                if (err) console.log('Something has gone wrong!', err);
-                else console.log('send');
+                if (err) console.log('Something has gone wrong!'.red, err);
+                else console.log('Notification send'.green);
             });
         });
-    } catch (err) {
-        console.log(err);
+    } catch (error) {
+        console.log(error.red);
     }
 
 };
