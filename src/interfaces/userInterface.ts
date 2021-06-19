@@ -120,4 +120,5 @@ export interface ShortUserListI {
     updatedAt: Date;
     role?: string;
     userId?: string;
+    socketToken?: string;
 }

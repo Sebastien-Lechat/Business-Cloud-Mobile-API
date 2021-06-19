@@ -1,13 +1,35 @@
 import mongoose from 'mongoose';
 
 const conversationSchema = new mongoose.Schema({
-    userId: {
-        type: mongoose.Schema.Types.ObjectId,
-        required: true,
+    member1: {
+        type: {
+            type: String,
+            required: true
+        },
+        user: {
+            type: mongoose.Schema.Types.ObjectId,
+            required: true,
+            refPath: 'member1.type'
+        }
     },
-    userId1: {
-        type: mongoose.Schema.Types.ObjectId,
-        required: true,
+    member2: {
+        type: {
+            type: String,
+            required: true
+        },
+        user: {
+            type: mongoose.Schema.Types.ObjectId,
+            required: true,
+            refPath: 'member2.type'
+        }
+    },
+    lastMessage: {
+        text: {
+            type: String
+        },
+        user: {
+            type: mongoose.Schema.Types.ObjectId
+        }
     }
 }, { timestamps: true });
 

@@ -6,4 +6,6 @@ export interface HistoryI {
     };
     userEmail: string;
     success: boolean;
+    createdAt: Date;
+    updatedAt: Date;
 }
