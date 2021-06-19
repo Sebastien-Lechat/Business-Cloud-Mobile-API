@@ -8,6 +8,7 @@ import { Project } from '../models/Project';
 import { Task } from '../models/Task';
 import { Time } from '../models/Time';
 import { globalUtils } from '../utils/globalUtils';
+import { projectUtils } from '../utils/projectUtils';
 import { timeUtils } from '../utils/timeUtils';
 import { userUtils } from '../utils/userUtils';
 
@@ -92,6 +93,10 @@ export class TimeController {
 
             // Création du temps
             const time: TimeI = await Time.create(req.body);
+
+            // Mise à jour du projet et du temps facturable
+            await projectUtils.updateProjectBilling(projectId);
+
             const populateTime = await Time.findOne({ _id: time._id }).populate('userId', { _id: 1, name: 1 });
 
             // Envoi de la réponse

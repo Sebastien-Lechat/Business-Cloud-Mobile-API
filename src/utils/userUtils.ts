@@ -40,7 +40,7 @@ const findUser = async (option: { userEmail?: string, userId?: string, token?: s
     else if (option.userEmail) query = { email: option.userEmail };
 
     const alreadyExistC: ClientI = await Client.findOne(query);
-    const alreadyExistU: UserI = await User.findOne(query);
+    const alreadyExistU: UserI = await User.findOne(query).populate('enterprise', { __v: 0 });
     return (alreadyExistC) ? { data: alreadyExistC, type: 'client' } : (alreadyExistU) ? { data: alreadyExistU, type: 'user' } : null;
 };
 
@@ -50,7 +50,7 @@ const findUser = async (option: { userEmail?: string, userId?: string, token?: s
  * @returns Retourne l'historique d'action de l'utilisateur si il en a un
  */
 const findUserHistory = async (userId: string): Promise<HistoryI[]> => {
-    const histories: HistoryI[] = await History.find({ userId: mongoose.Types.ObjectId(userId) }, { __v: 0 });
+    const histories: HistoryI[] = await History.find({ userId: mongoose.Types.ObjectId(userId) }, { __v: 0 }).sort({ createdAt: -1 });
     return histories;
 };
 
@@ -185,6 +185,7 @@ const generateUserJSON = (user: { data: ClientI, type: 'client' | 'user' }): Use
     if (user.data.numRCS) toReturn.numRCS = user.data.numRCS;
     if (user.data.currency) toReturn.currency = user.data.currency;
     if (user.data.role) toReturn.role = user.data.role;
+    if (user.data.enterprise) toReturn.enterprise = user.data.enterprise;
 
     if (!user.data.verify_email?.verified) toReturn.needVerifyEmail = true;
     else toReturn.needVerifyEmail = false;

@@ -1,5 +1,14 @@
 import mongoose from 'mongoose';
 
+const projectBilling = new mongoose.Schema({
+    billableTime: {
+        type: Number,
+    },
+    additionalExpense: {
+        type: Number,
+    }
+}, { _id: false });
+
 const projectSchema = new mongoose.Schema({
     projectNum: {
         type: String,
@@ -48,6 +57,10 @@ const projectSchema = new mongoose.Schema({
     estimateHour: {
         type: Number,
     },
+    billing: {
+        type: projectBilling,
+
+    }
 }, { timestamps: true });
 
 const Project = mongoose.model('project', projectSchema);

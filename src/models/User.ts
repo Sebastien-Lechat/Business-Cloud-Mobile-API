@@ -104,6 +104,10 @@ const userSchema = new mongoose.Schema({
             type: String,
         },
     },
+    enterprise: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'enterprise',
+    }
 }, { timestamps: true });
 
 const User = mongoose.model('user', userSchema);

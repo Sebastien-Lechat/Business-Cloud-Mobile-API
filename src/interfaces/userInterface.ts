@@ -27,6 +27,7 @@ export interface UserI {
     fcmDevice?: { token: string, device: string }[];
     facebookAuth?: { id: string, token: string };
     googleAuth?: { id: string, token: string };
+    enterprise?: string;
 }
 
 export interface UserUpdateI {
@@ -81,6 +82,7 @@ export interface UserJsonI {
     userId?: string;
     needVerifyEmail?: boolean;
     doubleAuthentification?: boolean;
+    enterprise?: string;
 }
 
 export interface EmployeeJsonI {

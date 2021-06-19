@@ -1,6 +1,9 @@
+import mongoose from 'mongoose';
 import { ProjectI, ProjectJsonI } from '../interfaces/projectInterface';
+import { TimeI } from '../interfaces/timeInterface';
 import { ClientI } from '../interfaces/userInterface';
 import { Project } from '../models/Project';
+import { Time } from '../models/Time';
 import { globalUtils } from './globalUtils';
 import { userUtils } from './userUtils';
 
@@ -24,6 +27,7 @@ const generateProjectJSON = (project: ProjectI): ProjectJsonI => {
         hourlyRate: project.hourlyRate,
         estimateHour: project.estimateHour,
         description: project.description,
+        billing: project.billing,
         createdAt: project.createdAt,
         updatedAt: project.updatedAt,
     };
@@ -49,9 +53,24 @@ const getProjectList = async (): Promise<ProjectJsonI[]> => {
     return projectList;
 };
 
+/**
+ * Fonction mettre à jour le projet avec le nouveau montant facturable et les dépenses
+ * @return Retourne le JSON
+ */
+const updateProjectBilling = async (projectId: string): Promise<void> => {
+    const times: TimeI[] = await Time.find({ projectId: mongoose.Types.ObjectId(projectId) });
+    let totalTime = 0;
+    times.map((time: TimeI) => {
+        if (time.billable) totalTime += time.duration;
+    });
+
+    await Project.updateOne({ _id: mongoose.Types.ObjectId(projectId) }, { $set: { billing: { billableTime: totalTime } } });
+};
+
 const projectUtils = {
     generateProjectJSON,
-    getProjectList
+    getProjectList,
+    updateProjectBilling
 };
 
 export { projectUtils };

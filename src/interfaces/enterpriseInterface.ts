@@ -1,4 +1,5 @@
 export interface EnterpriseI {
+    _id: any;
     activity: any;
     address: string;
     zip: string;
