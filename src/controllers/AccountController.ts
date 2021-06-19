@@ -8,6 +8,7 @@ import { globalUtils } from '../utils/globalUtils';
 import { userUtils } from '../utils/userUtils';
 import { ClientI } from '../interfaces/userInterface';
 import { Enterprise } from '../models/Entreprise';
+import mongoose from 'mongoose';
 
 export class AccountController {
 
@@ -250,18 +251,27 @@ export class AccountController {
                 // Récupération de toutes les données du body
                 const { address, zip, city, country } = req.body;
 
-                // Création des données existante à modifier
-                const toUpdate: any = {};
-                if (address) toUpdate.address = (user.data as ClientI).address = address;
-                if (zip) toUpdate.zip = (user.data as ClientI).zip = zip;
-                if (city) toUpdate.city = (user.data as ClientI).city = city;
-                if (country) toUpdate.country = (user.data as ClientI).country = country;
-
                 if (user.data.role === 'Gérant') {
-                    await globalUtils.updateOne(Enterprise, { userId: user.data._id }, toUpdate);
-                } else // Modification du client
-                    await globalUtils.updateOneById(Client, user.data._id, toUpdate);
+                    // Création des données existante à modifier
+                    const toUpdate: any = {};
 
+                    if (address) toUpdate.address = (user.data.enterprise as any).address = address;
+                    if (zip) toUpdate.zip = (user.data.enterprise as any).zip = zip;
+                    if (city) toUpdate.city = (user.data.enterprise as any).city = city;
+                    if (country) toUpdate.country = (user.data.enterprise as any).country = country;
+
+                    await globalUtils.updateOne(Enterprise, { _id: mongoose.Types.ObjectId((user.data.enterprise as any)?._id) }, toUpdate);
+                } else {
+                    // Création des données existante à modifier
+                    const toUpdate: any = {};
+
+                    if (address) toUpdate.address = (user.data as ClientI).address = address;
+                    if (zip) toUpdate.zip = (user.data as ClientI).zip = zip;
+                    if (city) toUpdate.city = (user.data as ClientI).city = city;
+                    if (country) toUpdate.country = (user.data as ClientI).country = country;
+
+                    await globalUtils.updateOneById(Client, user.data._id, toUpdate);
+                }
                 // Envoi de la réponse
                 sendResponse(res, 200, { error: false, message: 'Profile successfully updated', user: userUtils.generateUserJSON(user) });
 
@@ -286,21 +296,29 @@ export class AccountController {
             if (user.type === 'client' || user.data.role === 'Gérant') {
 
                 // Récupération de toutes les données du body
-                const { activity, numTVA, numSIRET, numRCS, currency } = req.body;
-
-                // Création des données existante à modifier
-                const toUpdate: any = {};
-                if (activity) toUpdate.activity = (user.data as ClientI).activity = activity;
-                if (numTVA) toUpdate.numTVA = (user.data as ClientI).numTVA = numTVA;
-                if (numSIRET) toUpdate.numSIRET = (user.data as ClientI).numSIRET = numSIRET;
-                if (numRCS) toUpdate.numRCS = (user.data as ClientI).numRCS = numRCS;
-                if (currency) toUpdate.currency = (user.data as ClientI).currency = currency;
+                const { activity, numTVA, numSIRET, numRCS } = req.body;
 
                 if (user.data.role === 'Gérant') {
-                    await globalUtils.updateOne(Enterprise, { userId: user.data._id }, toUpdate);
-                } else // Modification du client
-                    await globalUtils.updateOneById(Client, user.data._id, toUpdate);
+                    // Création des données existante à modifier
+                    const toUpdate: any = {};
 
+                    if (activity) toUpdate.activity = (user.data.enterprise as any).activity = activity;
+                    if (numTVA) toUpdate.numTVA = (user.data.enterprise as any).numTVA = numTVA;
+                    if (numSIRET) toUpdate.numSIRET = (user.data.enterprise as any).numSIRET = numSIRET;
+                    if (numRCS) toUpdate.numRCS = (user.data.enterprise as any).numRCS = numRCS;
+
+                    await globalUtils.updateOne(Enterprise, { _id: mongoose.Types.ObjectId((user.data.enterprise as any)?._id) }, toUpdate);
+                } else {
+                    // Création des données existante à modifier
+                    const toUpdate: any = {};
+
+                    if (activity) toUpdate.activity = (user.data as ClientI).activity = activity;
+                    if (numTVA) toUpdate.numTVA = (user.data as ClientI).numTVA = numTVA;
+                    if (numSIRET) toUpdate.numSIRET = (user.data as ClientI).numSIRET = numSIRET;
+                    if (numRCS) toUpdate.numRCS = (user.data as ClientI).numRCS = numRCS;
+
+                    await globalUtils.updateOneById(Client, user.data._id, toUpdate);
+                }
                 // Envoi de la réponse
                 sendResponse(res, 200, { error: false, message: 'Profile successfully updated', user: userUtils.generateUserJSON(user) });
 

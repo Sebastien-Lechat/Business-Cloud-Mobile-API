@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import mongoose from 'mongoose';
 import { errorHandler, sendResponse } from '../helpers/responseHelper';
 import { ConvI } from '../interfaces/conversationInterface';
 import { Conversation } from '../models/Conversation';
@@ -8,7 +9,7 @@ import { userUtils } from '../utils/userUtils';
 
 export class ConversationController {
     /**
-     * Fonction de récupération de toutes les conversation (GET /conversations)
+     * Fonction de récupération de toutes les conversations (GET /conversations)
      * @param req express Request
      * @param res express Response
      */
@@ -28,7 +29,68 @@ export class ConversationController {
     }
 
     /**
-     * Fonction de création d'une conversation (GET /conversations)
+     * Fonction de récupération d'une conversation (GET /conversation/:id)
+     * @param req express Request
+     * @param res express Response
+     */
+    static getConversation = async (req: Request, res: Response) => {
+        try {
+            // Récupération de toutes les données du body
+            const { id } = req.params;
+
+            // Vérification de si toutes les données nécessaire sont présentes
+            if (!id) throw new Error('Missing id field');
+
+            // Vérification de si la conversation existe
+            const conversation = await conversationUtils.findAndPopulateConv(id);
+            if (!conversation) throw new Error('Invalid conversation id');
+
+            // Envoi de la réponse
+            sendResponse(res, 200, { error: false, message: 'Successful project acquisition', conversation: conversationUtils.generateConversationJSON(conversation) });
+        } catch (err) {
+            if (err.message === 'Missing id field') sendResponse(res, 400, { error: true, code: '112201', message: err.message });
+            else if (err.message === 'Invalid conversation id') sendResponse(res, 400, { error: true, code: '112202', message: err.message });
+            else errorHandler(res, err);
+        }
+    }
+
+    /**
+     * Fonction de récupération des messages d'une conversation (GET /conversation/:id/messages)
+     * @param req express Request
+     * @param res express Response
+     */
+    static getConversationMessages = async (req: Request, res: Response) => {
+        try {
+            // Récupération de l'utilisateur grâce au Authmiddleware qui rajoute le token dans req
+            const user = userUtils.getRequestUser(req);
+
+            // Récupération de toutes les données du body
+            const { id } = req.params;
+
+            // Vérification de si toutes les données nécessaire sont présentes
+            if (!id) throw new Error('Missing id field');
+
+            // Vérification de si la conversation existe
+            const conversation = await conversationUtils.findAndPopulateConv(id);
+            if (!conversation) throw new Error('Invalid conversation id');
+
+            // Récupération de tous les messages
+            const messages = await conversationUtils.findAllConvMessage(id);
+
+            // Envoi de la réponse
+            sendResponse(res, 200, { error: false, message: 'Successful project acquisition', messages: messages });
+
+            // Mise à jour de tous les messages en vu
+            await conversationUtils.updateAllMessageSeen(id, user.data._id);
+        } catch (err) {
+            if (err.message === 'Missing id field') sendResponse(res, 400, { error: true, code: '112251', message: err.message });
+            else if (err.message === 'Invalid conversation id') sendResponse(res, 400, { error: true, code: '112252', message: err.message });
+            else errorHandler(res, err);
+        }
+    }
+
+    /**
+     * Fonction de création d'une conversation (POST /conversation)
      * @param req express Request
      * @param res express Response
      */
@@ -55,7 +117,7 @@ export class ConversationController {
             if (alreadyExiste) sendResponse(res, 200, { error: false, message: 'Conversation already exist', conversation: conversationUtils.generateConversationJSON(alreadyExiste) });
             else {
                 // Si la conversation n'existe pas on la créer
-                const conversation = await Conversation.create({ userId: user.data._id, userId1: userId });
+                const conversation = await Conversation.create({ member1: { type: user.type, user: user.data._id }, member2: { type: targetUser.type, user: targetUser.data._id } });
 
                 // Envoi de la réponse
                 sendResponse(res, 200, { error: false, message: 'Conversation successfully created', conversation: conversationUtils.generateConversationJSON(conversation) });
