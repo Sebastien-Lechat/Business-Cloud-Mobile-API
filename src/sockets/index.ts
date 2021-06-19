@@ -13,12 +13,12 @@ const JWT_KEY: string = process.env.JWT_KEY as string;
 
 const initUserSocket = async (socket: SocketIO.Socket, id: string) => {
     try {
-        const user = await User.findById(id);
+        const user = await userUtils.findUser({ userId: id });
         if (!user) {
             socket.disconnect(true);
         } else {
-            console.log(('Open socket : ' + user.name).cyan);
-            await User.updateOne({ _id: id }, { $set: { socketToken: socket.id } });
+            console.log(('Open socket : ' + user.data.name).cyan);
+            await userUtils.updateUser(user, { socketToken: socket.id });
         }
     } catch (error) {
         console.error(error);
@@ -27,10 +27,10 @@ const initUserSocket = async (socket: SocketIO.Socket, id: string) => {
 
 const closeUserSocket = async (socket: SocketIO.Socket, id: string) => {
     try {
-        const user = await User.findById(id);
+        const user = await userUtils.findUser({ userId: id });
         if (user) {
-            console.log(('Close socket : ' + user.name).cyan);
-            await User.updateOne({ _id: id }, { $set: { socketToken: socket.id } });
+            console.log(('Close socket : ' + user.data.name).cyan);
+            await userUtils.updateUser(user, { socketToken: '' });
         }
         socket.disconnect(true);
     } catch (error) {
