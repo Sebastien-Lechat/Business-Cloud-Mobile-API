@@ -57,7 +57,6 @@ const getEstimateList = async (user: UserObject): Promise<EstimateJsonI[]> => {
         if (user.data.role === 'Gérant') {
             // Récupération de tous les devis
             const estimates = await globalUtils.findManyAndPopulate(Estimate, {}, ['clientId', 'articles.articleId']);
-
             // Mise en forme
             estimates.map((estimate: EstimateI) => {
                 estimate.clientId = userUtils.generateShortUserJSON({ data: estimate.clientId as ClientI, type: 'client' });
@@ -71,10 +70,10 @@ const getEstimateList = async (user: UserObject): Promise<EstimateJsonI[]> => {
             return estimateList;
         } else {
             // Récupération de tous les devis
-            const estimates = await globalUtils.findManyAndPopulate(Estimate, {}, ['clientId', 'articles.articleId']);
+            let estimates = await globalUtils.findManyAndPopulate(Estimate, {}, ['clientId', 'articles.articleId']);
 
             // Filtre de tout ce qui ne concerne pas l'employé
-            estimates.filter((estimate: EstimateI) => {
+            estimates = estimates.filter((estimate: EstimateI) => {
                 const client = estimate.clientId as ClientI;
                 estimate.clientId = client._id;
                 return (client.userId) ? client.userId.toString() === user.data._id.toString() : false;
@@ -82,6 +81,7 @@ const getEstimateList = async (user: UserObject): Promise<EstimateJsonI[]> => {
 
             // Mise en forme
             estimates.map((estimate: EstimateI) => {
+                console.log(estimate.clientId);
                 estimate.clientId = userUtils.generateShortUserJSON({ data: estimate.clientId as ClientI, type: 'client' });
                 estimate.articles.map((article) => {
                     article.articleId = articleUtils.generateArticleJSON(article.articleId as ArticleI);
