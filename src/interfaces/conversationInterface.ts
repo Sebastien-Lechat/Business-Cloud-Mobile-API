@@ -4,6 +4,7 @@ export interface ConvI {
     member2: { type: string, user: { _id: string, name: string } };
     createdAt: Date;
     updatedAt: Date;
+    lastMessage?: { text: string, user: string };
 }
 
 export interface ConvJsonI {
@@ -12,4 +13,5 @@ export interface ConvJsonI {
     member2: { type: string, user: { _id: string, name: string } };
     createdAt: Date;
     updatedAt: Date;
+    lastMessage?: { text: string, user: string };
 }
