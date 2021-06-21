@@ -56,6 +56,7 @@ const generateConversationJSON = (conversation: ConvI): ConvJsonI => {
         member2: conversation.member2,
         createdAt: conversation.createdAt,
         updatedAt: conversation.updatedAt,
+        lastMessage: conversation.lastMessage,
     };
 
     return toReturn;
