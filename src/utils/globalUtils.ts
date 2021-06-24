@@ -1,5 +1,18 @@
 import mongoose from 'mongoose';
-import { UserObject } from '../interfaces/userInterface';
+import { BillI } from '../interfaces/billInterface';
+import { EstimateI } from '../interfaces/estimateInterface';
+import { ExpenseI } from '../interfaces/expenseInterface';
+import { StatisticI } from '../interfaces/globalInterface';
+import { ProjectI } from '../interfaces/projectInterface';
+import { UserExpenseI } from '../interfaces/userExpenseInterface';
+import { ClientI, UserObject } from '../interfaces/userInterface';
+import { Bill } from '../models/Bill';
+import { Client } from '../models/Client';
+import { Estimate } from '../models/Estimate';
+import { Expense } from '../models/Expense';
+import { Project } from '../models/Project';
+import { User } from '../models/User';
+import { UserExpense } from '../models/UserExpense';
 
 /**
  * Fonction de vérification des permissions pour une requête
@@ -91,6 +104,137 @@ const deleteOne = async (model: mongoose.Model<any, any>, id: string): Promise<a
     return await model.deleteOne({ _id: mongoose.Types.ObjectId(id) });
 };
 
+/**
+ * Fonction pour retourner le prochain numéro disponible.
+ * @param acronym Filtre pour savoir sur quel table la recherche doit être faite
+ */
+const findNextNumber = async (acronym: string): Promise<string> => {
+    if (acronym === 'FAC') {
+        const bills: BillI[] = await Bill.find();
+        const allNumber: number[] = bills.map((bill: BillI) => { if (bill.billNum.split(acronym)[1]) return parseInt(bill.billNum.split(acronym)[1], 10); }) as number[];
+        const nextNumber = findNewMinNumber(allNumber);
+        return acronym + '0'.repeat(6 - nextNumber.toString().length) + nextNumber;
+    } else if (acronym === 'DEV') {
+        const estimates: EstimateI[] = await Estimate.find();
+        const allNumber: number[] = estimates.map((estimate: EstimateI) => { if (estimate.estimateNum.split(acronym)[1]) return parseInt(estimate.estimateNum.split(acronym)[1], 10); }) as number[];
+        const nextNumber = findNewMinNumber(allNumber);
+        return acronym + '0'.repeat(6 - nextNumber.toString().length) + nextNumber;
+    } else if (acronym === 'EXP') {
+        const expenses: ExpenseI[] = await Expense.find();
+        const allNumber: number[] = expenses.map((expense: ExpenseI) => { if (expense.expenseNum.split(acronym)[1]) return parseInt(expense.expenseNum.split(acronym)[1], 10); }) as number[];
+        const nextNumber = findNewMinNumber(allNumber);
+        return acronym + '0'.repeat(6 - nextNumber.toString().length) + nextNumber;
+    } else if (acronym === 'UEXP') {
+        const expenses: UserExpenseI[] = await UserExpense.find();
+        const allNumber: number[] = expenses.map((expense: UserExpenseI) => { if (expense.userExpenseNum.split(acronym)[1]) return parseInt(expense.userExpenseNum.split(acronym)[1], 10); }) as number[];
+        const nextNumber = findNewMinNumber(allNumber);
+        return acronym + '0'.repeat(6 - nextNumber.toString().length) + nextNumber;
+    } else {
+        const projects: ProjectI[] = await Project.find();
+        const allNumber: number[] = projects.map((project: ProjectI) => { if (project.projectNum.split(acronym)[1]) return parseInt(project.projectNum.split(acronym)[1], 10); }) as number[];
+        const nextNumber = findNewMinNumber(allNumber);
+        return acronym + '0'.repeat(6 - nextNumber.toString().length) + nextNumber;
+    }
+};
+
+/**
+ * Fonction pour retourner le prochain numéro disponible.
+ * @param user Utilisateur pour lequel on retourne les statistiques
+ */
+const findStatistics = async (user: UserObject): Promise<StatisticI> => {
+    let gainTotal = 0;
+    let amountTotal = 0;
+    let expenseTotal = 0;
+    let projectTotal = 0;
+    let projectTimeTotal = 0;
+    const statistics: StatisticI = {};
+    if (user.type === 'client') {
+        const bills: BillI[] = await globalUtils.findManyAndPopulate(Bill, { clientId: mongoose.Types.ObjectId(user.data._id) }, ['clientId']);
+
+        // Calcul des gains
+        bills.map((bill: BillI) => {
+            bill.amountPaid ? gainTotal += bill.amountPaid : gainTotal += 0;
+            bill.totalTTC ? amountTotal += bill.totalTTC : amountTotal += 0;
+        });
+
+        statistics.gainTotal = gainTotal;
+        statistics.projectTotal = await Project.countDocuments({ clientId: mongoose.Types.ObjectId(user.data._id) });
+        statistics.billUnpaidTotal = await Bill.countDocuments({ status: { $ne: 'Payée' }, clientId: mongoose.Types.ObjectId(user.data._id) });
+        statistics.billUnpaidAmountTotal = amountTotal - gainTotal;
+
+        return statistics;
+    } else if (user.type === 'user') {
+        if (user.data.role === 'Gérant') {
+            // Calcul des gains
+            const bills: BillI[] = await Bill.find();
+            bills.map((bill: BillI) => {
+                bill.amountPaid ? gainTotal += bill.amountPaid : gainTotal += 0;
+                bill.totalTTC ? amountTotal += bill.totalTTC : amountTotal += 0;
+            });
+
+            // Calcul des dépenses
+            const expenses: ExpenseI[] = await Expense.find();
+            expenses.map((expense: ExpenseI) => {
+                expense.price ? expenseTotal += expense.price : expenseTotal += 0;
+            });
+
+            // Calcul du temps passé sur les projets
+            const projects: ProjectI[] = await Project.find();
+            projects.map((project: ProjectI) => {
+                project.billing?.billableTime ? projectTimeTotal += project.billing?.billableTime : projectTimeTotal += 0;
+                projectTotal += 1;
+            });
+
+            statistics.gainTotal = gainTotal;
+            statistics.expenseTotal = expenseTotal;
+            statistics.employeeTotal = await User.countDocuments();
+            statistics.customerTotal = await Client.countDocuments();
+            statistics.projectTotal = projectTotal;
+            statistics.projectTimeTotal = projectTimeTotal;
+            statistics.billUnpaidTotal = await Bill.countDocuments({ status: { $ne: 'Payée' } });
+            statistics.billUnpaidAmountTotal = amountTotal - gainTotal;
+            return statistics;
+        } else {
+            let bills: BillI[] = await globalUtils.findManyAndPopulate(Bill, {}, ['clientId']);
+
+            // Filtre de tout ce qui ne concerne pas l'employé
+            bills = bills.filter((bill: BillI) => {
+                const client = bill.clientId as ClientI;
+                return (client.userId) ? client.userId.toString() === user.data._id.toString() : false;
+            });
+
+            // Calcul des gains
+            bills.map((bill: BillI) => {
+                bill.amountPaid ? gainTotal += bill.amountPaid : gainTotal += 0;
+                bill.totalTTC ? amountTotal += bill.totalTTC : amountTotal += 0;
+            });
+
+            // Calcul des dépenses
+            const expenses: ExpenseI[] = await Expense.find({ userId: mongoose.Types.ObjectId(user.data._id) });
+            expenses.map((expense: ExpenseI) => {
+                expense.price ? expenseTotal += expense.price : expenseTotal += 0;
+            });
+
+            // Calcul du temps passé sur les projets
+            const projects: ProjectI[] = await Project.find({ 'employees.id': mongoose.Types.ObjectId(user.data._id) });
+            projects.map((project: ProjectI) => {
+                project.billing?.billableTime ? projectTimeTotal += project.billing?.billableTime : projectTimeTotal += 0;
+                projectTotal += 1;
+            });
+
+            statistics.gainTotal = gainTotal;
+            statistics.expenseTotal = expenseTotal;
+            statistics.employeeTotal = await User.countDocuments();
+            statistics.customerTotal = await Client.countDocuments({ userId: mongoose.Types.ObjectId(user.data._id) });
+            statistics.projectTotal = projectTotal;
+            statistics.projectTimeTotal = projectTimeTotal;
+            statistics.billUnpaidTotal = await Bill.countDocuments({ status: { $ne: 'Payée' } });
+            statistics.billUnpaidAmountTotal = amountTotal - gainTotal;
+            return statistics;
+        }
+    } else return statistics;
+};
+
 const globalUtils = {
     findOne,
     findOneAndPopulate,
@@ -99,7 +243,21 @@ const globalUtils = {
     updateOne,
     updateOneById,
     deleteOne,
+    findNextNumber,
+    findStatistics,
     checkPermission
 };
 
 export { globalUtils };
+
+/* ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ */
+
+const findNewMinNumber = (allNumber: number[]) => {
+    let count = 1;
+    let nextNumber = Math.min(...allNumber) + count;
+    while (allNumber.find((num) => num === Math.min(...allNumber) + count)) {
+        count++;
+        nextNumber = Math.min(...allNumber) + count;
+    }
+    return nextNumber;
+};

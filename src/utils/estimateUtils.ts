@@ -75,13 +75,11 @@ const getEstimateList = async (user: UserObject): Promise<EstimateJsonI[]> => {
             // Filtre de tout ce qui ne concerne pas l'employé
             estimates = estimates.filter((estimate: EstimateI) => {
                 const client = estimate.clientId as ClientI;
-                estimate.clientId = client._id;
                 return (client.userId) ? client.userId.toString() === user.data._id.toString() : false;
             });
 
             // Mise en forme
             estimates.map((estimate: EstimateI) => {
-                console.log(estimate.clientId);
                 estimate.clientId = userUtils.generateShortUserJSON({ data: estimate.clientId as ClientI, type: 'client' });
                 estimate.articles.map((article) => {
                     article.articleId = articleUtils.generateArticleJSON(article.articleId as ArticleI);

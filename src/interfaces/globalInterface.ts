@@ -9,3 +9,14 @@ export interface HistoryI {
     createdAt: Date;
     updatedAt: Date;
 }
+
+export interface StatisticI {
+    gainTotal?: number;
+    expenseTotal?: number;
+    employeeTotal?: number;
+    customerTotal?: number;
+    projectTotal?: number;
+    projectTimeTotal?: number;
+    billUnpaidTotal?: number;
+    billUnpaidAmountTotal?: number;
+}
