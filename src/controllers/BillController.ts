@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import { sendMail } from '../helpers/emailHelper';
 import { errorHandler, sendResponse } from '../helpers/responseHelper';
 import VerifyData from '../helpers/verifyDataHelper';
 import { ArticleI } from '../interfaces/articleInterface';
@@ -9,6 +10,7 @@ import { Article } from '../models/Article';
 import { Bill } from '../models/Bill';
 import { Client } from '../models/Client';
 import { Enterprise } from '../models/Entreprise';
+import { sendBillModel } from '../templates/emailTemplate';
 import { articleUtils } from '../utils/articleUtils';
 import { billUtils } from '../utils/billUtils';
 import { globalUtils } from '../utils/globalUtils';
@@ -240,6 +242,50 @@ export class BillController {
             if (err.message === 'You do not have the required permissions') sendResponse(res, 400, { error: true, code: '401002', message: err.message });
             else if (err.message === 'Missing id field') sendResponse(res, 400, { error: true, code: '104251', message: err.message });
             else if (err.message === 'Invalid bill id') sendResponse(res, 400, { error: true, code: '104252', message: err.message });
+            else errorHandler(res, err);
+        }
+    }
+
+    /**
+     * Fonction pour envoyer un mail de relance à un client  (POST /bill/:billId/customer/:clientId/mail)
+     * @param req express Request
+     * @param res express Response
+     */
+    static sendBillMail = async (req: Request, res: Response) => {
+        try {
+            // Vérification de si l'utilisateur à les permissions de faire la requête
+            const hasPermission = globalUtils.checkPermission(userUtils.getRequestUser(req), 'user');
+            if (!hasPermission) throw new Error('You do not have the required permissions');
+
+            // Récupération de toutes les données du body
+            const { billId, clientId } = req.params;
+
+            // Vérification de si toutes les données nécessaire sont présentes
+            if (!billId || !clientId) throw new Error('Missing important fields');
+
+            // Vérification de si la facture existe
+            const bill: BillI = await globalUtils.findOne(Bill, billId);
+            if (!bill) throw new Error('Invalid bill id');
+
+            // Vérification de si le client existe
+            const customer: ClientI = await globalUtils.findOne(Client, clientId);
+            if (!customer) throw new Error('Invalid customer id');
+
+            // Envoi du mail
+            sendMail(customer.email, 'Relance payement facture',
+                sendBillModel(customer.name, 'de la facture', bill.billNum, VerifyData.formatShortDate(new Date(bill.deadline)), bill.status === 'En retard')
+            );
+            // Envoi du mail
+            sendMail('seb.lcht@gmail.com', 'Relance payement facture',
+                sendBillModel(customer.name, 'de la facture', bill.billNum, VerifyData.formatShortDate(new Date(bill.deadline)), bill.status === 'En retard')
+            );
+
+            sendResponse(res, 200, { error: false, message: 'Mail successfully send' });
+        } catch (err) {
+            if (err.message === 'You do not have the required permissions') sendResponse(res, 400, { error: true, code: '401002', message: err.message });
+            else if (err.message === 'Missing important fields') sendResponse(res, 400, { error: true, code: '104301', message: err.message });
+            else if (err.message === 'Invalid bill id') sendResponse(res, 400, { error: true, code: '104302', message: err.message });
+            else if (err.message === 'Invalid customer id') sendResponse(res, 400, { error: true, code: '104303', message: err.message });
             else errorHandler(res, err);
         }
     }

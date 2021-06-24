@@ -8,6 +8,7 @@ import { conversationRouter } from './conversationRoute';
 import { employeeRouter } from './employeeRoute';
 import { estimateRouter } from './estimateRoute';
 import { expenseRouter } from './expenseRoute';
+import { globalRouter } from './globalRoute';
 import { notificationRouter } from './notificationRoute';
 import { projectRouter } from './projectRoute';
 import { taskRouter } from './taskRoute';
@@ -18,6 +19,7 @@ const route: express.Application = express();
 
 route.use(authRouter);
 route.use(accountRouter);
+route.use(globalRouter);
 route.use(employeeRouter);
 route.use(clientRouter);
 route.use(billRouter);

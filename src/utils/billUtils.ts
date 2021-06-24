@@ -71,12 +71,11 @@ const getBillList = async (user: UserObject): Promise<BillJsonI[]> => {
             return billList;
         } else {
             // Récupération de toutes les factures
-            const bills = await globalUtils.findManyAndPopulate(Bill, {}, ['clientId', 'articles.articleId']);
+            let bills = await globalUtils.findManyAndPopulate(Bill, {}, ['clientId', 'articles.articleId']);
 
             // Filtre de tout ce qui ne concerne pas l'employé
-            bills.filter((bill: BillI) => {
+            bills = bills.filter((bill: BillI) => {
                 const client = bill.clientId as ClientI;
-                bill.clientId = client._id;
                 return (client.userId) ? client.userId.toString() === user.data._id.toString() : false;
             });
 
