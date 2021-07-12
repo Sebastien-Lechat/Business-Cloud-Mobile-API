@@ -13,6 +13,7 @@ import { Expense } from '../models/Expense';
 import { Project } from '../models/Project';
 import { User } from '../models/User';
 import { UserExpense } from '../models/UserExpense';
+import path from 'path';
 
 /**
  * Fonction de vérification des permissions pour une requête
@@ -235,6 +236,27 @@ const findStatistics = async (user: UserObject): Promise<StatisticI> => {
     } else return statistics;
 };
 
+/**
+ * Fonction pour retourner le __dirname.
+ */
+const dirname = async (): Promise<string> => {
+    return path.resolve();
+};
+
+/**
+ * Fonction pour retourner le séparateur système utilisé.
+ */
+const systemSeparator = async (): Promise<string> => {
+    switch (require('os').platform()) {
+        case ('win32'):
+            return '\\';
+        case ('linux'):
+            return '/';
+        default:
+            return '/';
+    }
+};
+
 const globalUtils = {
     findOne,
     findOneAndPopulate,
@@ -245,7 +267,9 @@ const globalUtils = {
     deleteOne,
     findNextNumber,
     findStatistics,
-    checkPermission
+    checkPermission,
+    systemSeparator,
+    dirname
 };
 
 export { globalUtils };
