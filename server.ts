@@ -18,6 +18,7 @@ app.use(cors());
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+app.use(express.static(__dirname + '/dist'));
 
 app.use((error: any, request: Request, response: Response, next: NextFunction) => {
     if (error !== null) {
