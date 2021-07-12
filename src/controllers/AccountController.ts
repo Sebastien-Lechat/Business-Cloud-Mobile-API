@@ -157,7 +157,7 @@ export class AccountController {
             // Récupération de l'utilisateur grâce au Authmiddleware qui rajoute le token dans req
             const user = userUtils.getRequestUser(req);
 
-            const avatarPath = await globalUtils.dirname() + await globalUtils.systemSeparator() + 'uploads' + await globalUtils.systemSeparator() + 'avatars' + await globalUtils.systemSeparator();
+            const avatarPath = await globalUtils.dirname() + await globalUtils.systemSeparator() + 'dist' + await globalUtils.systemSeparator() + 'uploads' + await globalUtils.systemSeparator() + 'avatars' + await globalUtils.systemSeparator();
 
             if (!user.data.avatar) throw new Error('No avatar found');
             return res.status(200).sendFile(avatarPath + user.data.avatar);
@@ -177,14 +177,14 @@ export class AccountController {
             const user = userUtils.getRequestUser(req);
 
             // Préparation du formulaire de récupération
-            const form = new IncomingForm({ multiples: false, uploadDir: 'uploads' + await globalUtils.systemSeparator() + 'avatars', keepExtensions: true });
+            const form = new IncomingForm({ multiples: false, uploadDir: 'dist' + await globalUtils.systemSeparator() + 'uploads' + await globalUtils.systemSeparator() + 'avatars', keepExtensions: true });
 
             let avatar: { path: string; };
             form.on('file', (field, file) => {
                 if (file) avatar = file;
             });
             form.on('end', async () => {
-                const avatarPath = await globalUtils.dirname() + await globalUtils.systemSeparator() + 'uploads' + await globalUtils.systemSeparator() + 'avatars' + await globalUtils.systemSeparator();
+                const avatarPath = await globalUtils.dirname() + await globalUtils.systemSeparator() + 'dist' + await globalUtils.systemSeparator() + 'uploads' + await globalUtils.systemSeparator() + 'avatars' + await globalUtils.systemSeparator();
                 if (avatar) {
                     if (user.data.avatar) fs.unlink(avatarPath + user.data.avatar, () => { });
                     user.data.avatar = avatar.path.replace(/^.*[\\\/]/, '');
