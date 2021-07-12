@@ -8,6 +8,8 @@ import { globalUtils } from '../utils/globalUtils';
 import { userUtils } from '../utils/userUtils';
 import { ClientI } from '../interfaces/userInterface';
 import { Enterprise } from '../models/Entreprise';
+import { IncomingForm } from 'formidable';
+import fs from 'fs';
 import mongoose from 'mongoose';
 
 export class AccountController {
@@ -140,6 +142,59 @@ export class AccountController {
 
             // Envoi de la réponse
             sendResponse(res, 200, { error: false, message: 'Successful profil acquisition', user: userUtils.generateUserJSON(user) });
+        } catch (err) {
+            errorHandler(res, err);
+        }
+    }
+
+    /**
+     * Récupération de la photo de profil (GET /account/avatar)
+     * @param req express Request
+     * @param res express Response
+     */
+    static getAvatar = async (req: Request, res: Response) => {
+        try {
+            // Récupération de l'utilisateur grâce au Authmiddleware qui rajoute le token dans req
+            const user = userUtils.getRequestUser(req);
+
+            const avatarPath = await globalUtils.dirname() + await globalUtils.systemSeparator() + 'uploads' + await globalUtils.systemSeparator() + 'avatars' + await globalUtils.systemSeparator();
+
+            if (!user.data.avatar) throw new Error('No avatar found');
+            return res.status(200).sendFile(avatarPath + user.data.avatar);
+        } catch (err) {
+            errorHandler(res, err);
+        }
+    }
+
+    /**
+     * Changement de la photo de profil (POST /account/avatar)
+     * @param req express Request
+     * @param res express Response
+     */
+    static changeAvatar = async (req: Request, res: Response) => {
+        try {
+            // Récupération de l'utilisateur grâce au Authmiddleware qui rajoute le token dans req
+            const user = userUtils.getRequestUser(req);
+
+            // Préparation du formulaire de récupération
+            const form = new IncomingForm({ multiples: false, uploadDir: 'uploads' + await globalUtils.systemSeparator() + 'avatars', keepExtensions: true });
+
+            let avatar: { path: string; };
+            form.on('file', (field, file) => {
+                if (file) avatar = file;
+            });
+            form.on('end', async () => {
+                const avatarPath = await globalUtils.dirname() + await globalUtils.systemSeparator() + 'uploads' + await globalUtils.systemSeparator() + 'avatars' + await globalUtils.systemSeparator();
+                if (avatar) {
+                    if (user.data.avatar) fs.unlink(avatarPath + user.data.avatar, () => { });
+                    user.data.avatar = avatar.path.replace(/^.*[\\\/]/, '');
+                    await userUtils.updateUser(user, { avatar: user.data.avatar });
+
+                    // Envoi de la réponse
+                    res.status(200).sendFile(avatarPath + user.data.avatar);
+                } else throw { success: false };
+            });
+            form.parse(req, () => { });
         } catch (err) {
             errorHandler(res, err);
         }
