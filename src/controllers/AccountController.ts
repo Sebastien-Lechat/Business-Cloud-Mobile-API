@@ -148,25 +148,6 @@ export class AccountController {
     }
 
     /**
-     * Récupération de la photo de profil (GET /account/avatar)
-     * @param req express Request
-     * @param res express Response
-     */
-    static getAvatar = async (req: Request, res: Response) => {
-        try {
-            // Récupération de l'utilisateur grâce au Authmiddleware qui rajoute le token dans req
-            const user = userUtils.getRequestUser(req);
-
-            const avatarPath = await globalUtils.dirname() + await globalUtils.systemSeparator() + 'dist' + await globalUtils.systemSeparator() + 'uploads' + await globalUtils.systemSeparator() + 'avatars' + await globalUtils.systemSeparator();
-
-            if (!user.data.avatar) throw new Error('No avatar found');
-            return res.status(200).sendFile(avatarPath + user.data.avatar);
-        } catch (err) {
-            errorHandler(res, err);
-        }
-    }
-
-    /**
      * Changement de la photo de profil (POST /account/avatar)
      * @param req express Request
      * @param res express Response
@@ -176,25 +157,14 @@ export class AccountController {
             // Récupération de l'utilisateur grâce au Authmiddleware qui rajoute le token dans req
             const user = userUtils.getRequestUser(req);
 
-            // Préparation du formulaire de récupération
-            const form = new IncomingForm({ multiples: false, uploadDir: 'dist' + await globalUtils.systemSeparator() + 'uploads' + await globalUtils.systemSeparator() + 'avatars', keepExtensions: true });
+            // Récupération de toutes les données du body
+            const { avatarPath } = req.body;
 
-            let avatar: { path: string; };
-            form.on('file', (field, file) => {
-                if (file) avatar = file;
-            });
-            form.on('end', async () => {
-                const avatarPath = await globalUtils.dirname() + await globalUtils.systemSeparator() + 'dist' + await globalUtils.systemSeparator() + 'uploads' + await globalUtils.systemSeparator() + 'avatars' + await globalUtils.systemSeparator();
-                if (avatar) {
-                    if (user.data.avatar) fs.unlink(avatarPath + user.data.avatar, () => { });
-                    user.data.avatar = avatar.path.replace(/^.*[\\\/]/, '');
-                    await userUtils.updateUser(user, { avatar: user.data.avatar });
+            // Modification du chemin de stockage de l'image
+            await userUtils.updateUser(user, { avatar: avatarPath });
 
-                    // Envoi de la réponse
-                    res.status(200).sendFile(avatarPath + user.data.avatar);
-                } else throw { success: false };
-            });
-            form.parse(req, () => { });
+            // Envoi de la réponse
+            sendResponse(res, 200, { error: false, message: 'Profile successfully updated' });
         } catch (err) {
             errorHandler(res, err);
         }
