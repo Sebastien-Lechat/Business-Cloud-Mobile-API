@@ -338,8 +338,10 @@ const findNewMinNumber = (allNumber: number[]) => {
 
 const invoiceRequest = (fileData: BillI | EstimateI, type: string, options: https.RequestOptions, postData: string) => {
     return new Promise<any>(async (resolve, reject) => {
-        const pdfPath = await globalUtils.dirname() + await globalUtils.systemSeparator() + 'uploads' + await globalUtils.systemSeparator() + type + await globalUtils.systemSeparator();
-        const file: fs.WriteStream = fs.createWriteStream(pdfPath + (((fileData as BillI).billNum) ? (fileData as BillI).billNum + '.pdf' : (fileData as EstimateI).estimateNum + '.pdf'));
+        if (!fs.existsSync('./tmpInvoice/')) {
+            fs.mkdirSync('./tmpInvoice/');
+        }
+        const file: fs.WriteStream = fs.createWriteStream(path.join('./tmpInvoice/', (((fileData as BillI).billNum) ? (fileData as BillI).billNum + '.pdf' : (fileData as EstimateI).estimateNum + '.pdf')));
         const req = https.request(options, (res) => {
             res.on('data', (chunk) => {
                 file.write(chunk);
