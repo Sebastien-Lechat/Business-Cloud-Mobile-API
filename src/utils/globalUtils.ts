@@ -279,7 +279,9 @@ const generateInvoice = async (type: string, id: string): Promise<{ file: any, f
             }
         };
 
-        const file = await invoiceRequest(fileData, type, options, postData);
+        const file = await invoiceRequest(fileData, type, options, postData, (error: any) => {
+            console.log('Error'.red, error);
+        });
         return { file, fileData };
 
     } else return null;
@@ -336,7 +338,7 @@ const findNewMinNumber = (allNumber: number[]) => {
     return nextNumber;
 };
 
-const invoiceRequest = (fileData: BillI | EstimateI, type: string, options: https.RequestOptions, postData: string) => {
+const invoiceRequest = (fileData: BillI | EstimateI, type: string, options: https.RequestOptions, postData: string, error: any) => {
     return new Promise<any>(async (resolve, reject) => {
         if (!fs.existsSync('./tmpInvoice/')) {
             fs.mkdirSync('./tmpInvoice/');
@@ -349,11 +351,12 @@ const invoiceRequest = (fileData: BillI | EstimateI, type: string, options: http
                 .on('end', () => {
                     resolve(file.end());
                 })
-                .on('error', (error: any) => {
-                    console.log(error);
+                .on('error', (errorTest: any) => {
+                    console.log('ErrorTest'.red, errorTest);
                 });
         });
         req.write(postData);
         req.end();
+        req.on('error', error);
     });
 };
