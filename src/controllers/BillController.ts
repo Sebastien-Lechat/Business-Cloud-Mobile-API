@@ -275,10 +275,6 @@ export class BillController {
             sendMail(customer.email, 'Relance payement facture',
                 sendBillModel(customer.name, 'de la facture', bill.billNum, VerifyData.formatShortDate(new Date(bill.deadline)), bill.status === 'En retard')
             );
-            // Envoi du mail
-            sendMail('seb.lcht@gmail.com', 'Relance payement facture',
-                sendBillModel(customer.name, 'de la facture', bill.billNum, VerifyData.formatShortDate(new Date(bill.deadline)), bill.status === 'En retard')
-            );
 
             sendResponse(res, 200, { error: false, message: 'Mail successfully send' });
         } catch (err) {

@@ -1,5 +1,6 @@
 import nodemailer from 'nodemailer';
 import { config } from 'dotenv';
+import Mail from 'nodemailer/lib/mailer';
 config();
 
 const accountMail = process.env.MAIL as string;
@@ -8,8 +9,9 @@ const accountPassword = process.env.MAIL_PASSWORD as string;
  * Fonction pour envoyer un email, return true si l'email est parti et false si il y a une erreur.
  * @param email Email de l'utilisateur devant recevoir le mail.
  */
-const sendMail = async (email: string, mailSubject: string, model: string): Promise<void> => {
+const sendMail = async (email: string, mailSubject: string, model: string, file?: { path: string, num: string }): Promise<void> => {
     try {
+        const attachments: Mail.Attachment[] = [{ filename: `${file?.num}.pdf`, path: file?.path }];
         const transporter = nodemailer.createTransport({
             host: 'smtp.gmail.com',
             port: 465,
@@ -25,6 +27,7 @@ const sendMail = async (email: string, mailSubject: string, model: string): Prom
             to: email,
             subject: mailSubject,
             html: model,
+            attachments,
         });
 
     } catch (error) {
