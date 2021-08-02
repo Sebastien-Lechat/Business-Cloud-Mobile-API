@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
-import { BillI } from '../interfaces/billInterface';
-import { EstimateI } from '../interfaces/estimateInterface';
+import { BillArticleI, BillI } from '../interfaces/billInterface';
+import { EstimateArticleI, EstimateI } from '../interfaces/estimateInterface';
 import { ExpenseI } from '../interfaces/expenseInterface';
 import { StatisticI } from '../interfaces/globalInterface';
 import { ProjectI } from '../interfaces/projectInterface';
@@ -16,6 +16,8 @@ import { UserExpense } from '../models/UserExpense';
 import path from 'path';
 import https from 'https';
 import fs from 'fs';
+import VerifyData from '../helpers/verifyDataHelper';
+import { ArticleI } from '../interfaces/articleInterface';
 
 /**
  * Fonction de vérification des permissions pour une requête
@@ -242,28 +244,60 @@ const findStatistics = async (user: UserObject): Promise<StatisticI> => {
  * Fonction pour généré une facture ou un devis.
  */
 const generateInvoice = async (type: string, id: string): Promise<{ file: any, fileData: BillI | EstimateI } | null> => {
-    const fileData: BillI | EstimateI = (type === 'bill') ? await Bill.findOne({ _id: mongoose.Types.ObjectId(id) }) : (type === 'estimate') ? await Estimate.findOne({ _id: mongoose.Types.ObjectId(id) }) : null;
+    // Vérification de si la factue ou le devis existe
+    const fileData: BillI | EstimateI =
+        (type === 'bill') ? await Bill.findOne({ _id: mongoose.Types.ObjectId(id) }).populate('articles.articleId') :
+            (type === 'estimate') ? await Estimate.findOne({ _id: mongoose.Types.ObjectId(id) }).populate('articles.articleId') :
+                null;
+
+    // Vérification de si le client existe
+    const customer: ClientI = await globalUtils.findOne(Client, fileData.clientId as string);
+    if (!customer) throw new Error('Invalid customer id');
+
     if (fileData) {
+        // Génération des données de la facture
         const invoice = {
-            logo: 'http://invoiced.com/img/logo-invoice.png',
-            from: 'Invoiced\n701 Brazos St\nAustin, TX 78748',
-            to: 'Johnny Appleseed',
-            currency: 'usd',
-            number: 'INV-0001',
-            payment_terms: 'Auto-Billed - Do Not Pay',
-            items: [
-                {
-                    name: 'Subscription to Starter',
-                    quantity: 1,
-                    unit_cost: 50
-                }
-            ],
+            header: type === 'bill' ? 'FACTURE' : 'DEVIS',
+            logo: 'https://i.ibb.co/898J5pv/BUSINESS-CLOUD-Logo.png',
+            from: 'Business Cloud\n70 rue Marius Aufan\nLevallois-Perret, 92300 France',
+            to: customer.name,
+            ship_to: (customer.address && customer.city && customer.zip && customer.country) ? customer.address + '\n' + customer.city + ', ' + customer.zip + ' ' + customer.country : 'Adresse indéterminée',
+            currency: 'eur',
+            number: type === 'bill' ? (fileData as BillI).billNum : (fileData as EstimateI).estimateNum,
+            payment_terms: 'Carte de crédit / Virement',
+            date: VerifyData.formatShortDate(new Date()),
+            due_date: VerifyData.formatShortDate(new Date(fileData.deadline)),
+            items: generatearticleList(fileData.articles),
             fields: {
-                tax: '%'
+                tax: true,
+                discounts: '%',
             },
-            tax: 5,
-            notes: 'Thanks for being an awesome customer!',
-            terms: 'No need to submit payment. You will be auto-billed for this invoice.'
+            custom_fields: [{
+                name: 'Status',
+                value: fileData.status,
+            }],
+            amount_paid: (fileData as BillI).amountPaid ? (fileData as BillI).amountPaid : undefined,
+            tax: fileData.totalTTC - fileData.totalHT,
+            discounts: fileData.reduction,
+            to_title: 'Facturé à',
+            ship_to_title: 'Adresse de facturation',
+            date_title: 'Date',
+            payment_terms_title: 'Type payement',
+            due_date_title: 'Date de paiement',
+            purchase_order_title: 'Purchase Order',
+            quantity_header: 'Quantité',
+            item_header: 'Objet',
+            unit_cost_header: 'Coût HT',
+            amount_header: 'Total HT',
+            subtotal_title: 'Total HT',
+            discounts_title: 'Réductions',
+            tax_title: 'Taxe',
+            shipping_title: 'Livraison',
+            total_title: 'Total TTC',
+            amount_paid_title: 'Montant payé',
+            balance_title: 'Balance',
+            terms_title: 'Termes',
+            notes_title: 'Notes',
         };
 
         const postData = JSON.stringify(invoice);
@@ -359,4 +393,17 @@ const invoiceRequest = (fileData: BillI | EstimateI, type: string, options: http
         req.end();
         req.on('error', error);
     });
+};
+
+const generatearticleList = (articles: EstimateArticleI[] | BillArticleI[]): { name: string, quantity: number, unit_cost: number, description: string }[] | [] => {
+    const articleList: { name: string, quantity: number, unit_cost: number, description: string }[] = [];
+    articles.map((article) => {
+        articleList.push({
+            name: (article.articleId as ArticleI).name,
+            quantity: article.quantity,
+            unit_cost: (article.articleId as ArticleI).price,
+            description: 'TVA - ' + (article.articleId as ArticleI).tva + '%' + (((article.articleId as ArticleI).description && (article.articleId as ArticleI).description !== '') ? '| ' + (article.articleId as ArticleI).description : '')
+        });
+    });
+    return articleList;
 };

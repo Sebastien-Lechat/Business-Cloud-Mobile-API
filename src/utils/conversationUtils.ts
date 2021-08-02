@@ -18,7 +18,7 @@ const getConversationList = async (id: string): Promise<ConvJsonI[]> => {
             { 'member1.user': mongoose.Types.ObjectId(id) },
             { 'member2.user': mongoose.Types.ObjectId(id) }
         ]
-    }).populate('member1.user', { _id: 1, name: 1 }).populate('member2.user', { _id: 1, name: 1 }).sort({ updatedAt: -1 });
+    }).populate('member1.user', { _id: 1, name: 1 }).populate('member2.user', { _id: 1, name: 1, avatar: 1 }).sort({ updatedAt: -1 });
 
     conversations.map((conversation: ConvI) => {
         allConversationList.push(conversationUtils.generateConversationJSON(conversation));
@@ -36,9 +36,11 @@ const getConversationList = async (id: string): Promise<ConvJsonI[]> => {
 const findConversation = async (userId: string, userId1: string): Promise<ConvI | null> => {
 
     // On regarde dans les deux possibilité d'id si la conversation existe
-    const case1 = await Conversation.findOne({ 'member1.user': mongoose.Types.ObjectId(userId), 'member2.user': mongoose.Types.ObjectId(userId1) }).populate('member1.user', { _id: 1, name: 1 }).populate('member2.user', { _id: 1, name: 1 });
+    const case1 =
+        await Conversation.findOne({ 'member1.user': mongoose.Types.ObjectId(userId), 'member2.user': mongoose.Types.ObjectId(userId1) }).populate('member1.user', { _id: 1, name: 1, avatar: 1 }).populate('member2.user', { _id: 1, name: 1, avatar: 1 });
     if (case1) return case1;
-    const case2 = await Conversation.findOne({ 'member1.user': mongoose.Types.ObjectId(userId1), 'member2.user': mongoose.Types.ObjectId(userId) }).populate('member1.user', { _id: 1, name: 1 }).populate('member2.user', { _id: 1, name: 1 });
+    const case2 =
+        await Conversation.findOne({ 'member1.user': mongoose.Types.ObjectId(userId1), 'member2.user': mongoose.Types.ObjectId(userId) }).populate('member1.user', { _id: 1, name: 1, avatar: 1 }).populate('member2.user', { _id: 1, name: 1, avatar: 1 });
     if (case2) return case2;
 
     return null;
@@ -68,7 +70,7 @@ const generateConversationJSON = (conversation: ConvI): ConvJsonI => {
  * @return Retourne la conversation ou null
  */
 const findAndPopulateConv = async (conversationId: string): Promise<ConvI | null> => {
-    return await Conversation.findOne({ _id: mongoose.Types.ObjectId(conversationId) }).populate('member1.user', { _id: 1, name: 1, socketToken: 1 }).populate('member2.user', { _id: 1, name: 1, socketToken: 1 });
+    return await Conversation.findOne({ _id: mongoose.Types.ObjectId(conversationId) }).populate('member1.user', { _id: 1, name: 1, socketToken: 1, avatar: 1 }).populate('member2.user', { _id: 1, name: 1, socketToken: 1, avatar: 1 });
 };
 
 /**
