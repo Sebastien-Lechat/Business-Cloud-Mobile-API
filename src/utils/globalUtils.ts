@@ -14,6 +14,8 @@ import { Project } from '../models/Project';
 import { User } from '../models/User';
 import { UserExpense } from '../models/UserExpense';
 import path from 'path';
+import https from 'https';
+import fs from 'fs';
 
 /**
  * Fonction de vérification des permissions pour une requête
@@ -237,6 +239,53 @@ const findStatistics = async (user: UserObject): Promise<StatisticI> => {
 };
 
 /**
+ * Fonction pour généré une facture ou un devis.
+ */
+const generateInvoice = async (type: string, id: string): Promise<{ file: any, fileData: BillI | EstimateI } | null> => {
+    const fileData: BillI | EstimateI = (type === 'bill') ? await Bill.findOne({ _id: mongoose.Types.ObjectId(id) }) : (type === 'estimate') ? await Estimate.findOne({ _id: mongoose.Types.ObjectId(id) }) : null;
+    if (fileData) {
+        const invoice = {
+            logo: 'http://invoiced.com/img/logo-invoice.png',
+            from: 'Invoiced\n701 Brazos St\nAustin, TX 78748',
+            to: 'Johnny Appleseed',
+            currency: 'usd',
+            number: 'INV-0001',
+            payment_terms: 'Auto-Billed - Do Not Pay',
+            items: [
+                {
+                    name: 'Subscription to Starter',
+                    quantity: 1,
+                    unit_cost: 50
+                }
+            ],
+            fields: {
+                tax: '%'
+            },
+            tax: 5,
+            notes: 'Thanks for being an awesome customer!',
+            terms: 'No need to submit payment. You will be auto-billed for this invoice.'
+        };
+
+        const postData = JSON.stringify(invoice);
+
+        const options: https.RequestOptions = {
+            hostname: 'invoice-generator.com',
+            port: 443,
+            path: '/',
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Content-Length': Buffer.byteLength(postData)
+            }
+        };
+
+        const file = await invoiceRequest(fileData, type, options, postData);
+        return { file, fileData };
+
+    } else return null;
+};
+
+/**
  * Fonction pour retourner le __dirname.
  */
 const dirname = async (): Promise<string> => {
@@ -268,6 +317,7 @@ const globalUtils = {
     findNextNumber,
     findStatistics,
     checkPermission,
+    generateInvoice,
     systemSeparator,
     dirname
 };
@@ -284,4 +334,24 @@ const findNewMinNumber = (allNumber: number[]) => {
         nextNumber = Math.min(...allNumber) + count;
     }
     return nextNumber;
+};
+
+const invoiceRequest = (fileData: BillI | EstimateI, type: string, options: https.RequestOptions, postData: string) => {
+    return new Promise<any>(async (resolve, reject) => {
+        const pdfPath = await globalUtils.dirname() + await globalUtils.systemSeparator() + 'uploads' + await globalUtils.systemSeparator() + type + await globalUtils.systemSeparator();
+        const file: fs.WriteStream = fs.createWriteStream(pdfPath + (((fileData as BillI).billNum) ? (fileData as BillI).billNum + '.pdf' : (fileData as EstimateI).estimateNum + '.pdf'));
+        const req = https.request(options, (res) => {
+            res.on('data', (chunk) => {
+                file.write(chunk);
+            })
+                .on('end', () => {
+                    resolve(file.end());
+                })
+                .on('error', (error: any) => {
+                    console.log(error);
+                });
+        });
+        req.write(postData);
+        req.end();
+    });
 };

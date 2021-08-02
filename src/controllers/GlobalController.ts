@@ -1,6 +1,11 @@
 import { Request, Response } from 'express';
+import { sendMail } from '../helpers/emailHelper';
 import { errorHandler, sendResponse } from '../helpers/responseHelper';
 import VerifyData from '../helpers/verifyDataHelper';
+import { BillI } from '../interfaces/billInterface';
+import { EstimateI } from '../interfaces/estimateInterface';
+import { ClientI } from '../interfaces/userInterface';
+import { sendFileModel } from '../templates/emailTemplate';
 import { globalUtils } from '../utils/globalUtils';
 import { userUtils } from '../utils/userUtils';
 
@@ -27,7 +32,52 @@ export class GlobalController {
             if (err.message === 'Missing important fields') sendResponse(res, 400, { error: true, code: '114001', message: err.message });
             else errorHandler(res, err);
         }
+    }
 
+    /**
+     * Fonction pour générer une facture et l'envoyer par mail (GET /global/generateInvoice/:type/:id)
+     * @param req express Request
+     * @param res express Response
+     */
+    static generateInvoice = async (req: Request, res: Response) => {
+        try {
+            // Récupération de l'utilisateur grâce au Authmiddleware qui rajoute le token dans req
+            const user = userUtils.getRequestUser(req);
+
+            // Récupération de toutes les données du body
+            const { id, type } = req.params;
+
+            // Vérification de si toutes les données nécessaire sont présentes
+            if (!id) throw new Error('Missing id field');
+
+            // Vérification de si toutes les données nécessaire sont présentes
+            if (!type) throw new Error('Missing type field');
+
+            // Récupération des statistiques en fonction du rôle de l'utilisateur
+            const data = await globalUtils.generateInvoice(type, id);
+
+            // Vérification de si l'id est valide ou non
+            if (!data) throw new Error('Invalid file id');
+
+            // Envoi du mail
+            sendMail(user.data.email, 'Récupération d\'un document',
+                sendFileModel(
+                    user.data.name, type === 'bill' ? 'de la facture' : 'du devis',
+                    type === 'bill' ? (data.fileData as BillI).billNum : (data.fileData as EstimateI).estimateNum,
+                    VerifyData.formatShortDate(new Date(data.fileData.deadline)),
+                    data.fileData.status === 'En retard',
+                ),
+                { path: data.file.path, num: type === 'bill' ? (data.fileData as BillI).billNum : (data.fileData as EstimateI).estimateNum }
+            );
+
+            sendResponse(res, 200, { error: false, message: 'Invoice successfully send' });
+        } catch (err) {
+            if (err.message === 'Missing id field') sendResponse(res, 400, { error: true, code: '114051', message: err.message });
+            else if (err.message === 'Missing type field') sendResponse(res, 400, { error: true, code: '114052', message: err.message });
+            else if (err.message === 'Invalid customer id') sendResponse(res, 400, { error: true, code: '114053', message: err.message });
+            else if (err.message === 'Invalid file id') sendResponse(res, 400, { error: true, code: '114054', message: err.message });
+            else errorHandler(res, err);
+        }
     }
 
     /**
