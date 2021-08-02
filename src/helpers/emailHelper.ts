@@ -31,7 +31,7 @@ const sendMail = async (email: string, mailSubject: string, model: string, file?
         });
 
     } catch (error) {
-        console.log(error.red);
+        console.log(error);
     }
 
 };
