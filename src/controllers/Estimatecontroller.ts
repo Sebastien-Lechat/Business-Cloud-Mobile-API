@@ -269,9 +269,16 @@ export class EstimateController {
             const customer: ClientI = await globalUtils.findOne(Client, clientId);
             if (!customer) throw new Error('Invalid customer id');
 
+            // Génération de la facture
+            const data = await globalUtils.generateInvoice('bill', estimate._id);
+
+            // Vérification de si l'id est valide ou non
+            if (!data) throw new Error('Invalid estimate id');
+
             // Envoi du mail
             sendMail(customer.email, 'Relance acceptation devis',
-                sendBillModel(customer.name, 'du devis', estimate.estimateNum, VerifyData.formatShortDate(new Date(estimate.deadline)), estimate.status === 'En retard')
+                sendBillModel(customer.name, 'du devis', estimate.estimateNum, VerifyData.formatShortDate(new Date(estimate.deadline)), estimate.status === 'En retard'),
+                { path: data.file.path, num: estimate.estimateNum }
             );
 
             sendResponse(res, 200, { error: false, message: 'Mail successfully send' });

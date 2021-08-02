@@ -53,7 +53,7 @@ export class GlobalController {
             // Vérification de si toutes les données nécessaire sont présentes
             if (!type) throw new Error('Missing type field');
 
-            // Récupération des statistiques en fonction du rôle de l'utilisateur
+            // Génération de la facture
             const data = await globalUtils.generateInvoice(type, id);
 
             // Vérification de si l'id est valide ou non

@@ -264,12 +264,13 @@ const generateInvoice = async (type: string, id: string): Promise<{ file: any, f
             ship_to: (customer.address && customer.city && customer.zip && customer.country) ? customer.address + '\n' + customer.city + ', ' + customer.zip + ' ' + customer.country : 'Adresse indéterminée',
             currency: 'eur',
             number: type === 'bill' ? (fileData as BillI).billNum : (fileData as EstimateI).estimateNum,
-            payment_terms: 'Credit card',
+            payment_terms: 'Carte de crédit / Virement',
             date: VerifyData.formatShortDate(new Date()),
             due_date: VerifyData.formatShortDate(new Date(fileData.deadline)),
             items: generatearticleList(fileData.articles),
             fields: {
                 tax: true,
+                discounts: '%',
             },
             custom_fields: [{
                 name: 'Status',
@@ -277,6 +278,7 @@ const generateInvoice = async (type: string, id: string): Promise<{ file: any, f
             }],
             amount_paid: (fileData as BillI).amountPaid ? (fileData as BillI).amountPaid : undefined,
             tax: fileData.totalTTC - fileData.totalHT,
+            discounts: fileData.reduction,
             to_title: 'Facturé à',
             ship_to_title: 'Adresse de facturation',
             date_title: 'Date',

@@ -271,9 +271,16 @@ export class BillController {
             const customer: ClientI = await globalUtils.findOne(Client, clientId);
             if (!customer) throw new Error('Invalid customer id');
 
+            // Génération de la facture
+            const data = await globalUtils.generateInvoice('bill', bill._id);
+
+            // Vérification de si l'id est valide ou non
+            if (!data) throw new Error('Invalid bill id');
+
             // Envoi du mail
             sendMail(customer.email, 'Relance payement facture',
-                sendBillModel(customer.name, 'de la facture', bill.billNum, VerifyData.formatShortDate(new Date(bill.deadline)), bill.status === 'En retard')
+                sendBillModel(customer.name, 'de la facture', bill.billNum, VerifyData.formatShortDate(new Date(bill.deadline)), bill.status === 'En retard'),
+                { path: data.file.path, num: bill.billNum }
             );
 
             sendResponse(res, 200, { error: false, message: 'Mail successfully send' });

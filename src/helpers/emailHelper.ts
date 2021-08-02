@@ -11,7 +11,8 @@ const accountPassword = process.env.MAIL_PASSWORD as string;
  */
 const sendMail = async (email: string, mailSubject: string, model: string, file?: { path: string, num: string }): Promise<void> => {
     try {
-        const attachments: Mail.Attachment[] = [{ filename: `${file?.num}.pdf`, path: file?.path }];
+        const attachments: Mail.Attachment[] = [];
+        if (file) attachments.push({ filename: `${file?.num}.pdf`, path: file?.path });
         const transporter = nodemailer.createTransport({
             host: 'smtp.gmail.com',
             port: 465,
