@@ -277,7 +277,7 @@ export class EstimateController {
             sendResponse(res, 200, { error: false, message: 'Mail successfully send' });
         } catch (err) {
             if (err.message === 'You do not have the required permissions') sendResponse(res, 400, { error: true, code: '401002', message: err.message });
-            else if (err.message === 'Missing important fields') sendResponse(res, 400, { error: true, code: '104501', message: err.message });
+            else if (err.message === 'Missing important fields') sendResponse(res, 400, { error: true, code: '105301', message: err.message });
             else if (err.message === 'Invalid estimate id') sendResponse(res, 400, { error: true, code: '105302', message: err.message });
             else if (err.message === 'Invalid customer id') sendResponse(res, 400, { error: true, code: '105303', message: err.message });
             else errorHandler(res, err);
