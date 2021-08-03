@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { sendMail } from '../helpers/emailHelper';
+import { sendNotificationToOne } from '../helpers/notificationHelper';
 import { errorHandler, sendResponse } from '../helpers/responseHelper';
 import VerifyData from '../helpers/verifyDataHelper';
 import { ArticleI } from '../interfaces/articleInterface';
@@ -104,6 +105,9 @@ export class BillController {
 
             // Création de la facture
             const bill: BillI = await Bill.create(req.body);
+
+            // Envoi d'une notification
+            sendNotificationToOne('Nouvelle facture', 'Une nouvelle facture à été émise en votre nom. Cliquez ici pour la consulter.', customer, bill._id, 'Facture');
 
             // Envoi de la réponse
             sendResponse(res, 200, { error: false, message: 'Bill successfully created', bill: billUtils.generateBillJSON(bill) });
@@ -282,6 +286,9 @@ export class BillController {
                 sendBillModel(customer.name, 'de la facture', bill.billNum, VerifyData.formatShortDate(new Date(bill.deadline)), bill.status === 'En retard'),
                 { path: data.file.path, num: bill.billNum }
             );
+
+            // Envoi d'une notification
+            sendNotificationToOne('Relance payement', 'Vous faites l\'objet d\'une relance de payement pour une facture. Veuillez cliquer ici pour la régler.', customer, bill._id, 'Facture');
 
             sendResponse(res, 200, { error: false, message: 'Mail successfully send' });
         } catch (err) {

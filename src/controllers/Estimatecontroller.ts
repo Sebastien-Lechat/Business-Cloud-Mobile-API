@@ -1,17 +1,21 @@
 import { Request, Response } from 'express';
 import { sendMail } from '../helpers/emailHelper';
+import { sendNotificationToOne } from '../helpers/notificationHelper';
 import { errorHandler, sendResponse } from '../helpers/responseHelper';
 import VerifyData from '../helpers/verifyDataHelper';
 import { ArticleI } from '../interfaces/articleInterface';
+import { BillI } from '../interfaces/billInterface';
 import { EnterpriseI } from '../interfaces/enterpriseInterface';
 import { EstimateArticleI, EstimateI } from '../interfaces/estimateInterface';
 import { ClientI } from '../interfaces/userInterface';
 import { Article } from '../models/Article';
+import { Bill } from '../models/Bill';
 import { Client } from '../models/Client';
 import { Enterprise } from '../models/Entreprise';
 import { Estimate } from '../models/Estimate';
 import { sendBillModel } from '../templates/emailTemplate';
 import { articleUtils } from '../utils/articleUtils';
+import { billUtils } from '../utils/billUtils';
 import { estimateUtils } from '../utils/estimateUtils';
 import { globalUtils } from '../utils/globalUtils';
 import { userUtils } from '../utils/userUtils';
@@ -104,6 +108,9 @@ export class EstimateController {
 
             // Création du devis
             const estimate: EstimateI = await Estimate.create(req.body);
+
+            // Envoi d'une notification
+            sendNotificationToOne('Nouveau devis', 'Un nouveau devis à été émis en votre nom. Cliquez ici pour le consulter.', customer, estimate._id, 'Devis');
 
             // Envoi de la réponse
             sendResponse(res, 200, { error: false, message: 'Estimate successfully created', estimate: estimateUtils.generateEstimateJSON(estimate) });
@@ -261,7 +268,7 @@ export class EstimateController {
             // Vérification de si toutes les données nécessaire sont présentes
             if (!estimateId || !clientId) throw new Error('Missing important fields');
 
-            // Vérification de si la facture existe
+            // Vérification de si le devis existe
             const estimate: EstimateI = await globalUtils.findOne(Estimate, estimateId);
             if (!estimate) throw new Error('Invalid estimate id');
 
@@ -270,7 +277,7 @@ export class EstimateController {
             if (!customer) throw new Error('Invalid customer id');
 
             // Génération de la facture
-            const data = await globalUtils.generateInvoice('bill', estimate._id);
+            const data = await globalUtils.generateInvoice('estimate', estimate._id);
 
             // Vérification de si l'id est valide ou non
             if (!data) throw new Error('Invalid estimate id');
@@ -281,12 +288,74 @@ export class EstimateController {
                 { path: data.file.path, num: estimate.estimateNum }
             );
 
+            // Envoi d'une notification
+            sendNotificationToOne('Relance acceptation', 'Vous faites l\'objet d\'une relance d\'acceptation d\'un devis. Veuillez cliquer ici pour le consulter.', customer, estimate._id, 'Devis');
+
             sendResponse(res, 200, { error: false, message: 'Mail successfully send' });
         } catch (err) {
             if (err.message === 'You do not have the required permissions') sendResponse(res, 400, { error: true, code: '401002', message: err.message });
             else if (err.message === 'Missing important fields') sendResponse(res, 400, { error: true, code: '105301', message: err.message });
             else if (err.message === 'Invalid estimate id') sendResponse(res, 400, { error: true, code: '105302', message: err.message });
             else if (err.message === 'Invalid customer id') sendResponse(res, 400, { error: true, code: '105303', message: err.message });
+            else errorHandler(res, err);
+        }
+    }
+
+    /**
+     * Fonction pour transformer un devis en facture (POST /estimate/transform/:estimateId)
+     * @param req express Request
+     * @param res express Response
+     */
+    static tranformEstimateToBill = async (req: Request, res: Response) => {
+        try {
+            // Vérification de si l'utilisateur à les permissions de faire la requête
+            const hasPermission = globalUtils.checkPermission(userUtils.getRequestUser(req), 'user');
+            if (!hasPermission) throw new Error('You do not have the required permissions');
+
+            // Récupération de toutes les données du body
+            const { estimateId } = req.params;
+
+            // Vérification de si toutes les données nécessaire sont présentes
+            if (!estimateId) throw new Error('Missing important fields');
+
+            // Vérification de si le devis existe
+            const estimate: EstimateI = await globalUtils.findOne(Estimate, estimateId);
+            if (!estimate) throw new Error('Invalid estimate id');
+
+            // Vérification de si le client existe
+            const customer: ClientI = await globalUtils.findOne(Client, estimate.clientId as string);
+            if (!customer) throw new Error('Invalid customer id');
+
+            // Vérification de si le devis n'est pas déjà accepté
+            if (estimate.status === 'Accepté') throw new Error('Invalid estimate status');
+
+            // Création de la facture
+            const data = {
+                status: 'Non payée',
+                billNum: await globalUtils.findNextNumber('FAC'),
+                deadline: new Date().setDate(new Date().getDate() + 30),
+                clientId: estimate.clientId,
+                enterpriseId: estimate.enterpriseId,
+                articles: estimate.articles,
+                totalHT: estimate.totalHT,
+                totalTTC: estimate.totalTTC,
+            };
+            const bill: BillI = await Bill.create(data);
+
+            // Mise à jour du devis
+            await globalUtils.updateOneById(Estimate, estimate._id, { status: 'Accepté' });
+
+            // Envoi d'une notification
+            sendNotificationToOne('Nouvelle facture', 'Une nouvelle facture à été émise en votre nom. Cliquez ici pour la consulter.', customer, bill._id, 'Facture');
+
+            // Envoi de la réponse
+            sendResponse(res, 200, { error: false, message: 'Estimate successfully transform', bill: billUtils.generateBillJSON(bill) });
+        } catch (err) {
+            if (err.message === 'You do not have the required permissions') sendResponse(res, 400, { error: true, code: '401002', message: err.message });
+            else if (err.message === 'Missing important fields') sendResponse(res, 400, { error: true, code: '105351', message: err.message });
+            else if (err.message === 'Invalid estimate id') sendResponse(res, 400, { error: true, code: '105352', message: err.message });
+            else if (err.message === 'Invalid customer id') sendResponse(res, 400, { error: true, code: '105353', message: err.message });
+            else if (err.message === 'Invalid estimate status') sendResponse(res, 400, { error: true, code: '105354', message: err.message });
             else errorHandler(res, err);
         }
     }
