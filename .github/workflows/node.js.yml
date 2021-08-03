@@ -34,5 +34,6 @@ jobs:
         JWT_KEY: ${{ secrets.JWT_KEY }}
         MAIL: ${{ secrets.MAIL }}
         MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
+        FCM_KEY: ${{ secrets.FCM_KEY }}
       
       
