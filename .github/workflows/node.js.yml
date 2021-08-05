@@ -35,5 +35,7 @@ jobs:
         MAIL: ${{ secrets.MAIL }}
         MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
         FCM_KEY: ${{ secrets.FCM_KEY }}
+        STRIPE_PUBLIC: ${{ secrets.STRIPE_PUBLIC }}
+        STRIPE_PRIVATE: ${{ secrets.STRIPE_PRIVATE }}
       
       
