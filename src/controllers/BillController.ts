@@ -16,7 +16,14 @@ import { articleUtils } from '../utils/articleUtils';
 import { billUtils } from '../utils/billUtils';
 import { globalUtils } from '../utils/globalUtils';
 import { userUtils } from '../utils/userUtils';
+import { config } from 'dotenv';
 
+config();
+
+// const stripePublicKey: string = process.env.STRIPE_PUBLIC as string;
+const stripePrivateKey: string = process.env.STRIPE_PRIVATE as string;
+
+const stripe = require('stripe')(stripePrivateKey);
 export class BillController {
 
     /**
@@ -296,6 +303,49 @@ export class BillController {
             else if (err.message === 'Missing important fields') sendResponse(res, 400, { error: true, code: '104301', message: err.message });
             else if (err.message === 'Invalid bill id') sendResponse(res, 400, { error: true, code: '104302', message: err.message });
             else if (err.message === 'Invalid customer id') sendResponse(res, 400, { error: true, code: '104303', message: err.message });
+            else errorHandler(res, err);
+        }
+    }
+
+    /**
+     * Fonction pour retourner les informations de payement d'une facture  (POST /bill/payement-sheet)
+     * @param req express Request
+     * @param res express Response
+     */
+    static payementSheet = async (req: Request, res: Response) => {
+        try {
+            // Vérification de si l'utilisateur à les permissions de faire la requête
+            const hasPermission = globalUtils.checkPermission(userUtils.getRequestUser(req), 'client');
+            if (!hasPermission) throw new Error('You do not have the required permissions');
+
+            // Récupération de toutes les données du body
+            const { amount } = req.body;
+
+            // Vérification de si toutes les données nécessaire sont présentes
+            if (!amount) throw new Error('Missing important fields');
+
+            const customer = await stripe.customers.create();
+
+            const ephemeralKey = await stripe.ephemeralKeys.create(
+                { customer: customer.id },
+                { apiVersion: '2020-08-27' }
+            );
+
+            const paymentIntent = await stripe.paymentIntents.create({
+                amount: Math.floor(amount),
+                currency: 'eur',
+                customer: customer.id,
+            });
+
+            // Envoi de la réponse
+            res.json({
+                paymentIntent: paymentIntent.client_secret,
+                ephemeralKey: ephemeralKey.secret,
+                customer: customer.id
+            });
+        } catch (err) {
+            if (err.message === 'You do not have the required permissions') sendResponse(res, 400, { error: true, code: '401002', message: err.message });
+            else if (err.message === 'Missing important fields') sendResponse(res, 400, { error: true, code: '104351', message: err.message });
             else errorHandler(res, err);
         }
     }

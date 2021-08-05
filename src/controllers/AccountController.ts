@@ -8,8 +8,6 @@ import { globalUtils } from '../utils/globalUtils';
 import { userUtils } from '../utils/userUtils';
 import { ClientI } from '../interfaces/userInterface';
 import { Enterprise } from '../models/Entreprise';
-import { IncomingForm } from 'formidable';
-import fs from 'fs';
 import mongoose from 'mongoose';
 
 export class AccountController {
