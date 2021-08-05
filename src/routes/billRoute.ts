@@ -12,5 +12,6 @@ route.post('/bill', [authMiddleware, historyMiddleware], BillController.create);
 route.put('/bill', [authMiddleware, historyMiddleware], BillController.update);
 route.delete('/bill/:id', [authMiddleware, historyMiddleware], BillController.delete);
 route.post('/bill/:billId/customer/:clientId/mail', [authMiddleware, historyMiddleware], BillController.sendBillMail);
+route.post('/bill/payment-sheet', [authMiddleware, historyMiddleware], BillController.payementSheet);
 
 export { route as billRouter };
