@@ -93,8 +93,22 @@ const getBillList = async (user: UserObject): Promise<BillJsonI[]> => {
     } else return billList;
 };
 
+/**
+ * Fonction pour retourner le montant modifié pour stripe
+ * @param amount Montant de la facture
+ * @return Retourne le JSON
+ */
+const getBillAmount = (amount: number): number => {
+    if (amount % 1 === 0) {
+        return parseFloat(amount + '00');
+    } else {
+        return parseFloat(amount.toString().split('.')[0] + amount.toString().split('.')[1]);
+    }
+};
+
 const billUtils = {
     generateBillJSON,
+    getBillAmount,
     getBillList
 };
 

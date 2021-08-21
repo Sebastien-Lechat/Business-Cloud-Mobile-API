@@ -10,7 +10,7 @@ const generateTimeJSON = (time: TimeI): TimeJsonI => {
     const toReturn = {
         id: time._id,
         userId: time.userId,
-        taskId: time.taskId,
+        taskName: time.taskName,
         projectId: time.projectId,
         billable: time.billable,
         duration: time.duration,

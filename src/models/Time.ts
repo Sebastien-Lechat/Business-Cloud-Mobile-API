@@ -11,9 +11,8 @@ const timeSchema = new mongoose.Schema({
         required: true,
         ref: 'project',
     },
-    taskId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'task',
+    taskName: {
+        type: String,
     },
     billable: {
         type: Boolean,
