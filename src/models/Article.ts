@@ -19,6 +19,10 @@ const articleSchema = new mongoose.Schema({
     description: {
         type: String,
     },
+    showAutoComplete: {
+        type: Boolean,
+        default: true,
+    },
 }, { timestamps: true });
 
 const Article = mongoose.model('article', articleSchema);

@@ -10,6 +10,7 @@ const route: express.Application = express();
 route.get('/projects', [authMiddleware], ProjectController.getProjectsList);
 route.get('/project/:id', [authMiddleware], ProjectController.getOneProject);
 route.post('/project', [authMiddleware, historyMiddleware], ProjectController.create);
+route.post('/project/transform/:id', [authMiddleware, historyMiddleware], ProjectController.transformToBill);
 route.put('/project', [authMiddleware, historyMiddleware], ProjectController.update);
 route.delete('/project/:id', [authMiddleware, historyMiddleware], ProjectController.delete);
 

@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import { sendNotificationToOne } from '../helpers/notificationHelper';
 import { errorHandler, sendResponse } from '../helpers/responseHelper';
 import VerifyData from '../helpers/verifyDataHelper';
 import { ProjectI } from '../interfaces/projectInterface';
@@ -286,6 +287,47 @@ export class ProjectController {
             if (err.message === 'You do not have the required permissions') sendResponse(res, 400, { error: true, code: '401002', message: err.message });
             else if (err.message === 'Missing id field') sendResponse(res, 400, { error: true, code: '108251', message: err.message });
             else if (err.message === 'Invalid project id') sendResponse(res, 400, { error: true, code: '108252', message: err.message });
+            else errorHandler(res, err);
+        }
+    }
+
+    /**
+     * Fonction de transformation d'un projet en facture (POST /project/transform/:id)
+     * @param req express Request
+     * @param res express Response
+     */
+    static transformToBill = async (req: Request, res: Response) => {
+        try {
+            // Vérification de si l'utilisateur à les permissions de faire la requête
+            const hasPermission = globalUtils.checkPermission(userUtils.getRequestUser(req), 'user');
+            if (!hasPermission) throw new Error('You do not have the required permissions');
+
+            // Récupération de toutes les données du body
+            const { id } = req.params;
+
+            // Vérification de si toutes les données nécessaire sont présentes
+            if (!id) throw new Error('Missing id field');
+
+            // Vérification de si le projet existe
+            const project: ProjectI = await globalUtils.findOne(Project, id);
+            if (!project) throw new Error('Invalid project id');
+
+            // Transformation du projet
+            const bill = await projectUtils.transformProjectToBill(project);
+
+            // Vérification de si le client existe
+            const customer: ClientI = await globalUtils.findOne(Client, bill.clientId as string);
+            if (!customer) throw new Error('Invalid customer id');
+
+            // Envoi d'une notification
+            sendNotificationToOne('Nouvelle facture', 'Une nouvelle facture à été émise en votre nom. Cliquez ici pour la consulter.', customer, bill._id, 'Facture');
+
+            // Envoi de la réponse
+            sendResponse(res, 200, { error: false, message: 'Project successfully transformed', billId: bill._id });
+        } catch (err) {
+            if (err.message === 'You do not have the required permissions') sendResponse(res, 400, { error: true, code: '401002', message: err.message });
+            else if (err.message === 'Missing id field') sendResponse(res, 400, { error: true, code: '108301', message: err.message });
+            else if (err.message === 'Invalid project id') sendResponse(res, 400, { error: true, code: '108302', message: err.message });
             else errorHandler(res, err);
         }
     }

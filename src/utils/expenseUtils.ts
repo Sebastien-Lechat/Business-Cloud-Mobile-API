@@ -33,8 +33,8 @@ const generateExpenseJSON = (expense: ExpenseI): ExpenseJsonI => {
 const getExpenseList = async (projectId?: string): Promise<ExpenseJsonI[]> => {
     const expenseList: ExpenseJsonI[] = [];
     if (projectId) {
-        // Récupération de toutess les notes de frais
-        const expenses = await globalUtils.findMany(Expense, { projectId: projectId });
+        // Récupération de toutess les dépenses
+        const expenses = await Expense.find({ projectId: projectId }).populate('userId', { _id: 1, name: 1 }).sort({ createdAt: -1 });
 
         // Mise en forme
         expenses.map((userExpense: ExpenseI) => {
@@ -43,8 +43,8 @@ const getExpenseList = async (projectId?: string): Promise<ExpenseJsonI[]> => {
 
         return expenseList;
     } else {
-        // Récupération de toutess les notes de frais
-        const userExpenses = await globalUtils.findMany(Expense, {});
+        // Récupération de toutes les dépenses
+        const userExpenses = await Expense.find().populate('userId', { _id: 1, name: 1 }).sort({ createdAt: -1 });
 
         // Mise en forme
         userExpenses.map((userExpense: ExpenseI) => {
