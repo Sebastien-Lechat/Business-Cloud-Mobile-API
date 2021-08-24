@@ -8,6 +8,7 @@ const route: express.Application = express();
 route.get('/expenses/:projectId', [authMiddleware], ExpenseController.getExpensesList);
 route.get('/expense/:id', [authMiddleware], ExpenseController.getOneExpense);
 route.post('/expense', [authMiddleware, historyMiddleware], ExpenseController.create);
+route.put('/expense', [authMiddleware, historyMiddleware], ExpenseController.update);
 route.delete('/expense/:id', [authMiddleware, historyMiddleware], ExpenseController.delete);
 
 export { route as expenseRouter };

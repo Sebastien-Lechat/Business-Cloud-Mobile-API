@@ -1,7 +1,7 @@
 export interface TimeI {
     _id: string;
     userId: string;
-    taskId: string;
+    taskName: string;
     projectId: string;
     billable: boolean;
     duration: number;
@@ -12,7 +12,7 @@ export interface TimeI {
 export interface TimeJsonI {
     id: string;
     userId: string;
-    taskId: string;
+    taskName: string;
     projectId: string;
     billable: boolean;
     duration: number;

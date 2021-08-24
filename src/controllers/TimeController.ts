@@ -94,7 +94,7 @@ export class TimeController {
             // Création du temps
             const time: TimeI = await Time.create(req.body);
 
-            // Mise à jour du projet et du temps facturable
+            // Mise à jour des dépenses et du temps facturable
             await projectUtils.updateProjectBilling(projectId);
 
             const populateTime = await Time.findOne({ _id: time._id }).populate('userId', { _id: 1, name: 1 });
@@ -142,6 +142,9 @@ export class TimeController {
             // Création de la tâche
             await globalUtils.updateOneById(Time, id, { billable: billable });
 
+            // Mise à jour des dépenses et du temps facturable
+            if (time.projectId) await projectUtils.updateProjectBilling(time.projectId);
+
             // Envoi de la réponse
             sendResponse(res, 200, { error: false, message: 'Time successfully updated', time: timeUtils.generateTimeJSON(time) });
         } catch (err) {
@@ -176,6 +179,9 @@ export class TimeController {
 
             // Suppression du temps
             await globalUtils.deleteOne(Time, id);
+
+            // Mise à jour des dépenses et du temps facturable
+            if (time.projectId) await projectUtils.updateProjectBilling(time.projectId);
 
             // Envoi de la réponse
             sendResponse(res, 200, { error: false, message: 'Time successfully deleted' });

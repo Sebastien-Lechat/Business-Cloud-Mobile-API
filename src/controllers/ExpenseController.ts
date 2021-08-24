@@ -10,6 +10,7 @@ import { Project } from '../models/Project';
 import { User } from '../models/User';
 import { expenseUtils } from '../utils/expenseUtils';
 import { globalUtils } from '../utils/globalUtils';
+import { projectUtils } from '../utils/projectUtils';
 import { userUtils } from '../utils/userUtils';
 
 export class ExpenseController {
@@ -115,15 +116,23 @@ export class ExpenseController {
             // Vérification de la validité du champs facturable
             if (billable && billable !== true && billable !== false) throw new Error('Invalid billable format');
 
+            let expense;
+
             // Vérification de si le projet existe bien
             if (projectId) {
                 const project = await Project.findOne({ _id: mongoose.Types.ObjectId(projectId) });
                 if (!project) throw new Error('Invalid project id');
-            }
 
-            // Création de la note de frais
-            req.body.userId = user.data._id;
-            const expense = await Expense.create(req.body);
+                // Création de la note de frais
+                req.body.userId = user.data._id;
+                expense = await Expense.create(req.body);
+
+                await projectUtils.updateProjectBilling(projectId);
+            } else {
+                // Création de la note de frais
+                req.body.userId = user.data._id;
+                expense = await Expense.create(req.body);
+            }
 
             // Envoi de la réponse
             sendResponse(res, 200, { error: false, message: 'Expense successfully created', expense: expenseUtils.generateExpenseJSON(expense) });
@@ -135,6 +144,50 @@ export class ExpenseController {
             else if (err.message === 'Invalid price format') sendResponse(res, 400, { error: true, code: '111104', message: err.message });
             else if (err.message === 'Invalid billable format') sendResponse(res, 400, { error: true, code: '111105', message: err.message });
             else if (err.message === 'Invalid project id') sendResponse(res, 400, { error: true, code: '111106', message: err.message });
+            else errorHandler(res, err);
+        }
+    }
+
+    /**
+     * Fonction de modification d'une dépense (PUT /expense)
+     * @param req express Request
+     * @param res express Response
+     */
+    static update = async (req: Request, res: Response) => {
+        try {
+            // Récupération de l'utilisateur grâce au Authmiddleware qui rajoute le token dans req
+            const user = userUtils.getRequestUser(req);
+
+            // Vérification de si l'utilisateur à les permissions de faire la requête
+            const hasPermission = globalUtils.checkPermission(user, 'user');
+            if (!hasPermission) throw new Error('You do not have the required permissions');
+
+            // Récupération de toutes les données du body
+            const { id, billable } = req.body;
+
+            // Vérification de si toutes les données nécessaire sont présentes
+            if (!id || billable === undefined) throw new Error('Missing important fields');
+
+            // Vérification de si la dépense existe
+            const expense: ExpenseI = await globalUtils.findOne(Expense, id);
+            if (!expense) throw new Error('Invalid expense id');
+
+            // Vérification de la validité du champs facturable
+            if (billable && billable !== true && billable !== false) throw new Error('Invalid billable format');
+
+            // Création de la tâche
+            await globalUtils.updateOneById(Expense, id, { billable: billable });
+
+            // Mise à jour des dépenses et du temps facturable
+            if (expense.projectId) await projectUtils.updateProjectBilling(expense.projectId);
+
+            // Envoi de la réponse
+            sendResponse(res, 200, { error: false, message: 'Time successfully updated', expense: expenseUtils.generateExpenseJSON(expense) });
+        } catch (err) {
+            if (err.message === 'You do not have the required permissions') sendResponse(res, 400, { error: true, code: '401002', message: err.message });
+            else if (err.message === 'Missing important fields') sendResponse(res, 400, { error: true, code: '111151', message: err.message });
+            else if (err.message === 'Invalid expense id') sendResponse(res, 400, { error: true, code: '111152', message: err.message });
+            else if (err.message === 'Invalid billable format') sendResponse(res, 400, { error: true, code: '111153', message: err.message });
             else errorHandler(res, err);
         }
     }
@@ -163,12 +216,15 @@ export class ExpenseController {
             // Suppression de la dépense
             await globalUtils.deleteOne(Expense, id);
 
+            // Mise à jour des dépenses et du temps facturable
+            if (expense.projectId) await projectUtils.updateProjectBilling(expense.projectId);
+
             // Envoi de la réponse
             sendResponse(res, 200, { error: false, message: 'Expense successfully deleted' });
         } catch (err) {
             if (err.message === 'You do not have the required permissions') sendResponse(res, 400, { error: true, code: '401002', message: err.message });
-            else if (err.message === 'Missing id field') sendResponse(res, 400, { error: true, code: '111151', message: err.message });
-            else if (err.message === 'Invalid expense id') sendResponse(res, 400, { error: true, code: '111152', message: err.message });
+            else if (err.message === 'Missing id field') sendResponse(res, 400, { error: true, code: '111201', message: err.message });
+            else if (err.message === 'Invalid expense id') sendResponse(res, 400, { error: true, code: '111202', message: err.message });
             else errorHandler(res, err);
         }
     }

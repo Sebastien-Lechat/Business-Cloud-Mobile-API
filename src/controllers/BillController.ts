@@ -308,11 +308,11 @@ export class BillController {
     }
 
     /**
-     * Fonction pour retourner les informations de payement d'une facture  (POST /bill/payement-sheet)
+     * Fonction pour retourner les informations de payement d'une facture  (POST /bill/payment-sheet)
      * @param req express Request
      * @param res express Response
      */
-    static payementSheet = async (req: Request, res: Response) => {
+    static paymentSheet = async (req: Request, res: Response) => {
         try {
             // Vérification de si l'utilisateur à les permissions de faire la requête
             const hasPermission = globalUtils.checkPermission(userUtils.getRequestUser(req), 'client');
@@ -332,7 +332,7 @@ export class BillController {
             );
 
             const paymentIntent = await stripe.paymentIntents.create({
-                amount: Math.floor(amount),
+                amount: billUtils.getBillAmount(amount),
                 currency: 'eur',
                 customer: customer.id,
             });
@@ -346,6 +346,56 @@ export class BillController {
         } catch (err) {
             if (err.message === 'You do not have the required permissions') sendResponse(res, 400, { error: true, code: '401002', message: err.message });
             else if (err.message === 'Missing important fields') sendResponse(res, 400, { error: true, code: '104351', message: err.message });
+            else errorHandler(res, err);
+        }
+    }
+
+    /**
+     * Fonction pour payer une facture (POST /bill/payment/:id)
+     * @param req express Request
+     * @param res express Response
+     */
+    static payBill = async (req: Request, res: Response) => {
+        try {
+            // Vérification de si l'utilisateur à les permissions de faire la requête
+            const hasPermission = globalUtils.checkPermission(userUtils.getRequestUser(req), 'client');
+            if (!hasPermission) throw new Error('You do not have the required permissions');
+
+            // Récupération de toutes les données du body
+            const { id } = req.params;
+
+            // Vérification de si toutes les données nécessaire sont présentes
+            if (!id) throw new Error('Missing important fields');
+
+            // Vérification de si la facture existe
+            const bill: BillI = await globalUtils.findOne(Bill, id);
+            if (!bill) throw new Error('Invalid bill id');
+
+            // Création des données existante à modifier
+            const toUpdate: any = {
+                status: 'Payée',
+                amountPaid: bill.totalTTC,
+                payementDate: new Date(),
+            };
+
+            // Modification de la facture
+            await globalUtils.updateOneById(Bill, id, toUpdate);
+
+            // Récupération de la facture avec les articles
+            const populateBill: BillI = await globalUtils.findOneAndPopulate(Bill, id, ['articles.articleId']);
+
+            // Mise en forme
+            populateBill.articles.map((article: BillArticleI) => {
+                article.articleId = articleUtils.generateArticleJSON(article.articleId as ArticleI);
+                return article;
+            });
+
+            // Envoi de la réponse
+            sendResponse(res, 200, { error: false, message: 'Bill successfully payed', bill: billUtils.generateBillJSON(populateBill) });
+        } catch (err) {
+            if (err.message === 'You do not have the required permissions') sendResponse(res, 400, { error: true, code: '401002', message: err.message });
+            else if (err.message === 'Missing important fields') sendResponse(res, 400, { error: true, code: '104401', message: err.message });
+            else if (err.message === 'Invalid bill id') sendResponse(res, 400, { error: true, code: '104402', message: err.message });
             else errorHandler(res, err);
         }
     }
