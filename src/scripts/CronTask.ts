@@ -42,7 +42,7 @@ export class CronTask {
         // Mise à jour du status des factures
         const bills: BillI[] = await Bill.find();
         bills.map(async (bill: BillI) => {
-            if (new Date(bill.deadline).getTime() - Date.now() < 0) {
+            if (new Date(bill.deadline).getTime() - Date.now() < 0 && bill.status !== 'Payée') {
                 await Bill.updateOne({ _id: mongoose.Types.ObjectId(bill._id) }, { $set: { status: 'En retard' } });
             }
         });
@@ -54,7 +54,7 @@ export class CronTask {
         // Mise à jour du status des devis
         const estimates: EstimateI[] = await Estimate.find();
         estimates.map(async (estimate: EstimateI) => {
-            if (new Date(estimate.deadline).getTime() - Date.now() < 0) {
+            if (new Date(estimate.deadline).getTime() - Date.now() < 0 && estimate.status !== 'Accepté') {
                 await Estimate.updateOne({ _id: mongoose.Types.ObjectId(estimate._id) }, { $set: { status: 'En retard' } });
             }
         });
