@@ -30,7 +30,7 @@ export class CronTask {
         // Mise à jour du status des projets
         const projects: ProjectI[] = await Project.find();
         projects.map(async (project: ProjectI) => {
-            if (project.deadline.getTime() - Date.now() < 0) {
+            if (project.deadline.getTime() - Date.now() < 0 && project.status !== 'Terminé') {
                 await Project.updateOne({ _id: mongoose.Types.ObjectId(project._id) }, { $set: { status: 'En retard' } });
             }
         });

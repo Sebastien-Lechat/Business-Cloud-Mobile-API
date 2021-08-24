@@ -375,6 +375,7 @@ export class BillController {
             const toUpdate: any = {
                 status: 'Payée',
                 amountPaid: bill.totalTTC,
+                payementDate: new Date(),
             };
 
             // Modification de la facture
