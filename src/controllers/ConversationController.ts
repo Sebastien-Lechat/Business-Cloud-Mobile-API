@@ -46,7 +46,7 @@ export class ConversationController {
             if (!conversation) throw new Error('Invalid conversation id');
 
             // Envoi de la réponse
-            sendResponse(res, 200, { error: false, message: 'Successful project acquisition', conversation: conversationUtils.generateConversationJSON(conversation) });
+            sendResponse(res, 200, { error: false, message: 'Successful conversation acquisition', conversation: conversationUtils.generateConversationJSON(conversation) });
         } catch (err) {
             if (err.message === 'Missing id field') sendResponse(res, 400, { error: true, code: '112201', message: err.message });
             else if (err.message === 'Invalid conversation id') sendResponse(res, 400, { error: true, code: '112202', message: err.message });
@@ -78,7 +78,7 @@ export class ConversationController {
             const messages = await conversationUtils.findAllConvMessage(id);
 
             // Envoi de la réponse
-            sendResponse(res, 200, { error: false, message: 'Successful project acquisition', messages: messages });
+            sendResponse(res, 200, { error: false, message: 'Successful conversation messages acquisition', messages: messages });
 
             // Mise à jour de tous les messages en vu
             await conversationUtils.updateAllMessageSeen(id, user.data._id);

@@ -123,7 +123,7 @@ export class AccountController {
             // Envoi de la réponse
             sendResponse(res, 200, { error: false, message: 'Device successfully added' });
         } catch (err) {
-            if (err.message === 'Missing important fields') sendResponse(res, 400, { error: true, message: err.message });
+            if (err.message === 'Missing important fields') sendResponse(res, 400, { error: true, code: '102251', message: err.message });
             else errorHandler(res, err);
         }
     }
@@ -158,13 +158,17 @@ export class AccountController {
             // Récupération de toutes les données du body
             const { avatarPath } = req.body;
 
+            // Vérification de si toutes les données nécessaire sont présentes
+            if (!avatarPath) throw new Error('Missing important fields');
+
             // Modification du chemin de stockage de l'image
             await userUtils.updateUser(user, { avatar: avatarPath });
 
             // Envoi de la réponse
             sendResponse(res, 200, { error: false, message: 'Profile successfully updated' });
         } catch (err) {
-            errorHandler(res, err);
+            if (err.message === 'Missing important fields') sendResponse(res, 400, { error: true, code: '102301', message: err.message });
+            else errorHandler(res, err);
         }
     }
 
@@ -179,7 +183,7 @@ export class AccountController {
             const user = userUtils.getRequestUser(req);
 
             // Récupération de toutes les données du body
-            const { avatar, name, email, phone, birthdayDate } = req.body;
+            const { name, email, phone, birthdayDate } = req.body;
 
             // Vérification de l'email de l'utilisateur
             if (email && !VerifyData.validEmail(email)) throw new Error('Invalid email addresse');

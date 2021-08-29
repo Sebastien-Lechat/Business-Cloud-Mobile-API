@@ -91,10 +91,10 @@ export class AuthController {
     static register = async (req: Request, res: Response) => {
         try {
             // Récupération de toutes les données du body
-            const { name, email, password, phone, birthdayDate, address, zip, city, country, numTVA, numSIRET, numRCS } = req.body;
+            const { name, email, password, phone, address, zip, city, country, numTVA, numSIRET, numRCS } = req.body;
 
             // Vérification de si toutes les données nécessaire sont présentes
-            if (!name || !email || !password) throw new Error('Missing important fields');
+            if (!name || !email || !password || !address || !zip || !city || !country || !numTVA || !numSIRET || !numRCS) throw new Error('Missing important fields');
 
             // Vérification de l'email de l'utilisateur
             if (!VerifyData.validEmail(email)) throw new Error('Invalid email addresse');
@@ -109,9 +109,6 @@ export class AuthController {
             if (!VerifyData.validPassword(password)) throw new Error('Invalid password format');
             req.body.password = await hashPassword(req.body.password);
 
-            // Vérification de la date de naissance de l'utilisateur
-            if (birthdayDate && !VerifyData.validDate(birthdayDate)) throw new Error('Invalid date format');
-
             // Création de l'utilisateur
             const client: ClientI = await Client.create(req.body);
 
@@ -125,8 +122,7 @@ export class AuthController {
             else if (err.message === 'Invalid TVA number') sendResponse(res, 400, { error: true, code: '101055', message: err.message });
             else if (err.message === 'Invalid SIRET number') sendResponse(res, 400, { error: true, code: '101056', message: err.message });
             else if (err.message === 'Invalid RCS number') sendResponse(res, 400, { error: true, code: '101057', message: err.message });
-            else if (err.message === 'Invalid date format') sendResponse(res, 400, { error: true, code: '101058', message: err.message });
-            else if (err.message === 'This email is already used') sendResponse(res, 400, { error: true, code: '101059', message: err.message });
+            else if (err.message === 'This email is already used') sendResponse(res, 400, { error: true, code: '101058', message: err.message });
             else errorHandler(res, err);
         }
     }

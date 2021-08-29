@@ -285,13 +285,10 @@ export class BillController {
             // Génération de la facture
             const data = await globalUtils.generateInvoice('bill', bill._id);
 
-            // Vérification de si l'id est valide ou non
-            if (!data) throw new Error('Invalid bill id');
-
             // Envoi du mail
             sendMail(customer.email, 'Relance payement facture',
                 sendBillModel(customer.name, 'de la facture', bill.billNum, VerifyData.formatShortDate(new Date(bill.deadline)), bill.status === 'En retard'),
-                { path: data.file.path, num: bill.billNum }
+                { path: data?.file.path, num: bill.billNum }
             );
 
             // Envoi d'une notification
@@ -371,6 +368,9 @@ export class BillController {
             const bill: BillI = await globalUtils.findOne(Bill, id);
             if (!bill) throw new Error('Invalid bill id');
 
+            // Vérification de si la facture n'est pas déjà payée
+            if (bill.status === 'Payée') throw new Error('Invalid bill status');
+
             // Création des données existante à modifier
             const toUpdate: any = {
                 status: 'Payée',
@@ -396,6 +396,7 @@ export class BillController {
             if (err.message === 'You do not have the required permissions') sendResponse(res, 400, { error: true, code: '401002', message: err.message });
             else if (err.message === 'Missing important fields') sendResponse(res, 400, { error: true, code: '104401', message: err.message });
             else if (err.message === 'Invalid bill id') sendResponse(res, 400, { error: true, code: '104402', message: err.message });
+            else if (err.message === 'Invalid bill status') sendResponse(res, 400, { error: true, code: '104403', message: err.message });
             else errorHandler(res, err);
         }
     }

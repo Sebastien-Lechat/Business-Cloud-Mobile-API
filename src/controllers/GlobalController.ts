@@ -48,10 +48,10 @@ export class GlobalController {
             const { id, type } = req.params;
 
             // Vérification de si toutes les données nécessaire sont présentes
-            if (!id) throw new Error('Missing id field');
+            if (!id || !type) throw new Error('Missing important fields');
 
-            // Vérification de si toutes les données nécessaire sont présentes
-            if (!type) throw new Error('Missing type field');
+            // Vérification du format du type
+            if (type !== 'estimate' && type !== 'bill') throw new Error('Invalid type field');
 
             // Génération de la facture
             const data = await globalUtils.generateInvoice(type, id);
@@ -70,10 +70,10 @@ export class GlobalController {
                 { path: data.file.path, num: type === 'bill' ? (data.fileData as BillI).billNum : (data.fileData as EstimateI).estimateNum }
             );
 
-            sendResponse(res, 200, { error: false, message: 'Invoice successfully send' });
+            sendResponse(res, 200, { error: false, message: 'Document successfully send' });
         } catch (err) {
-            if (err.message === 'Missing id field') sendResponse(res, 400, { error: true, code: '114051', message: err.message });
-            else if (err.message === 'Missing type field') sendResponse(res, 400, { error: true, code: '114052', message: err.message });
+            if (err.message === 'Missing important fields') sendResponse(res, 400, { error: true, code: '114051', message: err.message });
+            else if (err.message === 'Invalid type field') sendResponse(res, 400, { error: true, code: '114052', message: err.message });
             else if (err.message === 'Invalid customer id') sendResponse(res, 400, { error: true, code: '114053', message: err.message });
             else if (err.message === 'Invalid file id') sendResponse(res, 400, { error: true, code: '114054', message: err.message });
             else errorHandler(res, err);
