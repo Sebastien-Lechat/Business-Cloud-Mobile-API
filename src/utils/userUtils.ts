@@ -109,7 +109,7 @@ const getUsersList = async (user: UserObject): Promise<ShortUserListI[]> => {
  */
 const updateUser = async (user: UserObject, updateData: UserUpdateI): Promise<void> => {
     if (user.type === 'user') await User.updateOne({ _id: mongoose.Types.ObjectId(user.data._id), email: user.data.email }, { $set: updateData });
-    if (user.type === 'client') await Client.updateOne({ _id: mongoose.Types.ObjectId(user.data._id), email: user.data.email }, { $set: updateData });
+    else if (user.type === 'client') await Client.updateOne({ _id: mongoose.Types.ObjectId(user.data._id), email: user.data.email }, { $set: updateData });
 };
 
 /**

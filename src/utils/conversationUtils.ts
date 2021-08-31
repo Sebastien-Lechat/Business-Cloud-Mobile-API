@@ -18,7 +18,7 @@ const getConversationList = async (id: string): Promise<ConvJsonI[]> => {
             { 'member1.user': mongoose.Types.ObjectId(id) },
             { 'member2.user': mongoose.Types.ObjectId(id) }
         ]
-    }).populate('member1.user', { _id: 1, name: 1 }).populate('member2.user', { _id: 1, name: 1, avatar: 1 }).sort({ updatedAt: -1 });
+    }).populate('member1.user', { _id: 1, name: 1, avatar: 1 }).populate('member2.user', { _id: 1, name: 1, avatar: 1 }).sort({ updatedAt: -1 });
 
     conversations.map((conversation: ConvI) => {
         allConversationList.push(conversationUtils.generateConversationJSON(conversation));
@@ -70,7 +70,7 @@ const generateConversationJSON = (conversation: ConvI): ConvJsonI => {
  * @return Retourne la conversation ou null
  */
 const findAndPopulateConv = async (conversationId: string): Promise<ConvI | null> => {
-    return await Conversation.findOne({ _id: mongoose.Types.ObjectId(conversationId) }).populate('member1.user', { _id: 1, name: 1, socketToken: 1, avatar: 1 }).populate('member2.user', { _id: 1, name: 1, socketToken: 1, avatar: 1 });
+    return await Conversation.findOne({ _id: mongoose.Types.ObjectId(conversationId) }).populate('member1.user', { _id: 1, name: 1, socketToken: 1, avatar: 1, phone: 1 }).populate('member2.user', { _id: 1, name: 1, socketToken: 1, avatar: 1, phone: 1 });
 };
 
 /**
