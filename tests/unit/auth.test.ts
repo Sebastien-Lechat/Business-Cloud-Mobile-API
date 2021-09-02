@@ -31,7 +31,14 @@ const validUser: any = {
     name: 'Name_' + uuidUser1,
     email: uuidUser1 + '@gmail.com',
     password: 'Azerty1!',
-    role: 'Développeur'
+    role: 'Développeur',
+    address: '75 rue de Paris',
+    zip: '75008',
+    city: 'Paris',
+    country: 'France',
+    numTVA: 'FR03512803496',
+    numSIRET: '362 521 879 00034',
+    numRCS: 'RC Paris 234 987 456'
 };
 
 const uuidUser2 = uuidv4();
@@ -40,6 +47,13 @@ const invalidEmailUser: any = {
     name: 'Name_' + uuidUser2,
     email: uuidUser2 + ';:!@gmail.com',
     password: '1234567',
+    address: '75 rue de Paris',
+    zip: '75008',
+    city: 'Paris',
+    country: 'France',
+    numTVA: 'FR03512803496',
+    numSIRET: '362 521 879 00034',
+    numRCS: 'RC Paris 234 987 456'
 };
 
 const invalidPhoneUser: any = {
@@ -47,6 +61,13 @@ const invalidPhoneUser: any = {
     email: uuidUser2 + '@gmail.com',
     phone: '1234567aaazeqqgqz',
     password: 'Azerty1!',
+    address: '75 rue de Paris',
+    zip: '75008',
+    city: 'Paris',
+    country: 'France',
+    numTVA: 'FR03512803496',
+    numSIRET: '362 521 879 00034',
+    numRCS: 'RC Paris 234 987 456'
 };
 
 const invalidPasswordUser: any = {
@@ -54,6 +75,13 @@ const invalidPasswordUser: any = {
     email: uuidUser2 + '@gmail.com',
     phone: '0601474747',
     password: '1234567',
+    address: '75 rue de Paris',
+    zip: '75008',
+    city: 'Paris',
+    country: 'France',
+    numTVA: 'FR03512803496',
+    numSIRET: '362 521 879 00034',
+    numRCS: 'RC Paris 234 987 456'
 };
 
 const invalidDateUser: any = {
@@ -61,7 +89,14 @@ const invalidDateUser: any = {
     email: uuidUser2 + '@gmail.com',
     phone: '0601474747',
     password: 'Azerty1!',
-    birthdayDate: 'zzz-ad-478'
+    birthdayDate: 'zzz-ad-478',
+    address: '75 rue de Paris',
+    zip: '75008',
+    city: 'Paris',
+    country: 'France',
+    numTVA: 'FR03512803496',
+    numSIRET: '362 521 879 00034',
+    numRCS: 'RC Paris 234 987 456'
 };
 
 /*
@@ -144,17 +179,6 @@ describe('Authentification system', () => {
         test('Error - Invalid RCS number', async done => {
             done();
         });
-        test('Error - Invalid date format', async done => {
-            const res = await request(app)
-                .post('/api/auth/register')
-                .send(invalidDateUser)
-                .set('Accept', 'application/json')
-                .expect('Content-Type', /json/)
-                .expect(400);
-            expect(res.body.error).toBe(true);
-            expect(res.body.code).toBe('101058');
-            done();
-        });
         test('Error - This email is already used', async done => {
             const res = await request(app)
                 .post('/api/auth/register')
@@ -163,7 +187,7 @@ describe('Authentification system', () => {
                 .expect('Content-Type', /json/)
                 .expect(400);
             expect(res.body.error).toBe(true);
-            expect(res.body.code).toBe('101059');
+            expect(res.body.code).toBe('101058');
 
             await Client.deleteOne({ email: validUser.email });
 
