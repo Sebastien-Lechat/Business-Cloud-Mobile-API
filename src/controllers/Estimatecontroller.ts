@@ -309,7 +309,7 @@ export class EstimateController {
     static tranformEstimateToBill = async (req: Request, res: Response) => {
         try {
             // Vérification de si l'utilisateur à les permissions de faire la requête
-            const hasPermission = globalUtils.checkPermission(userUtils.getRequestUser(req), 'user');
+            const hasPermission = globalUtils.checkPermission(userUtils.getRequestUser(req), 'client');
             if (!hasPermission) throw new Error('You do not have the required permissions');
 
             // Récupération de toutes les données du body

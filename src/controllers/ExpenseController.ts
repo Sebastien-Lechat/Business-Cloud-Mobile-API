@@ -182,7 +182,7 @@ export class ExpenseController {
             if (expense.projectId) await projectUtils.updateProjectBilling(expense.projectId);
 
             // Envoi de la réponse
-            sendResponse(res, 200, { error: false, message: 'Time successfully updated', expense: expenseUtils.generateExpenseJSON(expense) });
+            sendResponse(res, 200, { error: false, message: 'Expense successfully updated', expense: expenseUtils.generateExpenseJSON(expense) });
         } catch (err) {
             if (err.message === 'You do not have the required permissions') sendResponse(res, 400, { error: true, code: '401002', message: err.message });
             else if (err.message === 'Missing important fields') sendResponse(res, 400, { error: true, code: '111151', message: err.message });

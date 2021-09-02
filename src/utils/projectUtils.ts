@@ -4,7 +4,7 @@ import { BillI } from '../interfaces/billInterface';
 import { ExpenseI } from '../interfaces/expenseInterface';
 import { ProjectI, ProjectJsonI } from '../interfaces/projectInterface';
 import { TimeI } from '../interfaces/timeInterface';
-import { ClientI } from '../interfaces/userInterface';
+import { ClientI, UserI } from '../interfaces/userInterface';
 import { Article } from '../models/Article';
 import { Bill } from '../models/Bill';
 import { Enterprise } from '../models/Entreprise';
@@ -46,18 +46,30 @@ const generateProjectJSON = (project: ProjectI): ProjectJsonI => {
  * Fonction pour retourner la liste des projets.
  * @return Retourne le JSON
  */
-const getProjectList = async (): Promise<ProjectJsonI[]> => {
+const getProjectList = async (user: UserI): Promise<ProjectJsonI[]> => {
     const projectList: ProjectJsonI[] = [];
 
-    // Récupération de tous les projets
-    const projects = await globalUtils.findManyAndPopulate(Project, {}, ['clientId']);
+    if (user.role === 'Gérant') {
+        // Récupération de tous les projets
+        const projects: ProjectI[] = await globalUtils.findManyAndPopulate(Project, {}, ['clientId']);
 
-    // Mise en forme
-    projects.map((project: ProjectI) => {
-        projectList.push(generateProjectJSON(project));
-    });
+        // Mise en forme
+        projects.map((project: ProjectI) => {
+            projectList.push(generateProjectJSON(project));
+        });
 
-    return projectList;
+        return projectList;
+    } else {
+        // Récupération de tous les projets
+        const projects: ProjectI[] = await globalUtils.findManyAndPopulate(Project, { 'employees.id': mongoose.Types.ObjectId(user._id) }, ['clientId']);
+
+        // Mise en forme
+        projects.map((project: ProjectI) => {
+            projectList.push(generateProjectJSON(project));
+        });
+
+        return projectList;
+    }
 };
 
 /**
