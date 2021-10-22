@@ -25,7 +25,7 @@ export class NotificationController {
 
             // Envoi de la réponse
             sendResponse(res, 200, { error: false, message: 'Successful notifications acquisition', notifications: notificationList });
-        } catch (err) {
+        } catch (err: any) {
             errorHandler(res, err);
         }
     }
@@ -45,7 +45,7 @@ export class NotificationController {
 
             // Envoi de la réponse
             sendResponse(res, 200, { error: false, message: 'Successful notifications count acquisition', count: notificationCount });
-        } catch (err) {
+        } catch (err: any) {
             errorHandler(res, err);
         }
     }
@@ -72,7 +72,7 @@ export class NotificationController {
 
             // Envoi de la réponse
             sendResponse(res, 200, { error: false, message: 'Notification successfully deleted' });
-        } catch (err) {
+        } catch (err: any) {
             if (err.message === 'Missing id field') sendResponse(res, 400, { error: true, code: '113101', message: err.message });
             else if (err.message === 'Invalid notification id') sendResponse(res, 400, { error: true, code: '113102', message: err.message });
             else errorHandler(res, err);

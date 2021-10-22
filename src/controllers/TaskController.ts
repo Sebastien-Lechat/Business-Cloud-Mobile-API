@@ -41,7 +41,7 @@ export class TaskController {
                 // Envoi de la réponse
                 sendResponse(res, 200, { error: false, message: 'Successful tasks acquisition', tasks: taskList });
             }
-        } catch (err) {
+        } catch (err: any) {
             if (err.message === 'You do not have the required permissions') sendResponse(res, 400, { error: true, code: '401002', message: err.message });
             else if (err.message === 'Invalid project id') sendResponse(res, 400, { error: true, code: '109051', message: err.message });
             else errorHandler(res, err);
@@ -97,7 +97,7 @@ export class TaskController {
 
             // Envoi de la réponse
             sendResponse(res, 200, { error: false, message: 'Task successfully created', task: taskUtils.generateTaskJSON(task) });
-        } catch (err) {
+        } catch (err: any) {
             if (err.message === 'You do not have the required permissions') sendResponse(res, 400, { error: true, code: '401002', message: err.message });
             else if (err.message === 'Missing important fields') sendResponse(res, 400, { error: true, code: '109101', message: err.message });
             else if (err.message === 'Invalid progression number') sendResponse(res, 400, { error: true, code: '109102', message: err.message });
@@ -136,7 +136,7 @@ export class TaskController {
 
             // Envoi de la réponse
             sendResponse(res, 200, { error: false, message: 'Task successfully deleted' });
-        } catch (err) {
+        } catch (err: any) {
             if (err.message === 'You do not have the required permissions') sendResponse(res, 400, { error: true, code: '401002', message: err.message });
             else if (err.message === 'Missing id field') sendResponse(res, 400, { error: true, code: '109151', message: err.message });
             else if (err.message === 'Invalid task id') sendResponse(res, 400, { error: true, code: '109152', message: err.message });

@@ -43,7 +43,7 @@ export class ExternalAuthController {
 
             // Envoi de la réponse
             sendResponse(res, 200, { error: false, message: 'Successfully connected', user: userUtils.generateUserJSON(user) });
-        } catch (err) {
+        } catch (err: any) {
             if (err.message === 'Missing important fields') sendResponse(res, 400, { error: true, code: '101401', message: err.message });
             else if (err.message === 'Invalid email addresse') sendResponse(res, 400, { error: true, code: '101402', message: err.message });
             else if (err.message === 'No account linked to this email') sendResponse(res, 400, { error: true, code: '101403', message: err.message });

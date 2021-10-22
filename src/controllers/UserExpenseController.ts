@@ -29,7 +29,7 @@ export class UserExpenseController {
 
             // Envoi de la réponse
             sendResponse(res, 200, { error: false, message: 'Successful expenses acquisition', expenses: userExpenseList });
-        } catch (err) {
+        } catch (err: any) {
             if (err.message === 'You do not have the required permissions') sendResponse(res, 400, { error: true, code: '401002', message: err.message });
             else errorHandler(res, err);
         }
@@ -58,7 +58,7 @@ export class UserExpenseController {
 
             // Envoi de la réponse
             sendResponse(res, 200, { error: false, message: 'Successful expense acquisition', expense: userExpenseUtils.generateUserExpenseJSON(userExpense) });
-        } catch (err) {
+        } catch (err: any) {
             if (err.message === 'Missing id field') sendResponse(res, 400, { error: true, code: '107051', message: err.message });
             else if (err.message === 'Invalid expense id') sendResponse(res, 400, { error: true, code: '107052', message: err.message });
             else errorHandler(res, err);
@@ -102,7 +102,7 @@ export class UserExpenseController {
 
             // Envoi de la réponse
             sendResponse(res, 200, { error: false, message: 'Expense successfully created', expense: userExpenseUtils.generateUserExpenseJSON(expense) });
-        } catch (err) {
+        } catch (err: any) {
             if (err.message === 'You do not have the required permissions') sendResponse(res, 400, { error: true, code: '401002', message: err.message });
             else if (err.message === 'Missing important fields') sendResponse(res, 400, { error: true, code: '107101', message: err.message });
             else if (err.message === 'Invalid expense number') sendResponse(res, 400, { error: true, code: '107102', message: err.message });
@@ -138,7 +138,7 @@ export class UserExpenseController {
 
             // Envoi de la réponse
             sendResponse(res, 200, { error: false, message: 'Expense successfully deleted' });
-        } catch (err) {
+        } catch (err: any) {
             if (err.message === 'You do not have the required permissions') sendResponse(res, 400, { error: true, code: '401002', message: err.message });
             else if (err.message === '') sendResponse(res, 400, { error: true, code: '107151', message: err.message });
             else errorHandler(res, err);

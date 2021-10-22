@@ -28,7 +28,7 @@ export class GlobalController {
             const nextNumber = await globalUtils.findNextNumber(acronym as string);
 
             sendResponse(res, 200, { error: false, message: 'Successful number acquisition', nextNumber });
-        } catch (err) {
+        } catch (err: any) {
             if (err.message === 'Missing important fields') sendResponse(res, 400, { error: true, code: '114001', message: err.message });
             else errorHandler(res, err);
         }
@@ -71,7 +71,7 @@ export class GlobalController {
             );
 
             sendResponse(res, 200, { error: false, message: 'Document successfully send' });
-        } catch (err) {
+        } catch (err: any) {
             if (err.message === 'Missing important fields') sendResponse(res, 400, { error: true, code: '114051', message: err.message });
             else if (err.message === 'Invalid type field') sendResponse(res, 400, { error: true, code: '114052', message: err.message });
             else if (err.message === 'Invalid customer id') sendResponse(res, 400, { error: true, code: '114053', message: err.message });
@@ -94,7 +94,7 @@ export class GlobalController {
             const statistics = await globalUtils.findStatistics(user);
 
             sendResponse(res, 200, { error: false, message: 'Successful statistic acquisition', statistics: statistics });
-        } catch (err) {
+        } catch (err: any) {
             errorHandler(res, err);
         }
 

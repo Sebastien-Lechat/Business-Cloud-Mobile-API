@@ -41,7 +41,7 @@ export class BillController {
 
             // Envoi de la réponse
             sendResponse(res, 200, { error: false, message: 'Successful bills acquisition', bills: billList });
-        } catch (err) {
+        } catch (err: any) {
             errorHandler(res, err);
         }
     }
@@ -65,7 +65,7 @@ export class BillController {
 
             // Envoi de la réponse
             sendResponse(res, 200, { error: false, message: 'Successful bill acquisition', bill: billUtils.generateBillJSON(bill) });
-        } catch (err) {
+        } catch (err: any) {
             if (err.message === 'Invalid bill id') sendResponse(res, 400, { error: true, code: '104101', message: err.message });
             else errorHandler(res, err);
         }
@@ -118,7 +118,7 @@ export class BillController {
 
             // Envoi de la réponse
             sendResponse(res, 200, { error: false, message: 'Bill successfully created', bill: billUtils.generateBillJSON(bill) });
-        } catch (err) {
+        } catch (err: any) {
             if (err.message === 'You do not have the required permissions') sendResponse(res, 400, { error: true, code: '401002', message: err.message });
             else if (err.message === 'Missing important fields') sendResponse(res, 400, { error: true, code: '104151', message: err.message });
             else if (err.message === 'Invalid bill status') sendResponse(res, 400, { error: true, code: '104152', message: err.message });
@@ -208,7 +208,7 @@ export class BillController {
 
             // Envoi de la réponse
             sendResponse(res, 200, { error: false, message: 'Bill successfully updated', bill: billUtils.generateBillJSON(populateBill) });
-        } catch (err) {
+        } catch (err: any) {
             if (err.message === 'You do not have the required permissions') sendResponse(res, 400, { error: true, code: '401002', message: err.message });
             else if (err.message === 'Missing id field') sendResponse(res, 400, { error: true, code: '104201', message: err.message });
             else if (err.message === 'Invalid bill id') sendResponse(res, 400, { error: true, code: '104202', message: err.message });
@@ -249,7 +249,7 @@ export class BillController {
 
             // Envoi de la réponse
             sendResponse(res, 200, { error: false, message: 'Bill successfully deleted' });
-        } catch (err) {
+        } catch (err: any) {
             if (err.message === 'You do not have the required permissions') sendResponse(res, 400, { error: true, code: '401002', message: err.message });
             else if (err.message === 'Missing id field') sendResponse(res, 400, { error: true, code: '104251', message: err.message });
             else if (err.message === 'Invalid bill id') sendResponse(res, 400, { error: true, code: '104252', message: err.message });
@@ -295,7 +295,7 @@ export class BillController {
             sendNotificationToOne('Relance payement', 'Vous faites l\'objet d\'une relance de payement pour une facture. Veuillez cliquer ici pour la régler.', customer, bill._id, 'Facture');
 
             sendResponse(res, 200, { error: false, message: 'Mail successfully send' });
-        } catch (err) {
+        } catch (err: any) {
             if (err.message === 'You do not have the required permissions') sendResponse(res, 400, { error: true, code: '401002', message: err.message });
             else if (err.message === 'Missing important fields') sendResponse(res, 400, { error: true, code: '104301', message: err.message });
             else if (err.message === 'Invalid bill id') sendResponse(res, 400, { error: true, code: '104302', message: err.message });
@@ -340,7 +340,7 @@ export class BillController {
                 ephemeralKey: ephemeralKey.secret,
                 customer: customer.id
             });
-        } catch (err) {
+        } catch (err: any) {
             if (err.message === 'You do not have the required permissions') sendResponse(res, 400, { error: true, code: '401002', message: err.message });
             else if (err.message === 'Missing important fields') sendResponse(res, 400, { error: true, code: '104351', message: err.message });
             else errorHandler(res, err);
@@ -392,7 +392,7 @@ export class BillController {
 
             // Envoi de la réponse
             sendResponse(res, 200, { error: false, message: 'Bill successfully payed', bill: billUtils.generateBillJSON(populateBill) });
-        } catch (err) {
+        } catch (err: any) {
             if (err.message === 'You do not have the required permissions') sendResponse(res, 400, { error: true, code: '401002', message: err.message });
             else if (err.message === 'Missing important fields') sendResponse(res, 400, { error: true, code: '104401', message: err.message });
             else if (err.message === 'Invalid bill id') sendResponse(res, 400, { error: true, code: '104402', message: err.message });

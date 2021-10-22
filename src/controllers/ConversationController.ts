@@ -23,7 +23,7 @@ export class ConversationController {
 
             // Envoi de la réponse
             sendResponse(res, 200, { error: false, message: 'Successful conversations acquisition', conversations: conversationList });
-        } catch (err) {
+        } catch (err: any) {
             errorHandler(res, err);
         }
     }
@@ -47,7 +47,7 @@ export class ConversationController {
 
             // Envoi de la réponse
             sendResponse(res, 200, { error: false, message: 'Successful conversation acquisition', conversation: conversationUtils.generateConversationJSON(conversation) });
-        } catch (err) {
+        } catch (err: any) {
             if (err.message === 'Missing id field') sendResponse(res, 400, { error: true, code: '112201', message: err.message });
             else if (err.message === 'Invalid conversation id') sendResponse(res, 400, { error: true, code: '112202', message: err.message });
             else errorHandler(res, err);
@@ -82,7 +82,7 @@ export class ConversationController {
 
             // Mise à jour de tous les messages en vu
             await conversationUtils.updateAllMessageSeen(id, user.data._id);
-        } catch (err) {
+        } catch (err: any) {
             if (err.message === 'Missing id field') sendResponse(res, 400, { error: true, code: '112251', message: err.message });
             else if (err.message === 'Invalid conversation id') sendResponse(res, 400, { error: true, code: '112252', message: err.message });
             else errorHandler(res, err);
@@ -122,7 +122,7 @@ export class ConversationController {
                 // Envoi de la réponse
                 sendResponse(res, 200, { error: false, message: 'Conversation successfully created', conversation: conversationUtils.generateConversationJSON(conversation) });
             }
-        } catch (err) {
+        } catch (err: any) {
             if (err.message === 'Missing important fields') sendResponse(res, 400, { error: true, code: '112101', message: err.message });
             else if (err.message === 'Can\'t create conversation with yourself') sendResponse(res, 400, { error: true, code: '112102', message: err.message });
             else if (err.message === 'Invalid user id') sendResponse(res, 400, { error: true, code: '112103', message: err.message });
@@ -152,7 +152,7 @@ export class ConversationController {
 
             // Envoi de la réponse
             sendResponse(res, 200, { error: false, message: 'Conversation successfully deleted' });
-        } catch (err) {
+        } catch (err: any) {
             if (err.message === 'Missing id field') sendResponse(res, 400, { error: true, code: '112151', message: err.message });
             else if (err.message === 'Invalid conversation id') sendResponse(res, 400, { error: true, code: '112152', message: err.message });
             else errorHandler(res, err);

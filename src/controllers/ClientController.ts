@@ -49,7 +49,7 @@ export class ClientController {
 
             // Envoi de la réponse
             sendResponse(res, 200, { error: false, message: 'Customer successfully created', customer: userUtils.generateUserJSON({ data: createdEmployee, type: 'client' }) });
-        } catch (err) {
+        } catch (err: any) {
             if (err.message === 'You do not have the required permissions') sendResponse(res, 400, { error: true, code: '401002', message: err.message });
             else if (err.message === 'Missing important fields') sendResponse(res, 400, { error: true, code: '103151', message: err.message });
             else if (err.message === 'Invalid email addresse') sendResponse(res, 400, { error: true, code: '103152', message: err.message });
@@ -119,7 +119,7 @@ export class ClientController {
 
             // Envoi de la réponse
             sendResponse(res, 200, { error: false, message: 'Customer successfully updated', customer: userUtils.generateUserJSON({ data: user, type: 'client' }) });
-        } catch (err) {
+        } catch (err: any) {
             if (err.message === 'You do not have the required permissions') sendResponse(res, 400, { error: true, code: '401002', message: err.message });
             else if (err.message === 'Missing id field') sendResponse(res, 400, { error: true, code: '103201', message: err.message });
             else if (err.message === 'Invalid email addresse') sendResponse(res, 400, { error: true, code: '103202', message: err.message });
@@ -164,7 +164,7 @@ export class ClientController {
 
             // Envoi de la réponse
             sendResponse(res, 200, { error: false, message: 'Customer successfully deleted' });
-        } catch (err) {
+        } catch (err: any) {
             if (err.message === 'You do not have the required permissions') sendResponse(res, 400, { error: true, code: '401002', message: err.message });
             else if (err.message === 'Missing id field') sendResponse(res, 400, { error: true, code: '103251', message: err.message });
             else if (err.message === 'Invalid customer id') sendResponse(res, 400, { error: true, code: '103252', message: err.message });

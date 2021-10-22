@@ -14,9 +14,12 @@ const sendMail = async (email: string, mailSubject: string, model: string, file?
         const attachments: Mail.Attachment[] = [];
         if (file) attachments.push({ filename: `${file?.num}.pdf`, path: file?.path });
         const transporter = nodemailer.createTransport({
-            host: 'smtp.gmail.com',
-            port: 465,
-            secure: true,
+            host: 'smtp-mail.outlook.com',
+            port: 587,
+            // secure: true,
+            tls: {
+                ciphers: 'SSLv3',
+            },
             auth: {
                 user: accountMail,
                 pass: accountPassword,
