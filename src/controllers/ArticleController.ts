@@ -24,7 +24,7 @@ export class ArticleController {
 
             // Envoi de la réponse
             sendResponse(res, 200, { error: false, message: 'Successful articles acquisition', articles: articleListe });
-        } catch (err) {
+        } catch (err: any) {
             if (err.message === 'You do not have the required permissions') sendResponse(res, 400, { error: true, code: '401002', message: err.message });
             else errorHandler(res, err);
         }
@@ -64,7 +64,7 @@ export class ArticleController {
 
             // Envoi de la réponse
             sendResponse(res, 200, { error: false, message: 'Article successfully created', article: articleUtils.generateArticleJSON(article) });
-        } catch (err) {
+        } catch (err: any) {
             if (err.message === 'You do not have the required permissions') sendResponse(res, 400, { error: true, code: '401002', message: err.message });
             else if (err.message === 'Missing important fields') sendResponse(res, 400, { error: true, code: '106101', message: err.message });
             else if (err.message === 'Invalid account number') sendResponse(res, 400, { error: true, code: '106102', message: err.message });
@@ -100,7 +100,7 @@ export class ArticleController {
 
             // Envoi de la réponse
             sendResponse(res, 200, { error: false, message: 'Article successfully deleted' });
-        } catch (err) {
+        } catch (err: any) {
             if (err.message === 'You do not have the required permissions') sendResponse(res, 400, { error: true, code: '401002', message: err.message });
             else if (err.message === 'Missing id field') sendResponse(res, 400, { error: true, code: '106151', message: err.message });
             else if (err.message === 'Invalid article id') sendResponse(res, 400, { error: true, code: '106152', message: err.message });

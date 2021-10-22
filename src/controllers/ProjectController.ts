@@ -31,7 +31,7 @@ export class ProjectController {
 
             // Envoi de la réponse
             sendResponse(res, 200, { error: false, message: 'Successful projects acquisition', projects: projectList });
-        } catch (err) {
+        } catch (err: any) {
             errorHandler(res, err);
         }
     }
@@ -59,7 +59,7 @@ export class ProjectController {
 
             // Envoi de la réponse
             sendResponse(res, 200, { error: false, message: 'Successful project acquisition', project: projectUtils.generateProjectJSON(project) });
-        } catch (err) {
+        } catch (err: any) {
             if (err.message === 'Missing id field') sendResponse(res, 400, { error: true, code: '108101', message: err.message });
             else if (err.message === 'Invalid project id') sendResponse(res, 400, { error: true, code: '108102', message: err.message });
             else errorHandler(res, err);
@@ -133,7 +133,7 @@ export class ProjectController {
 
             // Envoi de la réponse
             sendResponse(res, 200, { error: false, message: 'Project successfully created', project: projectUtils.generateProjectJSON(project) });
-        } catch (err) {
+        } catch (err: any) {
             if (err.message === 'You do not have the required permissions') sendResponse(res, 400, { error: true, code: '401002', message: err.message });
             else if (err.message === 'Missing important fields') sendResponse(res, 400, { error: true, code: '108151', message: err.message });
             else if (err.message === 'Invalid project status') sendResponse(res, 400, { error: true, code: '108152', message: err.message });
@@ -241,7 +241,7 @@ export class ProjectController {
 
             // Envoi de la réponse
             sendResponse(res, 200, { error: false, message: 'Project successfully updated', project: projectUtils.generateProjectJSON(project) });
-        } catch (err) {
+        } catch (err: any) {
             if (err.message === 'You do not have the required permissions') sendResponse(res, 400, { error: true, code: '401002', message: err.message });
             else if (err.message === 'Missing id field') sendResponse(res, 400, { error: true, code: '108201', message: err.message });
             else if (err.message === 'Invalid project id') sendResponse(res, 400, { error: true, code: '108202', message: err.message });
@@ -286,7 +286,7 @@ export class ProjectController {
 
             // Envoi de la réponse
             sendResponse(res, 200, { error: false, message: 'Project successfully deleted' });
-        } catch (err) {
+        } catch (err: any) {
             if (err.message === 'You do not have the required permissions') sendResponse(res, 400, { error: true, code: '401002', message: err.message });
             else if (err.message === 'Missing id field') sendResponse(res, 400, { error: true, code: '108251', message: err.message });
             else if (err.message === 'Invalid project id') sendResponse(res, 400, { error: true, code: '108252', message: err.message });
@@ -327,7 +327,7 @@ export class ProjectController {
 
             // Envoi de la réponse
             sendResponse(res, 200, { error: false, message: 'Project successfully transformed', billId: bill._id });
-        } catch (err) {
+        } catch (err: any) {
             if (err.message === 'You do not have the required permissions') sendResponse(res, 400, { error: true, code: '401002', message: err.message });
             else if (err.message === 'Missing id field') sendResponse(res, 400, { error: true, code: '108301', message: err.message });
             else if (err.message === 'Invalid project id') sendResponse(res, 400, { error: true, code: '108302', message: err.message });

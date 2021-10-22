@@ -48,7 +48,7 @@ export class EmployeeController {
 
             // Envoi de la réponse
             sendResponse(res, 200, { error: false, message: 'Employee successfully created', employee: userUtils.generateEmployeeJSON(createdEmployee) });
-        } catch (err) {
+        } catch (err: any) {
             if (err.message === 'You do not have the required permissions') sendResponse(res, 400, { error: true, code: '401002', message: err.message });
             else if (err.message === 'Missing important fields') sendResponse(res, 400, { error: true, code: '103301', message: err.message });
             else if (err.message === 'Invalid email addresse') sendResponse(res, 400, { error: true, code: '103302', message: err.message });
@@ -108,7 +108,7 @@ export class EmployeeController {
 
             // Envoi de la réponse
             sendResponse(res, 200, { error: false, message: 'Employee successfully updated', employee: userUtils.generateEmployeeJSON(user) });
-        } catch (err) {
+        } catch (err: any) {
             if (err.message === 'You do not have the required permissions') sendResponse(res, 400, { error: true, code: '401002', message: err.message });
             else if (err.message === 'Missing id field') sendResponse(res, 400, { error: true, code: '103351', message: err.message });
             else if (err.message === 'Invalid email addresse') sendResponse(res, 400, { error: true, code: '103352', message: err.message });
@@ -150,7 +150,7 @@ export class EmployeeController {
 
             // Envoi de la réponse
             sendResponse(res, 200, { error: false, message: 'Employee successfully deleted' });
-        } catch (err) {
+        } catch (err: any) {
             if (err.message === 'You do not have the required permissions') sendResponse(res, 400, { error: true, code: '401002', message: err.message });
             else if (err.message === 'Missing id field') sendResponse(res, 400, { error: true, code: '103401', message: err.message });
             else if (err.message === 'Invalid employee id') sendResponse(res, 400, { error: true, code: '103402', message: err.message });

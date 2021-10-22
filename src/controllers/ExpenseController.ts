@@ -45,7 +45,7 @@ export class ExpenseController {
                 // Envoi de la réponse
                 sendResponse(res, 200, { error: false, message: 'Successful expenses acquisition', expenses: expenseList });
             }
-        } catch (err) {
+        } catch (err: any) {
             if (err.message === 'You do not have the required permissions') sendResponse(res, 400, { error: true, code: '401002', message: err.message });
             else if (err.message === 'Invalid project id') sendResponse(res, 400, { error: true, code: '111001', message: err.message });
             else errorHandler(res, err);
@@ -75,7 +75,7 @@ export class ExpenseController {
 
             // Envoi de la réponse
             sendResponse(res, 200, { error: false, message: 'Successful expense acquisition', expense: expenseUtils.generateExpenseJSON(expense) });
-        } catch (err) {
+        } catch (err: any) {
             if (err.message === 'Missing id field') sendResponse(res, 400, { error: true, code: '111051', message: err.message });
             else if (err.message === 'Invalid expense id') sendResponse(res, 400, { error: true, code: '111052', message: err.message });
             else errorHandler(res, err);
@@ -136,7 +136,7 @@ export class ExpenseController {
 
             // Envoi de la réponse
             sendResponse(res, 200, { error: false, message: 'Expense successfully created', expense: expenseUtils.generateExpenseJSON(expense) });
-        } catch (err) {
+        } catch (err: any) {
             if (err.message === 'You do not have the required permissions') sendResponse(res, 400, { error: true, code: '401002', message: err.message });
             else if (err.message === 'Missing important fields') sendResponse(res, 400, { error: true, code: '111101', message: err.message });
             else if (err.message === 'Invalid expense number') sendResponse(res, 400, { error: true, code: '111102', message: err.message });
@@ -183,7 +183,7 @@ export class ExpenseController {
 
             // Envoi de la réponse
             sendResponse(res, 200, { error: false, message: 'Expense successfully updated', expense: expenseUtils.generateExpenseJSON(expense) });
-        } catch (err) {
+        } catch (err: any) {
             if (err.message === 'You do not have the required permissions') sendResponse(res, 400, { error: true, code: '401002', message: err.message });
             else if (err.message === 'Missing important fields') sendResponse(res, 400, { error: true, code: '111151', message: err.message });
             else if (err.message === 'Invalid expense id') sendResponse(res, 400, { error: true, code: '111152', message: err.message });
@@ -221,7 +221,7 @@ export class ExpenseController {
 
             // Envoi de la réponse
             sendResponse(res, 200, { error: false, message: 'Expense successfully deleted' });
-        } catch (err) {
+        } catch (err: any) {
             if (err.message === 'You do not have the required permissions') sendResponse(res, 400, { error: true, code: '401002', message: err.message });
             else if (err.message === 'Missing id field') sendResponse(res, 400, { error: true, code: '111201', message: err.message });
             else if (err.message === 'Invalid expense id') sendResponse(res, 400, { error: true, code: '111202', message: err.message });

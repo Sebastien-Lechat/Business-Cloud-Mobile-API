@@ -37,7 +37,7 @@ export class EstimateController {
 
             // Envoi de la réponse
             sendResponse(res, 200, { error: false, message: 'Successful estimates acquisition', estimates: estimateList });
-        } catch (err) {
+        } catch (err: any) {
             errorHandler(res, err);
         }
     }
@@ -61,7 +61,7 @@ export class EstimateController {
 
             // Envoi de la réponse
             sendResponse(res, 200, { error: false, message: 'Successful estimate acquisition', estimate: estimateUtils.generateEstimateJSON(estimate) });
-        } catch (err) {
+        } catch (err: any) {
             if (err.message === 'Invalid estimate id') sendResponse(res, 400, { error: true, code: '105101', message: err.message });
             else errorHandler(res, err);
         }
@@ -114,7 +114,7 @@ export class EstimateController {
 
             // Envoi de la réponse
             sendResponse(res, 200, { error: false, message: 'Estimate successfully created', estimate: estimateUtils.generateEstimateJSON(estimate) });
-        } catch (err) {
+        } catch (err: any) {
             if (err.message === 'You do not have the required permissions') sendResponse(res, 400, { error: true, code: '401002', message: err.message });
             else if (err.message === 'Missing important fields') sendResponse(res, 400, { error: true, code: '105151', message: err.message });
             else if (err.message === 'Invalid estimate status') sendResponse(res, 400, { error: true, code: '105152', message: err.message });
@@ -203,7 +203,7 @@ export class EstimateController {
 
             // Envoi de la réponse
             sendResponse(res, 200, { error: false, message: 'Estimate successfully updated', estimate: estimateUtils.generateEstimateJSON(populateEstimate) });
-        } catch (err) {
+        } catch (err: any) {
             if (err.message === 'You do not have the required permissions') sendResponse(res, 400, { error: true, code: '401002', message: err.message });
             else if (err.message === 'Missing id field') sendResponse(res, 400, { error: true, code: '105201', message: err.message });
             else if (err.message === 'Invalid estimate id') sendResponse(res, 400, { error: true, code: '105202', message: err.message });
@@ -243,7 +243,7 @@ export class EstimateController {
 
             // Envoi de la réponse
             sendResponse(res, 200, { error: false, message: 'Estimate successfully deleted' });
-        } catch (err) {
+        } catch (err: any) {
             if (err.message === 'You do not have the required permissions') sendResponse(res, 400, { error: true, code: '401002', message: err.message });
             else if (err.message === 'Missing id field') sendResponse(res, 400, { error: true, code: '105251', message: err.message });
             else if (err.message === 'Invalid estimate id') sendResponse(res, 400, { error: true, code: '105252', message: err.message });
@@ -292,7 +292,7 @@ export class EstimateController {
             sendNotificationToOne('Relance acceptation', 'Vous faites l\'objet d\'une relance d\'acceptation d\'un devis. Veuillez cliquer ici pour le consulter.', customer, estimate._id, 'Devis');
 
             sendResponse(res, 200, { error: false, message: 'Mail successfully send' });
-        } catch (err) {
+        } catch (err: any) {
             if (err.message === 'You do not have the required permissions') sendResponse(res, 400, { error: true, code: '401002', message: err.message });
             else if (err.message === 'Missing important fields') sendResponse(res, 400, { error: true, code: '105301', message: err.message });
             else if (err.message === 'Invalid estimate id') sendResponse(res, 400, { error: true, code: '105302', message: err.message });
@@ -350,7 +350,7 @@ export class EstimateController {
 
             // Envoi de la réponse
             sendResponse(res, 200, { error: false, message: 'Estimate successfully transform', bill: billUtils.generateBillJSON(bill) });
-        } catch (err) {
+        } catch (err: any) {
             if (err.message === 'You do not have the required permissions') sendResponse(res, 400, { error: true, code: '401002', message: err.message });
             else if (err.message === 'Missing important fields') sendResponse(res, 400, { error: true, code: '105351', message: err.message });
             else if (err.message === 'Invalid estimate id') sendResponse(res, 400, { error: true, code: '105352', message: err.message });

@@ -27,7 +27,7 @@ export class AccountController {
 
             // Envoi de la réponse
             sendResponse(res, 200, { error: false, message: 'Successful users acquisition', users: userList });
-        } catch (err) {
+        } catch (err: any) {
             errorHandler(res, err);
         }
     }
@@ -51,7 +51,7 @@ export class AccountController {
 
             // Envoi de la réponse
             sendResponse(res, 200, { error: false, message: 'Successful user acquisition', user: userUtils.generateUserJSON(user) });
-        } catch (err) {
+        } catch (err: any) {
             if (err.message === 'Missing id field') sendResponse(res, 400, { error: true, code: '103101', message: err.message });
             if (err.message === 'Invalid user id') sendResponse(res, 400, { error: true, code: '103102', message: err.message });
             else errorHandler(res, err);
@@ -80,7 +80,7 @@ export class AccountController {
 
             // Envoi de la réponse
             sendResponse(res, 200, { error: false, message: 'Successful history acquisition', history: histories });
-        } catch (err) {
+        } catch (err: any) {
             if (err.message === 'Missing id field') sendResponse(res, 400, { error: true, code: '103451', message: err.message });
             if (err.message === 'Invalid user id') sendResponse(res, 400, { error: true, code: '103452', message: err.message });
             else errorHandler(res, err);
@@ -122,7 +122,7 @@ export class AccountController {
 
             // Envoi de la réponse
             sendResponse(res, 200, { error: false, message: 'Device successfully added' });
-        } catch (err) {
+        } catch (err: any) {
             if (err.message === 'Missing important fields') sendResponse(res, 400, { error: true, code: '102251', message: err.message });
             else errorHandler(res, err);
         }
@@ -140,7 +140,7 @@ export class AccountController {
 
             // Envoi de la réponse
             sendResponse(res, 200, { error: false, message: 'Successful profil acquisition', user: userUtils.generateUserJSON(user) });
-        } catch (err) {
+        } catch (err: any) {
             errorHandler(res, err);
         }
     }
@@ -166,7 +166,7 @@ export class AccountController {
 
             // Envoi de la réponse
             sendResponse(res, 200, { error: false, message: 'Profile successfully updated' });
-        } catch (err) {
+        } catch (err: any) {
             if (err.message === 'Missing important fields') sendResponse(res, 400, { error: true, code: '102301', message: err.message });
             else errorHandler(res, err);
         }
@@ -212,7 +212,7 @@ export class AccountController {
 
             // Envoi de la réponse
             sendResponse(res, 200, { error: false, message: 'Profile successfully updated', user: userUtils.generateUserJSON(user) });
-        } catch (err) {
+        } catch (err: any) {
             if (err.message === 'Invalid email addresse') sendResponse(res, 400, { error: true, code: '102051', message: err.message });
             else if (err.message === 'Invalid phone number') sendResponse(res, 400, { error: true, code: '102052', message: err.message });
             else if (err.message === 'Invalid date format') sendResponse(res, 400, { error: true, code: '102053', message: err.message });
@@ -254,7 +254,7 @@ export class AccountController {
 
             // Envoi de la réponse
             sendResponse(res, 200, { error: false, message: 'Profile successfully updated', user: userUtils.generateUserJSON(user) });
-        } catch (err) {
+        } catch (err: any) {
             if (err.message === 'Missing important fields') sendResponse(res, 400, { error: true, code: '102101', message: err.message });
             else if (err.message === 'Invalid old password') sendResponse(res, 400, { error: true, code: '102102', message: err.message });
             else if (err.message === 'Invalid password format') sendResponse(res, 400, { error: true, code: '102103', message: err.message });
@@ -303,7 +303,7 @@ export class AccountController {
                 sendResponse(res, 200, { error: false, message: 'Profile successfully updated', user: userUtils.generateUserJSON(user) });
 
             } else throw new Error('You cannot edit your address with this account');
-        } catch (err) {
+        } catch (err: any) {
             if (err.message === 'You cannot edit your address with this account') sendResponse(res, 400, { error: true, code: '102151', message: err.message });
             else errorHandler(res, err);
         }
@@ -350,7 +350,7 @@ export class AccountController {
                 sendResponse(res, 200, { error: false, message: 'Profile successfully updated', user: userUtils.generateUserJSON(user) });
 
             } else throw new Error('You cannot edit your enterprise with this account');
-        } catch (err) {
+        } catch (err: any) {
             if (err.message === 'You cannot edit your enterprise with this account') sendResponse(res, 400, { error: true, code: '102201', message: err.message });
             else errorHandler(res, err);
         }

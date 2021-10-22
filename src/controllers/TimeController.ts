@@ -44,7 +44,7 @@ export class TimeController {
                 // Envoi de la réponse
                 sendResponse(res, 200, { error: false, message: 'Successful times acquisition', times: timeList });
             }
-        } catch (err) {
+        } catch (err: any) {
             if (err.message === 'You do not have the required permissions') sendResponse(res, 400, { error: true, code: '401002', message: err.message });
             else if (err.message === 'Invalid project id') sendResponse(res, 400, { error: true, code: '110051', message: err.message });
             else errorHandler(res, err);
@@ -101,7 +101,7 @@ export class TimeController {
 
             // Envoi de la réponse
             sendResponse(res, 200, { error: false, message: 'Time successfully created', time: timeUtils.generateTimeJSON(populateTime) });
-        } catch (err) {
+        } catch (err: any) {
             if (err.message === 'You do not have the required permissions') sendResponse(res, 400, { error: true, code: '401002', message: err.message });
             else if (err.message === 'Missing important fields') sendResponse(res, 400, { error: true, code: '110101', message: err.message });
             else if (err.message === 'Invalid project id') sendResponse(res, 400, { error: true, code: '110102', message: err.message });
@@ -147,7 +147,7 @@ export class TimeController {
 
             // Envoi de la réponse
             sendResponse(res, 200, { error: false, message: 'Time successfully updated', time: timeUtils.generateTimeJSON(time) });
-        } catch (err) {
+        } catch (err: any) {
             if (err.message === 'You do not have the required permissions') sendResponse(res, 400, { error: true, code: '401002', message: err.message });
             else if (err.message === 'Missing important fields') sendResponse(res, 400, { error: true, code: '110151', message: err.message });
             else if (err.message === 'Invalid time id') sendResponse(res, 400, { error: true, code: '110152', message: err.message });
@@ -185,7 +185,7 @@ export class TimeController {
 
             // Envoi de la réponse
             sendResponse(res, 200, { error: false, message: 'Time successfully deleted' });
-        } catch (err) {
+        } catch (err: any) {
             if (err.message === 'You do not have the required permissions') sendResponse(res, 400, { error: true, code: '401002', message: err.message });
             else if (err.message === 'Missing id field') sendResponse(res, 400, { error: true, code: '110201', message: err.message });
             else if (err.message === 'Invalid time id') sendResponse(res, 400, { error: true, code: '110202', message: err.message });

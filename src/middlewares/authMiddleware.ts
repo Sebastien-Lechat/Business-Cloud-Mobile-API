@@ -28,7 +28,7 @@ middleware.use(async (req: Request, res: Response, next: NextFunction) => {
 
         // Si tout se passe bien suite de la requête
         next();
-    } catch (err) {
+    } catch (err: any) {
         if (err.message === 'Not authorized to access to this resource') sendResponse(res, 401, { error: true, message: err.message });
         else if (err.message === 'jwt expired') sendResponse(res, 401, { error: true, message: 'This token has expired' });
         else if (err.message === 'invalid token') sendResponse(res, 401, { error: true, message: 'Invalid token' });

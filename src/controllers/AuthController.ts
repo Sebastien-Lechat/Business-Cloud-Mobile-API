@@ -69,7 +69,7 @@ export class AuthController {
 
             // Envoi de la réponse
             sendResponse(res, 200, { error: false, message: 'Successfully connected', user: userUtils.generateUserJSON(user) });
-        } catch (err) {
+        } catch (err: any) {
             if (err.message === 'Missing email or password field') sendResponse(res, 400, { error: true, code: '101001', message: err.message });
             else if (err.message === 'Invalid email addresse') sendResponse(res, 400, { error: true, code: '101002', message: err.message });
             else if (err.message === 'Invalid login credential') sendResponse(res, 400, { error: true, code: '101003', message: err.message });
@@ -91,7 +91,7 @@ export class AuthController {
     static register = async (req: Request, res: Response) => {
         try {
             // Récupération de toutes les données du body
-            const { name, email, password, phone, address, zip, city, country, numTVA, numSIRET, numRCS } = req.body;
+            const { name, email, password, phone, address, birthdayDate, zip, city, country, numTVA, numSIRET, numRCS } = req.body;
 
             // Vérification de si toutes les données nécessaire sont présentes
             if (!name || !email || !password || !address || !zip || !city || !country || !numTVA || !numSIRET || !numRCS) throw new Error('Missing important fields');
@@ -109,12 +109,15 @@ export class AuthController {
             if (!VerifyData.validPassword(password)) throw new Error('Invalid password format');
             req.body.password = await hashPassword(req.body.password);
 
+            // Vérification de la date de naissance de l'utilisateur
+            if (birthdayDate && !VerifyData.validDate(birthdayDate)) throw new Error('Invalid date format');
+
             // Création de l'utilisateur
             const client: ClientI = await Client.create(req.body);
 
             // Envoi de la réponse
             sendResponse(res, 201, { error: false, message: 'Successfully registred', user: { id: client._id, name: client.name, email: client.email } });
-        } catch (err) {
+        } catch (err: any) {
             if (err.message === 'Missing important fields') sendResponse(res, 400, { error: true, code: '101051', message: err.message });
             else if (err.message === 'Invalid email addresse') sendResponse(res, 400, { error: true, code: '101052', message: err.message });
             else if (err.message === 'Invalid phone number') sendResponse(res, 400, { error: true, code: '101053', message: err.message });
@@ -157,7 +160,7 @@ export class AuthController {
             } else { // Si l'utilisateur n'existe pas, on renvoit quand même le même message de succès
                 sendResponse(res, 200, { error: false, message: 'Email successfully send' });
             }
-        } catch (err) {
+        } catch (err: any) {
             if (err.message === 'Missing email field') sendResponse(res, 400, { error: true, code: '101101', message: err.message });
             else if (err.message === 'Invalid email addresse') sendResponse(res, 400, { error: true, code: '101102', message: err.message });
             else errorHandler(res, err);
@@ -195,7 +198,7 @@ export class AuthController {
             } else { // Si l'utilisateur n'existe pas, on renvoit quand même le même message de succès
                 sendResponse(res, 200, { error: false, message: 'Email successfully send' });
             }
-        } catch (err) {
+        } catch (err: any) {
             if (err.message === 'Missing email field') sendResponse(res, 400, { error: true, code: '101151', message: err.message });
             else if (err.message === 'Invalid email addresse') sendResponse(res, 400, { error: true, code: '101152', message: err.message });
             else if (err.message === 'Email already verified') sendResponse(res, 400, { error: true, code: '101153', message: err.message });
@@ -236,7 +239,7 @@ export class AuthController {
 
             // Envoi de la réponse
             sendResponse(res, 200, { error: false, message: 'Successful verification' });
-        } catch (err) {
+        } catch (err: any) {
             if (err.message === 'Missing email or code field') sendResponse(res, 400, { error: true, code: '101201', message: err.message });
             else if (err.message === 'Invalid email addresse') sendResponse(res, 400, { error: true, code: '101202', message: err.message });
             else if (err.message === 'Invalid user information') sendResponse(res, 400, { error: true, code: '101203', message: err.message });
@@ -278,7 +281,7 @@ export class AuthController {
 
             // Envoi de la réponse
             sendResponse(res, 200, { error: false, message: 'Email successfully send' });
-        } catch (err) {
+        } catch (err: any) {
             if (err.message === 'Missing email field') sendResponse(res, 400, { error: true, code: '101251', message: err.message });
             else if (err.message === 'Invalid email addresse') sendResponse(res, 400, { error: true, code: '101252', message: err.message });
             else if (err.message === 'Invalid user information') sendResponse(res, 400, { error: true, code: '101253', message: err.message });
@@ -311,7 +314,7 @@ export class AuthController {
 
             // Envoi de la réponse
             sendResponse(res, 200, { error: false, message: 'Double authentification successfully updated' });
-        } catch (err) {
+        } catch (err: any) {
             if (err.message === 'Missing isActive field') sendResponse(res, 400, { error: true, code: '101301', message: err.message });
             else errorHandler(res, err);
         }
@@ -332,7 +335,7 @@ export class AuthController {
 
             // Envoi de la réponse
             sendResponse(res, 200, { error: false, message: 'Successfully logout' });
-        } catch (err) {
+        } catch (err: any) {
             errorHandler(res, err);
         }
     }
